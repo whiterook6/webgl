@@ -155,6 +155,24 @@ export class Vector3 {
   }
 
   /**
+   * Returns mixing of the two vectors by the given amount. 
+   * @param mix How much of the Right vector is in the mix.
+   *  0.0 => 100% left;
+   *  1.0 => 100% right;
+   *  0.5 => 50% left, 50% right
+   */
+  public static lerp(left: Vector3, right: Vector3, mix: number){
+    const vL = left.toArray();
+    const vR = right.toArray();
+
+    return new Vector3(
+      mix * vL[0] + (1.0 - mix) * vR[0],
+      mix * vL[1] + (1.0 - mix) * vR[1],
+      mix * vL[2] + (1.0 - mix) * vR[2],
+    );
+  }
+
+  /**
    * Returns a unit vector pointing along the x axis.
    */
   public static x(){

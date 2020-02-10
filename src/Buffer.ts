@@ -64,6 +64,16 @@ export class Vector3Buffer extends FloatBuffer {
   }
 }
 
+export class Color4Vector extends FloatBuffer {
+  constructor(gl: WebGL2RenderingContext, colors: Array<[number, number, number, number]>){
+    super(gl, colors.flat(1), 4);
+  }
+
+  public getWidth(){
+    return 4;
+  }
+}
+
 export class IndexBuffer extends Buffer {
   private readonly length: number;
 
