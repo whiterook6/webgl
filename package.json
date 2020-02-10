@@ -1,0 +1,9 @@
+{
+  "name": "webglComponents",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "whiterook6 <whiterook6@gmail.com>",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {}
+}
