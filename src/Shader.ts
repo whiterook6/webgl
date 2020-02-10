@@ -159,9 +159,11 @@ export class Shader {
     if (!this.program){
       throw new Error("Cannot get attribute location. Link this shader first");
     }
+
     if (!this.uniformLocations.hasOwnProperty(uniform)){
-      const uniformLocation = this.gl.getUniformLocation(this.program, uniform);
+      this.uniformLocations[uniform] = this.gl.getUniformLocation(this.program, uniform);
     }
+
     return this.uniformLocations[uniform];
   }
 

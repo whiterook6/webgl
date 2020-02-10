@@ -80,6 +80,20 @@ export class Vector3 {
   }
 
   /**
+   * Returns the Euclidean distance from tip to tail of this
+   */
+  public length() {
+    return Math.sqrt(this.dot(this));
+  }
+
+  /**
+   * Alias for subtract
+   */
+  public minus(v: Vector3): Vector3 {
+    return this.subtract(v);
+  }
+
+  /**
    * Returns the negative of this vector: [-x, -y, -z]
    */
   public negative(): Vector3{
@@ -87,10 +101,10 @@ export class Vector3 {
   }
 
   /**
-   * Returns the Euclidean distance from tip to tail of this
+   * Alias for add
    */
-  public length(){
-    return Math.sqrt(this.dot(this));
+  public plus(v: Vector3): Vector3 {
+    return this.add(v);
   }
 
   /**
