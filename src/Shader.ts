@@ -110,6 +110,11 @@ export class Shader {
       throw new Error("Cannot compile shader program");
     }
 
+    this.gl.deleteShader(this.vertexShader);
+    this.vertexShader = undefined;
+    this.gl.deleteShader(this.fragmentShader);
+    this.fragmentShader = undefined;
+
     return this;
   }
 

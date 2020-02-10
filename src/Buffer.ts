@@ -86,7 +86,7 @@ export class IndexBuffer extends Buffer {
     this.length = data.length;
   }
 
-  public bindToAttribute(attributeLocation: number){
+  public bindToAttribute(){
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffer);
   }
 };
