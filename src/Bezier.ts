@@ -13,15 +13,18 @@ export class Bezier {
 
   public get(t: number){
     const [p0, p1, p2, p3] = this.nodes;
+    
     const t2 = t * t;
-    const t3 = t2 * t;
+    const t3 = t * t * t;
+
     const mt = 1 - t;
     const mt2 = mt * mt;
-    const mt3 = mt2 * mt;
-    return (p0 * mt3)
+    const mt3 = mt * mt * mt;
+    
+    return (1 * mt3 * p0)
       + (3 * mt2 * t * p1)
       + (3 * mt * t2 * p2)
-      + (p3 * t3);
+      + (1 * t3 * p3);
   }
 
   public getDerivative(t: number){
@@ -40,9 +43,17 @@ export class Bezier {
     return (6 * mt * (p2 - (2 * p1) + p0))
       + (6 * t * (p3 - (2 * p2) + p1));
   }
+
+  /**
+   * Prints when using string interpolation: `Curve: ${bezier}`
+   */
+  public toString() {
+    const [a, b, c, d] = this.nodes;
+    return `[${a.toFixed(3)}, ${b.toFixed(2)}, ${c.toFixed(2)}, ${d.toFixed(2)}]`;
+  }
 };
 
-export class CubicBezier {
+export class Vector3Bezier {
   private readonly xCurve: Bezier;
   private readonly yCurve: Bezier;
   private readonly zCurve: Bezier;
@@ -77,7 +88,14 @@ export class CubicBezier {
     ]);
   }
 
+  /**
+   * Prints when using string interpolation: `Curve: ${bezier}`
+   */
+  public toString(){
+    return `${this.xCurve}\n${this.yCurve},${this.zCurve}`;
+  }
+  
   public static createFromMotion(initialPosition: Vector3, initialVelocity: Vector3, finalPosition: Vector3, finalVelocity: Vector3){
-    return new CubicBezier(initialPosition, initialPosition.plus(initialVelocity), finalPosition.minus(finalVelocity), finalPosition);
+    return new Vector3Bezier(initialPosition, initialPosition.plus(initialVelocity.scale(1/3)), finalPosition.minus(finalVelocity.scale(1/3)), finalPosition);
   }
 }

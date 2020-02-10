@@ -1,9 +1,18 @@
 {
-  "name": "webglComponents",
+  "name": "webgl-components",
   "version": "1.0.0",
   "main": "index.js",
   "author": "whiterook6 <whiterook6@gmail.com>",
   "license": "UNLICENSED",
   "private": true,
-  "dependencies": {}
+  "scripts": {
+    "build": "webpack"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.5",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  }
 }

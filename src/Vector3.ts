@@ -129,6 +129,14 @@ export class Vector3 {
   }
 
   /**
+   * Prints when using string interpolation: `Vector: ${vector}`
+   */
+  public toString(){
+    const [a, b, c] = this.v;
+    return `[${a.toFixed(3)}, ${b.toFixed(2)}, ${c.toFixed(2)}]`;
+  }
+
+  /**
    * Returns another vector with length 1 "pointing" in the same direction as this one.
    */
   public unit(){
