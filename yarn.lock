@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@types/gl-matrix@^2.4.5":
+  version "2.4.5"
+  resolved "https://registry.yarnpkg.com/@types/gl-matrix/-/gl-matrix-2.4.5.tgz#80630d88fb74ff8897a2a2855a8a700e6ee19d3e"
+  integrity sha512-0L8Mq1+oaIW0oVzGUDbSW+HnTjCNb4CmoIQE5BkoHt/A7x20z0MJ1PnwfH3atty/vbWLGgvJwVu2Mz3SKFiEFw==
+
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.8.5.tgz#51b1c5fe6576a34953bf4b253df9f0d490d9e359"
@@ -1044,6 +1049,11 @@ get-value@^2.0.3, get-value@^2.0.6:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/get-value/-/get-value-2.0.6.tgz#dc15ca1c672387ca76bd37ac0a395ba2042a2c28"
   integrity sha1-3BXKHGcjh8p2vTesCjlbogQqLCg=
+
+gl-matrix@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/gl-matrix/-/gl-matrix-3.1.0.tgz#f5b2de17d8fed95a79e5025b10cded0ab9ccbed0"
+  integrity sha512-526NA+3EA+ztAQi0IZpSWiM0fyQXIp7IbRvfJ4wS/TjjQD0uv0fVybXwwqqSOlq33UckivI0yMDlVtboWm3k7A==
 
 glob-parent@^3.1.0:
   version "3.1.0"
@@ -2601,7 +2611,7 @@ webpack-cli@^3.3.10:
     v8-compile-cache "2.0.3"
     yargs "13.2.4"
 
-webpack-sources@^1.4.0, webpack-sources@^1.4.1:
+webpack-sources@^1.4.0, webpack-sources@^1.4.1, webpack-sources@^1.4.3:
   version "1.4.3"
   resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-1.4.3.tgz#eedd8ec0b928fbf1cbfe994e22d2d890f330a933"
   integrity sha512-lgTS3Xhv1lCOKo7SA5TjKXMjpSM4sBjNV5+q2bqesbSPs5FjGmU6jjtBSkX9b4qW87vDIsCIlUPOEhbZrMdjeQ==
