@@ -13,11 +13,14 @@ abstract class Buffer {
 
     this.buffer = buffer;
   }
+
+  public getBuffer(): WebGLBuffer {
+    return this.buffer;
+  }
 }
 
 export class FloatBuffer extends Buffer {
   private readonly width: number;
-  private readonly length: number;
 
   constructor(gl: WebGL2RenderingContext, data: number[], width: number){
     super(gl);
@@ -26,7 +29,6 @@ export class FloatBuffer extends Buffer {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
 
     this.width = width;
-    this.length = Math.ceil(data.length / width);
   }
 
   public bindToAttribute(attributeLocation: number){
@@ -49,8 +51,12 @@ export class FloatBuffer extends Buffer {
     return this.width;
   }
 
+  public getBytes(){
+    return this.gl.getBufferParameter(this.gl.ARRAY_BUFFER, this.gl.BUFFER_SIZE) as number;
+  }
+
   public getLength(){
-    return this.length;
+    return this.getBytes() / (this.width * 4);
   }
 };
 
@@ -64,7 +70,7 @@ export class Vector3Buffer extends FloatBuffer {
   }
 }
 
-export class Color4Vector extends FloatBuffer {
+export class Color4Buffer extends FloatBuffer {
   constructor(gl: WebGL2RenderingContext, colors: Array<[number, number, number, number]>){
     super(gl, colors.flat(1), 4);
   }
@@ -75,7 +81,6 @@ export class Color4Vector extends FloatBuffer {
 }
 
 export class IndexBuffer extends Buffer {
-  private readonly length: number;
 
   constructor(gl: WebGL2RenderingContext, data: number[]){
     super(gl);
@@ -83,10 +88,17 @@ export class IndexBuffer extends Buffer {
     
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data), gl.STATIC_DRAW);
-    this.length = data.length;
   }
 
   public bindToAttribute(){
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffer);
+  }
+
+  public getBytes(){
+    return this.gl.getBufferParameter(this.gl.ELEMENT_ARRAY_BUFFER, this.gl.BUFFER_SIZE) as number;
+  }
+
+  public getLength(){
+    return this.getBytes() / 2;
   }
 };

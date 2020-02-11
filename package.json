@@ -6,7 +6,8 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "build": "webpack"
+    "build": "webpack --mode production",
+    "watch": "webpack --watch --mode development"
   },
   "dependencies": {
     "gl-matrix": "^3.1.0"

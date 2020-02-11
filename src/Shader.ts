@@ -20,21 +20,19 @@ export class Shader {
    * @throws Error if the code cannot be compiled, if the shader cannot be allocated, or if the shader code isn't WebGL2
    */
   public addVertexSource(source: string){
-    if (!source.startsWith("#version 300 es")){
-      throw new Error("Vertex source code must be version 300 compliant. Start with #version 300 es");
-    }
-
     const vertexShader = this.gl.createShader(this.gl.VERTEX_SHADER);
     if (vertexShader === null){
       throw new Error("Error creating empty Vertex Shader");
     }
 
     this.vertexShader = vertexShader;
-    this.gl.attachShader(this.vertexShader, source);
+    this.gl.shaderSource(this.vertexShader, source);
     this.gl.compileShader(this.vertexShader);
 
     const compileStatus = this.gl.getShaderParameter(this.vertexShader, this.gl.COMPILE_STATUS);
     if (!compileStatus){
+      console.error(this.gl.getShaderInfoLog(this.vertexShader));
+
       this.gl.deleteShader(this.vertexShader);
       this.vertexShader = undefined;
       throw new Error("Cannot compile vertex source");
@@ -50,21 +48,19 @@ export class Shader {
    * @throws Error if the code cannot be compiled, if the shader cannot be allocated, or if the shader code isn't WebGL2
    */
   public addFragmentSource(source: string){
-    if (!source.startsWith("#version 300 es")){
-      throw new Error("Fragment source code must be version 300 compliant. Start with #version 300 es");
-    }
-
     const fragmentShader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
     if (fragmentShader === null){
       throw new Error("Error creating empty Vertex Shader");
     }
 
     this.fragmentShader = fragmentShader;
-    this.gl.attachShader(this.fragmentShader, source);
+    this.gl.shaderSource(this.fragmentShader, source);
     this.gl.compileShader(this.fragmentShader);
 
     const compileStatus = this.gl.getShaderParameter(this.fragmentShader, this.gl.COMPILE_STATUS);
     if (!compileStatus){
+      console.error(this.gl.getShaderInfoLog(this.fragmentShader));
+
       this.gl.deleteShader(this.fragmentShader);
       this.fragmentShader = undefined;
       throw new Error("Cannot compile fragment source");
@@ -110,6 +106,7 @@ export class Shader {
       throw new Error("Cannot compile shader program");
     }
 
+    this.program = program;
     this.gl.deleteShader(this.vertexShader);
     this.vertexShader = undefined;
     this.gl.deleteShader(this.fragmentShader);
@@ -125,7 +122,7 @@ export class Shader {
    */
   public getProgram(): WebGLProgram {
     if (!this.program){
-      throw new Error("Program already linked.");
+      throw new Error("Program not linked.");
     }
 
     return this.program as WebGLProgram;
