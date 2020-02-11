@@ -137,24 +137,38 @@ function initBuffers(gl: WebGL2RenderingContext) {
     -1.0, 1.0, 1.0,
     -1.0, 1.0, -1.0,
   ];
-
   const positionBuffer = new FloatBuffer(gl, positions, 3);
-  console.log(`Position buffer length: ${positionBuffer.getLength()}`);
 
   // Now set up the colors for the faces. We'll use solid colors
-  // for each face.
+  // for each face, so four colors per face (square with four vertices, each with same color)
 
   const faceColors: Array<[number, number, number, number]> = [
     [1.0, 1.0, 1.0, 1.0],    // Front face: white
+    [1.0, 1.0, 1.0, 1.0],    // Front face: white
+    [1.0, 1.0, 1.0, 1.0],    // Front face: white
+    [1.0, 1.0, 1.0, 1.0],    // Front face: white
+    [1.0, 0.0, 0.0, 1.0],    // Back face: red
+    [1.0, 0.0, 0.0, 1.0],    // Back face: red
+    [1.0, 0.0, 0.0, 1.0],    // Back face: red
     [1.0, 0.0, 0.0, 1.0],    // Back face: red
     [0.0, 1.0, 0.0, 1.0],    // Top face: green
+    [0.0, 1.0, 0.0, 1.0],    // Top face: green
+    [0.0, 1.0, 0.0, 1.0],    // Top face: green
+    [0.0, 1.0, 0.0, 1.0],    // Top face: green
+    [0.0, 0.0, 1.0, 1.0],    // Bottom face: blue
+    [0.0, 0.0, 1.0, 1.0],    // Bottom face: blue
+    [0.0, 0.0, 1.0, 1.0],    // Bottom face: blue
     [0.0, 0.0, 1.0, 1.0],    // Bottom face: blue
     [1.0, 1.0, 0.0, 1.0],    // Right face: yellow
+    [1.0, 1.0, 0.0, 1.0],    // Right face: yellow
+    [1.0, 1.0, 0.0, 1.0],    // Right face: yellow
+    [1.0, 1.0, 0.0, 1.0],    // Right face: yellow
+    [1.0, 0.0, 1.0, 1.0],    // Left face: purple
+    [1.0, 0.0, 1.0, 1.0],    // Left face: purple
+    [1.0, 0.0, 1.0, 1.0],    // Left face: purple
     [1.0, 0.0, 1.0, 1.0],    // Left face: purple
   ];
-
   const colorBuffer = new Color4Buffer(gl, faceColors);
-  console.log(`Color buffer length: ${colorBuffer.getLength()}`);
 
   // Build the element array buffer; this specifies the indices
   // into the vertex arrays for each face's vertices.
@@ -166,8 +180,8 @@ function initBuffers(gl: WebGL2RenderingContext) {
     16, 17, 18, 16, 18, 19,   // right
     20, 21, 22, 20, 22, 23,   // left
   ];
+
   const indexBuffer = new IndexBuffer(gl, indices);
-  console.log(`Index buffer length: ${indexBuffer.getLength()}`);
 
   return {
     position: positionBuffer,
@@ -233,12 +247,8 @@ function drawScene(gl: WebGL2RenderingContext, programInfo: any, buffers: any, d
   // buffer into the vertexPosition attribute
   (buffers.position as FloatBuffer).bindToAttribute(programInfo.attribLocations.vertexPosition);
 
-  // Tell WebGL how to pull out the colors from the color buffer
-  // into the vertexColor attribute.
-  (buffers.color as FloatBuffer).bindToAttribute(programInfo.attribLocations.vertexColor);
-  
+  (buffers.color as Color4Buffer).bindToAttribute(programInfo.attribLocations.vertexColor);
 
-  // Tell WebGL which indices to use to index the vertices
   (buffers.indices as IndexBuffer).bindToAttribute();
 
   // Tell WebGL to use our program when drawing
