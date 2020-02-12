@@ -1,10 +1,41 @@
 import {mat4} from "gl-matrix";
 import { Shader } from "./Shader";
 import { FloatBuffer, IndexBuffer, Color4Buffer } from "./Buffer";
-import { Camera, LookAtCamera } from "./Camera";
+import { Camera, LookAtCamera, PerspectiveLens } from "./Camera";
 import { Vector3 } from "./Vector3";
 
-var cubeRotation = 0.0;
+let cameraPos = [0, 0, 10];
+let movingCamera = false;
+const lens = new PerspectiveLens();
+
+
+document.addEventListener("wheel", (event) => {
+  const amount = Math.max(-1, Math.min(1, event.deltaY));
+  cameraPos[2] = Math.max(2, Math.min(15, cameraPos[2] + amount));
+  camera.setPosition(new Vector3(cameraPos as [number, number, number]));
+});
+
+document.addEventListener("mousedown", (event) => {
+  movingCamera = true;
+});
+document.addEventListener("mouseup", (event) => {
+  movingCamera = false;
+});
+document.addEventListener("mousemove", (event) => {
+  const limit = 10;
+  if (movingCamera){
+    cameraPos[0] = Math.max(-limit, Math.min(limit, cameraPos[0] - event.movementX / 100));
+    cameraPos[1] = Math.max(-limit, Math.min(limit, cameraPos[1] + event.movementY / 100));
+    camera.setPosition(new Vector3(cameraPos as [number, number, number]));
+    camera.setTarget(new Vector3(0, 0, 0));
+  }
+});
+
+
+const camera = new LookAtCamera();
+camera.setPosition(new Vector3(cameraPos as [number, number, number]));
+camera.setTarget(new Vector3(0, 0, 0));
+camera.setUp(new Vector3(0, 1, 0));
 
 main();
 
@@ -19,6 +50,7 @@ function main() {
   canvas.setAttribute("width", `${window.innerWidth}px`);
   canvas.setAttribute("height", `${window.innerHeight}px`);
   const gl = canvas.getContext('webgl2') as WebGL2RenderingContext;
+  lens.aspect = window.innerWidth / window.innerHeight;
 
   // If we don't have a GL context, give up now
 
@@ -268,30 +300,13 @@ function drawScene(gl: WebGL2RenderingContext, programInfo: any, buffers: any, d
   // ratio that matches the display size of the canvas
   // and we only want to see objects between 0.1 units
   // and 100 units away from the camera.
+  const projectionMatrix = lens.getProjection();
 
-  const fieldOfView = 45 * Math.PI / 180;   // in radians
-  const aspect = (gl.canvas as HTMLCanvasElement).clientWidth / (gl.canvas as HTMLCanvasElement).clientHeight;
-  const zNear = 0.1;
-  const zFar = 100.0;
-  const projectionMatrix = mat4.create();
+  const modelMatrix = mat4.create();
 
-  // note: glmatrix.js always has the first argument
-  // as the destination to receive the result.
-  mat4.perspective(projectionMatrix,
-    fieldOfView,
-    aspect,
-    zNear,
-    zFar);
-
-  const modelMatrix = mat4.fromTranslation(mat4.create(), [0, 0, 0]);
-
-  const camera = new LookAtCamera();
-  camera.setPosition(new Vector3(0, 0, -10));
-  camera.setTarget(new Vector3(0, 0, 0));
-  camera.setUp(new Vector3(0, 1, 0));
   const viewMatrix = camera.getViewMatrix();
   const modelViewMatrix = mat4.create();
-  mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
+  mat4.multiply(modelViewMatrix, modelMatrix, viewMatrix);
 
   
   const normalMatrix = mat4.create();
@@ -332,10 +347,6 @@ function drawScene(gl: WebGL2RenderingContext, programInfo: any, buffers: any, d
     const offset = 0;
     gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
   }
-
-  // Update the rotation for the next draw
-
-  cubeRotation += deltaTime;
 }
 
 //
