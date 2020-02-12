@@ -12,9 +12,9 @@ export class LookAtCamera extends Camera {
 
   constructor(){
     super();
-    this.position = new Vector3(0, -10, 0);
-    this.forward = new Vector3(0, 1, 0);
-    this.up = new Vector3(0, 0, 1);
+    this.position = new Vector3(0, 0, 0);
+    this.forward = new Vector3(0, 0, 0);
+    this.up = new Vector3(0, 0, 0);
   }
 
   public setPosition(position: Vector3){
@@ -43,6 +43,10 @@ export class LookAtCamera extends Camera {
     mat4.lookAt(lookAt, position.toArray(), [0, 0, -6], up.toArray());
     return lookAt;
   }
+
+  public toString(){
+    return `Pos: ${JSON.stringify(this.position)}  Fwd: ${JSON.stringify(this.forward)} Up: ${JSON.stringify(this.up)}`;
+  }
 }
 
 export abstract class Lens {
@@ -52,8 +56,8 @@ export abstract class Lens {
 export class PerspectiveLens extends Lens {
   public fieldOfView: number = 45 * Math.PI / 180;
   public aspect: number = 1;
-  public zNear: number = 0.00001;
-  public zFar: number = 1000.0;
+  public zNear: number = 0.1;
+  public zFar: number = 100.0;
 
   public getProjection(){
     const matrix = mat4.create();
