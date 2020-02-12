@@ -3,6 +3,7 @@ import { Shader } from "./Shader";
 import { FloatBuffer, IndexBuffer, Color4Buffer } from "./Buffer";
 import { Camera, LookAtCamera, PerspectiveLens } from "./Camera";
 import { Vector3 } from "./Vector3";
+import { Color } from "./Color";
 
 let cameraPos = [0, 0, 10];
 let movingCamera = false;
@@ -13,6 +14,7 @@ document.addEventListener("wheel", (event) => {
   const amount = Math.max(-1, Math.min(1, event.deltaY));
   cameraPos[2] = Math.max(2, Math.min(15, cameraPos[2] + amount));
   camera.setPosition(new Vector3(cameraPos as [number, number, number]));
+  camera.setTarget(new Vector3(0, 0, 0));
 });
 
 document.addEventListener("mousedown", (event) => {
@@ -30,7 +32,6 @@ document.addEventListener("mousemove", (event) => {
     camera.setTarget(new Vector3(0, 0, 0));
   }
 });
-
 
 const camera = new LookAtCamera();
 camera.setPosition(new Vector3(cameraPos as [number, number, number]));
@@ -61,49 +62,11 @@ function main() {
 
   // Vertex shader program
 
-  const vsSource = `
-    attribute vec4 aVertexPosition;
-    attribute vec4 aVertexColor;
-    attribute vec3 aVertexNormal;
-
-    uniform mat4 uNormalMatrix;
-    uniform mat4 uModelViewMatrix;
-    uniform mat4 uProjectionMatrix;
-
-    varying lowp vec4 vColor;
-    varying highp vec3 vLighting;
-
-    void main(void) {
-      gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-
-      // Apply lighting effect
-
-      highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
-      highp vec3 directionalLightColor = vec3(1, 1, 1);
-      highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
-
-      highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
-
-      highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
-      vLighting = ambientLight + (directionalLightColor * directional);
-      vColor = aVertexColor;
-    }
-  `;
-
-  // Fragment shader program
-
-  const fsSource = `
-    varying lowp vec4 vColor;
-    varying highp vec3 vLighting;
-
-    void main(void) {
-      gl_FragColor = vec4(vColor.rgb * vLighting, vColor.a);
-    }
-  `;
+  
 
   // Initialize a shader program; this is where all the lighting
   // for the vertices and so forth is established.
-  const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+  const shaderProgram = initShaderProgram(gl);
 
   // Collect all the info needed to use the shader program.
   // Look up which attributes our shader program is using
@@ -281,6 +244,48 @@ function initBuffers(gl: WebGL2RenderingContext) {
   };
 }
 
+function initBackground(gl: WebGL2RenderingContext){
+  const positionBuffer = new FloatBuffer(gl, [
+    -1.0, -1.0,
+    1.0, -1.0,
+    1.0, 1.0,
+    -1.0, 1.0,
+  ], 2);
+  const colorBuffer = new Color4Buffer(gl, [
+    Color.fromHex("#0182B2"),
+    Color.fromHex("#EC4980"),
+    Color.fromHex("#FFDA8A"),
+    Color.fromHex("#F3F3F3")
+  ]);
+  const backgroundShader = new Shader(gl)
+    .addVertexSource(`
+  attribute vec4 aVertexPosition;
+  attribute vec4 aVertexColor;
+
+  varying lowp vec4 vColor;
+
+  void main(void) {
+    gl_Position = aVertexPosition;
+    vColor = aVertexColor;
+  }
+    `)
+    .addFragmentSource(`
+  varying lowp vec4 vColor;
+
+  void main(void) {
+    gl_FragColor = vec4(vColor.rgb, 1);
+  }
+    `)
+    .link()
+    .getProgram();
+  
+  return {
+    backgroundShader,
+    positionBuffer,
+    colorBuffer
+  };
+}
+
 //
 // Draw the scene.
 //
@@ -352,7 +357,46 @@ function drawScene(gl: WebGL2RenderingContext, programInfo: any, buffers: any, d
 //
 // Initialize a shader program, so WebGL knows how to draw our data
 //
-function initShaderProgram(gl: WebGL2RenderingContext, vsSource: string, fsSource: string) {
+function initShaderProgram(gl: WebGL2RenderingContext) {
+  const vsSource = `
+    attribute vec4 aVertexPosition;
+    attribute vec4 aVertexColor;
+    attribute vec3 aVertexNormal;
+
+    uniform mat4 uNormalMatrix;
+    uniform mat4 uModelViewMatrix;
+    uniform mat4 uProjectionMatrix;
+
+    varying lowp vec4 vColor;
+    varying highp vec3 vLighting;
+
+    void main(void) {
+      gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+
+      // Apply lighting effect
+
+      highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
+      highp vec3 directionalLightColor = vec3(1, 1, 1);
+      highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
+
+      highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
+
+      highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
+      vLighting = ambientLight + (directionalLightColor * directional);
+      vColor = aVertexColor;
+    }
+  `;
+
+  // Fragment shader program
+
+  const fsSource = `
+    varying lowp vec4 vColor;
+    varying highp vec3 vLighting;
+
+    void main(void) {
+      gl_FragColor = vec4(vColor.rgb * vLighting, vColor.a);
+    }
+  `;
   return new Shader(gl).addVertexSource(vsSource).addFragmentSource(fsSource).link().getProgram();
 }
 
