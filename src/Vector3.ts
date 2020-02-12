@@ -96,8 +96,15 @@ export class Vector3 {
   /**
    * Returns the negative of this vector: [-x, -y, -z]
    */
-  public negative(): Vector3{
+  public negative(): Vector3 {
     return new Vector3(-this.v[0], -this.v[1], -this.v[2]);
+  }
+
+  /**
+   * Alias for Unit
+   */
+  public normalize(): Vector3 {
+    return this.unit();
   }
 
   /**

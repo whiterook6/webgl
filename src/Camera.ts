@@ -1,12 +1,17 @@
 import { Vector3 } from "./Vector3";
 import { mat4 } from "gl-matrix";
 
-export class Camera {
+export abstract class Camera {
+  public abstract getViewMatrix(): mat4;
+}
+
+export class LookAtCamera extends Camera {
   private position: Vector3;
   private forward: Vector3;
   private up: Vector3;
 
   constructor(){
+    super();
     this.position = new Vector3(0, -10, 0);
     this.forward = new Vector3(0, 1, 0);
     this.up = new Vector3(0, 0, 1);
@@ -17,7 +22,7 @@ export class Camera {
   }
 
   public setForward(forward: Vector3){
-    this.forward = forward;
+    this.forward = forward.normalize();
   }
 
   public setTarget(target: Vector3){
@@ -25,11 +30,18 @@ export class Camera {
   }
 
   public setUp(up: Vector3){
-    this.up = up;
+    this.up = up.normalize();
   }
 
   public getViewMatrix(){
-    throw new Error("TODO: complete this function")
+    const position = this.position;
+    const forward = this.forward.normalize();
+    const right = forward.cross(this.up).normalize();
+    const up = right.cross(forward).normalize();
+
+    const lookAt = mat4.create();
+    mat4.lookAt(lookAt, position.toArray(), [0, 0, -6], up.toArray());
+    return lookAt;
   }
 }
 
