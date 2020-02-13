@@ -1,9 +1,6 @@
-import {mat4} from "gl-matrix";
-import { Shader } from "./Shader";
-import { FloatBuffer, IndexBuffer, Color4Buffer } from "./Buffer";
-import { LookAtCamera, PerspectiveLens } from "./Camera";
-import { Vector3 } from "./Vector3";
+import { Color4Buffer, FloatBuffer, IndexBuffer } from "./Buffer";
 import { Color } from "./Color";
+import { Shader } from "./Shader";
 
 main();
 
@@ -43,12 +40,6 @@ function initBackground(gl: WebGL2RenderingContext){
     -1.0, 1.0,
     1.0, 1.0,
   ], 2);
-  const colorBuffer = new Color4Buffer(gl, [
-    Color.fromHex("#0182B2"),
-    Color.fromHex("#EC4980"),
-    Color.fromHex("#FFDA8A"),
-    Color.fromHex("#F3F3F3")
-  ]);
 
   const indexBuffer = new IndexBuffer(gl, [
     0, 1, 2, 3
@@ -56,31 +47,50 @@ function initBackground(gl: WebGL2RenderingContext){
 
   const backgroundShader = new Shader(gl)
     .addVertexSource(`
-  attribute vec4 aVertexPosition;
-  attribute vec4 aVertexColor;
+  precision lowp float;
 
-  varying lowp vec4 vColor;
+  uniform vec4 color1;
+  uniform vec4 color2;
+  uniform vec4 color3;
+  uniform vec4 color4;
+
+  attribute vec4 aVertexPosition;
+  
+  varying vec2 uv;
 
   void main(void) {
     gl_Position = aVertexPosition;
-    vColor = aVertexColor;
+    uv = aVertexPosition.xy * 0.5 + vec2(0.5, 0.5);
   }
     `)
     .addFragmentSource(`
-  varying lowp vec4 vColor;
+  precision lowp float;
+
+  uniform vec4 color1;
+  uniform vec4 color2;
+  uniform vec4 color3;
+  uniform vec4 color4;
+
+  varying vec2 uv;
 
   void main(void) {
-    gl_FragColor = vec4(vColor.rgb, 1);
+    gl_FragColor = 
+      color1 * (1.0 - uv.x) * (1.0 - uv.y)
+      + color2 * uv.x * (1.0 - uv.y)
+      + color3 * (1.0 - uv.x) * uv.y
+      + color4 * uv.x * uv.y;
   }
     `)
     .link();
   
   return {
     vertexPositionAttribute: backgroundShader.getAttributeLocation("aVertexPosition"),
-    vertexColorAttribute: backgroundShader.getAttributeLocation("aVertexColor"),
+    color1Uniform: backgroundShader.getUniformLocation("color1"),
+    color2Uniform: backgroundShader.getUniformLocation("color2"),
+    color3Uniform: backgroundShader.getUniformLocation("color3"),
+    color4Uniform: backgroundShader.getUniformLocation("color4"),
     program: backgroundShader.getProgram(),
     positionBuffer,
-    colorBuffer,
     indexBuffer
   };
 }
@@ -95,36 +105,28 @@ function drawScene(gl: WebGL2RenderingContext, background: any) {
   gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 
   // Clear the canvas before we start drawing on it.
-
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-
-  // Tell WebGL how to pull out the positions from the position
-  // buffer into the vertexPosition attribute
   const {
     vertexPositionAttribute,
-    vertexColorAttribute,
+    color1Uniform,
+    color2Uniform,
+    color3Uniform,
+    color4Uniform,
     program,
     positionBuffer,
-    colorBuffer,
     indexBuffer,
   } = background;
 
   (positionBuffer as FloatBuffer).bindToAttribute(vertexPositionAttribute);
-  (colorBuffer as FloatBuffer).bindToAttribute(vertexColorAttribute);
   (indexBuffer as IndexBuffer).bindToAttribute();
 
   // Tell WebGL to use our program when drawing
 
   gl.useProgram(program);
-
-
-  {
-    const vertexCount = 4;
-    const type = gl.UNSIGNED_SHORT;
-    const offset = 0;
-    gl.drawElements(gl.TRIANGLE_STRIP, vertexCount, type, offset);
-  }
+  gl.uniform4fv(color1Uniform, Color.fromHex("#0182B2"));
+  gl.uniform4fv(color2Uniform, Color.fromHex("#EC4980"));
+  gl.uniform4fv(color3Uniform, Color.fromHex("#FFDA8A"));
+  gl.uniform4fv(color4Uniform, Color.fromHex("#50377E"));
+  gl.drawElements(gl.TRIANGLE_STRIP, 4, gl.UNSIGNED_SHORT, 0);
 }
-
-
