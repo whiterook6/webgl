@@ -20,7 +20,7 @@ function main() {
   const height = window.innerHeight;
   canvas.setAttribute("width", `${width}px`);
   canvas.setAttribute("height", `${height}px`);
-  const gl = canvas.getContext('webgl2') as WebGL2RenderingContext;
+  const gl = canvas.getContext('webgl2', { antialias: false }) as WebGL2RenderingContext;
 
   // If we don't have a GL context, give up now
   if (!gl) {
@@ -40,8 +40,6 @@ function main() {
   // Draw the scene repeatedly
   function render() {
     drawScene(gl, background, grids, camera, lens);
-
-    requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
 }
@@ -114,20 +112,20 @@ function initGrids(gl: WebGL2RenderingContext){
 
   let i: number;
   for (i = -5; i <= 5; i++){
-    gridPositions.push(new Vector3(i, -5, 0));
-    gridPositions.push(new Vector3(i, 5, 0));
-    gridPositions.push(new Vector3(-5, -i, 0));
-    gridPositions.push(new Vector3(5, -i, 0));
+    gridPositions.push(new Vector3(i, -5, -5));
+    gridPositions.push(new Vector3(i, 5, -5));
+    gridPositions.push(new Vector3(-5, -i, -5));
+    gridPositions.push(new Vector3(5, -i, -5));
 
-    gridPositions.push(new Vector3(0, i, 5));
-    gridPositions.push(new Vector3(0, i, -5));
-    gridPositions.push(new Vector3(0, 5, i));
-    gridPositions.push(new Vector3(0, -5, i));
+    gridPositions.push(new Vector3(-5, i, 5));
+    gridPositions.push(new Vector3(-5, i, -5));
+    gridPositions.push(new Vector3(-5, 5, i));
+    gridPositions.push(new Vector3(-5, -5, i));
 
-    gridPositions.push(new Vector3(5, 0, i));
-    gridPositions.push(new Vector3(-5, 0, i));
-    gridPositions.push(new Vector3(i, 0, 5));
-    gridPositions.push(new Vector3(i, 0, -5));
+    gridPositions.push(new Vector3(5, -5, i));
+    gridPositions.push(new Vector3(-5, -5, i));
+    gridPositions.push(new Vector3(i, -5, 5));
+    gridPositions.push(new Vector3(i, -5, -5));
   }
 
   for (i = 0; i < gridPositions.length; i++){
