@@ -110,30 +110,29 @@ function initBackground(gl: WebGL2RenderingContext){
 
 function initGrids(gl: WebGL2RenderingContext){
   const gridPositions: Vector3[] = [];
-  const indexPositions: number[] = [];
+  let indexPositions: number[] = [];
 
   let i: number;
   for (i = -5; i <= 5; i++){
     gridPositions.push(new Vector3(i, -5, 0));
     gridPositions.push(new Vector3(i, 5, 0));
+    gridPositions.push(new Vector3(-5, -i, 0));
+    gridPositions.push(new Vector3(5, -i, 0));
+
+    gridPositions.push(new Vector3(0, i, 5));
+    gridPositions.push(new Vector3(0, i, -5));
+    gridPositions.push(new Vector3(0, 5, i));
+    gridPositions.push(new Vector3(0, -5, i));
+
+    gridPositions.push(new Vector3(5, 0, i));
+    gridPositions.push(new Vector3(-5, 0, i));
+    gridPositions.push(new Vector3(i, 0, 5));
+    gridPositions.push(new Vector3(i, 0, -5));
   }
 
-  for (i = -4; i < 5; i++){
-    gridPositions.push(new Vector3(-5, i, 0));
-    gridPositions.push(new Vector3(5, i, 0));
-  }
-
-  for (i = 0; i < 24; i++){
+  for (i = 0; i < gridPositions.length; i++){
     indexPositions.push(i);
   }
-  indexPositions.push(0);
-  indexPositions.push(23);
-  for (i = 24; i < 40; i++) {
-    indexPositions.push(i);
-  }
-
-  console.log(gridPositions);
-  console.log(indexPositions);
 
   const gridShader = new Shader(gl)
     .addVertexSource(`
@@ -146,7 +145,7 @@ uniform mat4 projectionMatrix;
 attribute vec4 vertexPosition;
 
 void main(void) {
-  gl_Position = projectionMatrix * viewMatrix * modelMatrix * vertexPosition;
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vertexPosition;
 }
     `)
     .addFragmentSource(`
@@ -178,11 +177,11 @@ void main(void) {
 function drawScene(gl: WebGL2RenderingContext, background: any, grids: any, camera: Camera, lens: Lens) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
-  gl.enable(gl.DEPTH_TEST);           // Enable depth testing
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.disable(gl.DEPTH_TEST);           // Enable depth testing
   gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 
-  // Clear the canvas before we start drawing on it.
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  // // Clear the canvas before we start drawing on it.
 
   {
     const {
@@ -230,7 +229,7 @@ function drawScene(gl: WebGL2RenderingContext, background: any, grids: any, came
 
     gl.useProgram(program);
     gl.uniform4fv(colorUniform, Color.fromHex("#efebeb"));
-    (positionBuffer as FloatBuffer).bindToAttribute(positionAttribute);
+    (positionBuffer as Vector3Buffer).bindToAttribute(positionAttribute);
     (indexBuffer as IndexBuffer).bindToAttribute();
     gl.uniformMatrix4fv(
       modelMatrixUniform,
