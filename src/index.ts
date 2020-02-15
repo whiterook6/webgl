@@ -1,9 +1,9 @@
-import { Color4Buffer, FloatBuffer, IndexBuffer, Vector3Buffer } from "./Buffer";
+import { mat4 } from "gl-matrix";
+import { FloatBuffer, IndexBuffer, Vector3Buffer } from "./Buffer";
+import { Camera, Lens, LookAtCamera, PerspectiveLens } from "./Camera";
 import { Color } from "./Color";
 import { Shader } from "./Shader";
 import { Vector3 } from "./Vector3";
-import { LookAtCamera, Camera, PerspectiveLens, Lens } from "./Camera";
-import { mat4 } from "gl-matrix";
 
 main();
 
