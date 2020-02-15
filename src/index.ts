@@ -22,12 +22,35 @@ function main() {
     return;
   }
 
+  let mustResize: boolean = false;
+  let newWidth: number;
+  let newHeight: number;
+  window.addEventListener("resize", () => {
+    newWidth = window.innerWidth;
+    newHeight = window.innerHeight;
+
+    const oldWidth = parseInt(canvas.getAttribute("width") || `${newWidth}`, 10);
+    const oldHeight = parseInt(canvas.getAttribute("height") || `${newHeight}`, 10);
+
+    if (oldWidth !== newWidth || oldHeight !== newHeight){
+      mustResize = true;
+    }
+  });
+
+
+
   const background = initBackground(gl);
 
   // Draw the scene repeatedly
   function render() {
+    if (mustResize){
+      mustResize = false;
+      canvas.setAttribute("width", `${newWidth}px`);
+      canvas.setAttribute("height", `${newHeight}px`);
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+      console.log("Resized");
+    }
     drawScene(gl, background);
-
     requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
