@@ -3,6 +3,7 @@ import { Camera, Lens, LookAtCamera, PerspectiveLens } from "./cameras";
 import { FullscreenQuad } from "./objects/FullscreenQuad";
 import { ThreeDGrid } from "./objects/ThreeDGrid";
 import { Vector3 } from "./Vector3";
+import { ITimestamp, AnimationLoop } from "./animation";
 
 main();
 
@@ -51,12 +52,7 @@ function main() {
   const lens = new PerspectiveLens();
   lens.aspect = width / height;
 
-  // Draw the scene repeatedly
-  const start = performance.now();
-  let previous = start;
-  let age = 0;
-
-  function render() {
+  function render(timestamp: ITimestamp) {
     if (mustResize){
       mustResize = false;
       canvas.setAttribute("width", `${newWidth}px`);
@@ -64,15 +60,16 @@ function main() {
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
       lens.aspect = newWidth / newHeight;
     }
-    const now = performance.now();
-    
-    age = now - start;
-    const deltaT = now - previous;
-    previous = now;
-    drawScene(gl, background, grids, camera, lens, now, age, deltaT);
-    requestAnimationFrame(render);
+
+    drawScene(gl, background, grids, camera, lens, timestamp);
   }
-  requestAnimationFrame(render);
+
+  const looper = new AnimationLoop(render);
+  window.addEventListener("keyup", (event: KeyboardEvent) => {
+    if (event.keyCode == 32){ // spacebar
+      looper.toggle();
+    }
+  })
 }
 
 //
@@ -84,9 +81,7 @@ function drawScene(
   grids: ThreeDGrid,
   camera: LookAtCamera,
   lens: Lens,
-  now: number,
-  age: number,
-  deltaT: number
+  timestamp: ITimestamp
 ){
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
@@ -102,7 +97,7 @@ function drawScene(
 
   const modelMatrix = mat4.create();
   
-  const angle = (age / 100) * (Math.PI / 180);
+  const angle = (timestamp.age / 100) * (Math.PI / 180);
   const distance = 10;
   camera.setPosition(new Vector3([Math.sin(angle) * distance, 3, Math.cos(angle) * distance]));
   camera.setTarget(new Vector3([0, 0, 0]));
