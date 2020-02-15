@@ -26,7 +26,7 @@ export class LookAtCamera extends Camera {
   }
 
   public setTarget(target: Vector3){
-    this.forward = target.minus(this.position).unit();
+    this.forward = target.minus(this.position).normalize();
   }
 
   public setUp(up: Vector3){
@@ -40,7 +40,7 @@ export class LookAtCamera extends Camera {
     const up = right.cross(forward).normalize();
 
     const lookAt = mat4.create();
-    mat4.lookAt(lookAt, position.toArray(), [0, 0, -6], up.toArray());
+    mat4.lookAt(lookAt, position.toArray(), forward.toArray(), up.toArray());
     return lookAt;
   }
 
