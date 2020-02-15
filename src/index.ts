@@ -1,11 +1,8 @@
 import { mat4 } from "gl-matrix";
-import { IndexBuffer, Vector3Buffer } from "./Buffer";
-import { Camera, Lens, LookAtCamera, PerspectiveLens } from "./Camera";
-import { Color } from "./Color";
+import { Camera, Lens, LookAtCamera, PerspectiveLens } from "./cameras";
 import { FullscreenQuad } from "./objects/FullscreenQuad";
-import { Shader } from "./Shader";
-import { Vector3 } from "./Vector3";
 import { ThreeDGrid } from "./objects/ThreeDGrid";
+import { Vector3 } from "./Vector3";
 
 main();
 
@@ -55,6 +52,10 @@ function main() {
   lens.aspect = width / height;
 
   // Draw the scene repeatedly
+  const start = performance.now();
+  let previous = start;
+  let age = 0;
+
   function render() {
     if (mustResize){
       mustResize = false;
@@ -63,7 +64,12 @@ function main() {
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
       lens.aspect = newWidth / newHeight;
     }
-    drawScene(gl, background, grids, camera, lens);
+    const now = performance.now();
+    
+    age = now - start;
+    const deltaT = now - previous;
+    previous = now;
+    drawScene(gl, background, grids, camera, lens, now, age, deltaT);
     requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
@@ -72,7 +78,16 @@ function main() {
 //
 // Draw the scene.
 //
-function drawScene(gl: WebGL2RenderingContext, background: FullscreenQuad, grids: ThreeDGrid, camera: Camera, lens: Lens) {
+function drawScene(
+  gl: WebGL2RenderingContext,
+  background: FullscreenQuad,
+  grids: ThreeDGrid,
+  camera: LookAtCamera,
+  lens: Lens,
+  now: number,
+  age: number,
+  deltaT: number
+){
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -86,6 +101,11 @@ function drawScene(gl: WebGL2RenderingContext, background: FullscreenQuad, grids
   gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 
   const modelMatrix = mat4.create();
+  
+  const angle = (age / 100) * (Math.PI / 180);
+  const distance = 10;
+  camera.setPosition(new Vector3([Math.sin(angle) * distance, 3, Math.cos(angle) * distance]));
+  camera.setTarget(new Vector3([0, 0, 0]));
   const viewMatrix = camera.getViewMatrix();
   const projectionMatrix = lens.getProjection();
 

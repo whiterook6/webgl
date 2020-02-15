@@ -1,9 +1,6 @@
-import { Vector3 } from "./Vector3";
+import { Vector3 } from "../Vector3";
 import { mat4 } from "gl-matrix";
-
-export abstract class Camera {
-  public abstract getViewMatrix(): mat4;
-}
+import { Camera } from "./Camera";
 
 export class LookAtCamera extends Camera {
   private position: Vector3;
@@ -47,22 +44,4 @@ export class LookAtCamera extends Camera {
   public toString(){
     return `Pos: ${JSON.stringify(this.position)}  Fwd: ${JSON.stringify(this.forward)} Up: ${JSON.stringify(this.up)}`;
   }
-}
-
-export abstract class Lens {
-  public abstract getProjection(): mat4;
-}
-
-export class PerspectiveLens extends Lens {
-  public fieldOfView: number = 45 * Math.PI / 180;
-  public aspect: number = 1;
-  public zNear: number = 0.1;
-  public zFar: number = 100.0;
-
-  public getProjection(){
-    const matrix = mat4.create();
-    mat4.perspective(matrix, this.fieldOfView, this.aspect, this.zNear, this.zFar);
-
-    return matrix;
-  }
-}
+};

@@ -1,4 +1,4 @@
-import { FloatBuffer, IndexBuffer } from "../Buffer";
+import { FloatBuffer, IndexBuffer } from "../buffers";
 import { Shader } from "../Shader";
 import { Color4, Color } from "../Color";
 
