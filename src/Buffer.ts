@@ -1,4 +1,5 @@
 import { Vector3 } from "./Vector3";
+import { Color4 } from "./Color";
 
 abstract class Buffer {
   protected readonly gl: WebGL2RenderingContext;
@@ -71,7 +72,7 @@ export class Vector3Buffer extends FloatBuffer {
 }
 
 export class Color4Buffer extends FloatBuffer {
-  constructor(gl: WebGL2RenderingContext, colors: Array<[number, number, number, number]>){
+  constructor(gl: WebGL2RenderingContext, colors: Array<Color4>){
     super(gl, colors.flat(1), 4);
   }
 

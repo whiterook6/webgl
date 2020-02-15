@@ -60,8 +60,7 @@ void main(void) {
     + brColor * uv.x * (1.0 - uv.y);
 }`).link();
 
-    this.vertexPositionAttribute = shader.getAttributeLocation("vertexPosition")
-
+    this.vertexPositionAttribute = shader.getAttributeLocation("vertexPosition");
     this.tlColorUniform = shader.getUniformLocation("tlColor") as WebGLUniformLocation;
     this.trColorUniform = shader.getUniformLocation("trColor") as WebGLUniformLocation;
     this.blColorUniform = shader.getUniformLocation("blColor") as WebGLUniformLocation;
