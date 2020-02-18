@@ -11,7 +11,7 @@ export class LookAtCamera extends Camera {
     super();
     this.position = new Vector3(0, 0, 0);
     this.forward = new Vector3(0, 0, 0);
-    this.up = new Vector3(0, 0, 0);
+    this.up = new Vector3(0, 1, 0);
   }
 
   public setPosition(position: Vector3){
