@@ -4,7 +4,7 @@ import { FullscreenQuad } from "./objects/FullscreenQuad";
 import { ThreeDGrid } from "./objects/ThreeDGrid";
 import { Vector3 } from "./Vector3";
 import { ITimestamp, AnimationLoop } from "./animation";
-import { Cube } from "./objects/Cube";
+import { Sphere } from "./objects/Sphere";
 
 main();
 
@@ -47,7 +47,7 @@ function main() {
   const background = new FullscreenQuad(gl);
   const grids = new ThreeDGrid(gl);
   const camera = new LookAtCamera();
-  const cube = new Cube(gl);
+  const sphere = new Sphere(gl);
   camera.setPosition(new Vector3(10, 11, 12));
   camera.setTarget(new Vector3(0, 0, 0));
   camera.setUp(new Vector3(0, 1, 0))
@@ -85,7 +85,7 @@ function main() {
     const projectionMatrix = lens.getProjection();
   
     grids.render(modelMatrix, viewMatrix, projectionMatrix);
-    cube.render(modelMatrix, viewMatrix, projectionMatrix)
+    sphere.render(modelMatrix, viewMatrix, projectionMatrix)
   }
 
   const looper = new AnimationLoop(render);
