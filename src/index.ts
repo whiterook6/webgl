@@ -2,8 +2,8 @@ import { mat4 } from "gl-matrix";
 import { AnimationLoop, ITimestamp } from "./animation";
 import { PerspectiveLens } from "./cameras";
 import { OrbitCamera } from "./cameras/OrbitCamera";
-import { Cube } from "./objects/Cube";
 import { FullscreenQuad } from "./objects/FullscreenQuad";
+import { Sphere } from "./objects/Sphere";
 import { ThreeDGrid } from "./objects/ThreeDGrid";
 import { Vector3 } from "./Vector3";
 
@@ -48,7 +48,7 @@ function main() {
   const background = new FullscreenQuad(gl);
   const grids = new ThreeDGrid(gl);
   const camera = new OrbitCamera();
-  const cube = new Cube(gl);
+  const sphere = new Sphere(gl);
   camera.setDistance(10);
   camera.setTheta(Math.PI / 12);
   camera.setTarget(new Vector3(0, 0, 0));
@@ -85,7 +85,10 @@ function main() {
     const projectionMatrix = lens.getProjection();
   
     grids.render(modelMatrix, viewMatrix, projectionMatrix);
-    cube.render(modelMatrix, viewMatrix, projectionMatrix)
+    sphere.render(modelMatrix, viewMatrix, projectionMatrix);
+
+    mat4.translate(modelMatrix, modelMatrix, [2, 1, 1]);
+    sphere.render(modelMatrix, viewMatrix, projectionMatrix);
   }
 
   const looper = new AnimationLoop(render);
