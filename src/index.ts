@@ -85,7 +85,10 @@ function main() {
     const projectionMatrix = lens.getProjection();
   
     grids.render(modelMatrix, viewMatrix, projectionMatrix);
-    sphere.render(modelMatrix, viewMatrix, projectionMatrix)
+    sphere.render(modelMatrix, viewMatrix, projectionMatrix);
+
+    mat4.translate(modelMatrix, modelMatrix, [2, 1, 1]);
+    sphere.render(modelMatrix, viewMatrix, projectionMatrix);
   }
 
   const looper = new AnimationLoop(render);
