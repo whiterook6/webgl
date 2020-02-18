@@ -205,7 +205,7 @@ void main(void) {
     this.indexBuffer.bindToAttribute();
 
     const modelViewMatrix = mat4.create();
-    mat4.multiply(modelViewMatrix, modelMatrix, viewMatrix);
+    mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
 
     const normalMatrix = mat4.create();
     mat4.invert(normalMatrix, modelViewMatrix);
