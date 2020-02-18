@@ -1,10 +1,11 @@
 import { mat4 } from "gl-matrix";
-import { Camera, Lens, LookAtCamera, PerspectiveLens } from "./cameras";
+import { AnimationLoop, ITimestamp } from "./animation";
+import { PerspectiveLens } from "./cameras";
+import { OrbitCamera } from "./cameras/OrbitCamera";
+import { Cube } from "./objects/Cube";
 import { FullscreenQuad } from "./objects/FullscreenQuad";
 import { ThreeDGrid } from "./objects/ThreeDGrid";
 import { Vector3 } from "./Vector3";
-import { ITimestamp, AnimationLoop } from "./animation";
-import { Cube } from "./objects/Cube";
 
 main();
 
@@ -46,9 +47,10 @@ function main() {
 
   const background = new FullscreenQuad(gl);
   const grids = new ThreeDGrid(gl);
-  const camera = new LookAtCamera();
+  const camera = new OrbitCamera();
   const cube = new Cube(gl);
-  camera.setPosition(new Vector3(10, 11, 12));
+  camera.setDistance(10);
+  camera.setTheta(Math.PI / 12);
   camera.setTarget(new Vector3(0, 0, 0));
   camera.setUp(new Vector3(0, 1, 0))
   const lens = new PerspectiveLens();
@@ -78,9 +80,7 @@ function main() {
     const modelMatrix = mat4.create();
     
     const angle = (timestamp.age / 100) * (Math.PI / 180);
-    const distance = 10;
-    camera.setPosition(new Vector3([Math.sin(angle) * distance, 3, Math.cos(angle) * distance]));
-    camera.setTarget(new Vector3([0, 0, 0]));
+    camera.setPhi(angle);
     const viewMatrix = camera.getViewMatrix();
     const projectionMatrix = lens.getProjection();
   
