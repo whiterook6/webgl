@@ -20,8 +20,8 @@ function main() {
     return;
   }
 
-  const width = window.innerWidth;
-  const height = window.innerHeight;
+  let width = window.innerWidth;
+  let height = window.innerHeight;
   canvas.setAttribute("width", `${width}px`);
   canvas.setAttribute("height", `${height}px`);
   const gl = canvas.getContext('webgl2', { antialias: false }) as WebGL2RenderingContext;
@@ -31,6 +31,21 @@ function main() {
     alert('Unable to initialize WebGL. Your browser or machine may not support it.');
     return;
   }
+
+  let mustResize: boolean = false;
+  let newWidth: number;
+  let newHeight: number;
+  window.addEventListener("resize", () => {
+    newWidth = window.innerWidth;
+    newHeight = window.innerHeight;
+
+    const oldWidth = parseInt(canvas.getAttribute("width") || `${newWidth}`, 10);
+    const oldHeight = parseInt(canvas.getAttribute("height") || `${newHeight}`, 10);
+
+    if (oldWidth !== newWidth || oldHeight !== newHeight){
+      mustResize = true;
+    }
+  });
 
   const background = new FullscreenQuad(gl);
   const grids = new ThreeDGrid(gl);
@@ -65,6 +80,14 @@ function main() {
       grids.render(modelMatrix, viewMatrix, projectionMatrix);
       sphere.render(modelMatrix, viewMatrix, projectionMatrix);
     });
+
+    if (mustResize){
+      mustResize = false;
+      canvas.setAttribute("width", `${newWidth}px`);
+      canvas.setAttribute("height", `${newHeight}px`);
+      width = newWidth;
+      height = newHeight;
+    }
 
     // normal time
     lens.aspect = width / height;
