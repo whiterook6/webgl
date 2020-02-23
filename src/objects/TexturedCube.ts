@@ -103,39 +103,39 @@ void main() {
     this.textureBuffer = new FloatBuffer(gl, [
       // Front
       0, 0,
-      0, 1,
-      1, 1,
       1, 0,
+      1, 1,
+      0, 1,
     
       // Back
-      0, 0,
-      0, 1,
-      1, 1,
       1, 0,
+      1, 1,
+      0, 1,
+      0, 0,
       
       // Top
       0, 0,
-      0, 1,
-      1, 1,
       1, 0,
+      1, 1,
+      0, 1,
       
       // Bottom
       0, 0,
-      0, 1,
-      1, 1,
       1, 0,
+      1, 1,
+      0, 1,
     
       // Right
-      0, 0,
-      0, 1,
-      1, 1,
       1, 0,
+      1, 1,
+      0, 1,
+      0, 0,
     
       // Left
       0, 0,
-      0, 1,
-      1, 1,
       1, 0,
+      1, 1,
+      0, 1,
     ], 2);
 
     this.colorBuffer = new Color4Buffer(gl, [

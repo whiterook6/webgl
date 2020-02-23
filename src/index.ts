@@ -40,13 +40,11 @@ function main() {
   
   const camera = new OrbitCamera();
   camera.setDistance(10);
-  camera.setTheta(Math.PI / 12);
+  camera.setTheta(-Math.PI / 12);
   camera.setTarget(new Vector3(0, 0, 0));
   camera.setUp(new Vector3(0, 1, 0))
   
   const lens = new PerspectiveLens();
-  lens.aspect = width / height;
-
 
   function render(timestamp: ITimestamp) {
     const modelMatrix = mat4.create();
@@ -54,7 +52,6 @@ function main() {
     const angle = (timestamp.age / 100) * (Math.PI / 180);
     camera.setPhi(angle);
     const viewMatrix = camera.getViewMatrix();
-    const projectionMatrix = lens.getProjection();
 
     framebuffer.render((bufferWidth: number, bufferHeight: number) => {
       gl.viewport(0, 0, bufferWidth, bufferHeight);
@@ -63,11 +60,15 @@ function main() {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.enable(gl.DEPTH_TEST);           // Enable depth testing
       gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
+      lens.aspect = bufferWidth / bufferHeight;
+      const projectionMatrix = lens.getProjection();
       grids.render(modelMatrix, viewMatrix, projectionMatrix);
       sphere.render(modelMatrix, viewMatrix, projectionMatrix);
     });
 
     // normal time
+    lens.aspect = width / height;
+    const projectionMatrix = lens.getProjection();
     gl.viewport(0, 0, width, height);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
     gl.clearDepth(1.0);                 // Clear everything
