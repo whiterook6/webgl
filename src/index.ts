@@ -6,6 +6,9 @@ import { FullscreenQuad } from "./objects/FullscreenQuad";
 import { Sphere } from "./objects/Sphere";
 import { ThreeDGrid } from "./objects/ThreeDGrid";
 import { Vector3 } from "./Vector3";
+import { Texture } from "./Texture";
+import { Framebuffer } from "./Framebuffer";
+import { TexturedCube } from "./objects/TexturedCube";
 
 main();
 
@@ -47,16 +50,35 @@ function main() {
 
   const background = new FullscreenQuad(gl);
   const grids = new ThreeDGrid(gl);
-  const camera = new OrbitCamera();
   const sphere = new Sphere(gl);
+  const texturedCube = new TexturedCube(gl);
+  
+  const camera = new OrbitCamera();
   camera.setDistance(10);
   camera.setTheta(Math.PI / 12);
   camera.setTarget(new Vector3(0, 0, 0));
   camera.setUp(new Vector3(0, 1, 0))
+  
   const lens = new PerspectiveLens();
   lens.aspect = width / height;
 
+  const texture = new Texture(gl, 256, 256);
+  const framebuffer = new Framebuffer(gl, texture);
+
   function render(timestamp: ITimestamp) {
+    framebuffer.bind(gl.COLOR_ATTACHMENT0);
+    {
+      const modelMatrix = mat4.create();
+      const angle = (timestamp.age / 100) * (Math.PI / 180);
+      camera.setPhi(angle);
+      const viewMatrix = camera.getViewMatrix();
+      const projectionMatrix = lens.getProjection();
+
+      grids.render(modelMatrix, viewMatrix, projectionMatrix);
+      sphere.render(modelMatrix, viewMatrix, projectionMatrix);
+    }
+    framebuffer.unbind();
+
     if (mustResize){
       mustResize = false;
       canvas.setAttribute("width", `${newWidth}px`);
