@@ -22,7 +22,7 @@ export class Sphere {
 
   private readonly colorUniform: WebGLUniformLocation;
 
-  constructor(gl: WebGL2RenderingContext) {
+  constructor(gl: WebGL2RenderingContext, segments: number) {
     this.gl = gl;
 
     const shader = new Shader(gl)
@@ -69,8 +69,8 @@ void main(void) {
     const indices: number[] = [];
 
     let i, j: number;
-    const sectorCount = 32;
-    const stackCount = 16;
+    const sectorCount = segments;
+    const stackCount = segments / 2;
     const sectorStep = 2 * Math.PI / sectorCount;
     const stackStep = Math.PI / stackCount;
     const radius = 2;
