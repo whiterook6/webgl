@@ -1,6 +1,6 @@
-import { FloatBuffer, IndexBuffer } from "../buffers";
-import { Shader } from "../Shader";
-import { Color4, Color } from "../Color";
+import {FloatBuffer, IndexBuffer} from "../buffers";
+import {Shader} from "../Shader";
+import {Color4, Color} from "../Color";
 
 export class FullscreenQuad {
   private readonly gl: WebGL2RenderingContext;
@@ -13,21 +13,16 @@ export class FullscreenQuad {
   private readonly blColorUniform: WebGLUniformLocation;
   private readonly brColorUniform: WebGLUniformLocation;
 
-  constructor(gl: WebGL2RenderingContext){
+  constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
 
-    this.positionBuffer = new FloatBuffer(gl, [
-      -1.0, -1.0,
-      1.0, -1.0,
-      -1.0, 1.0,
-      1.0, 1.0,
-    ], 2);
-  
-    this.indexBuffer = new IndexBuffer(gl, [
-      0, 1, 2, 3
-    ]);
-  
-    const shader = new Shader(gl).addVertexSource(`
+    this.positionBuffer = new FloatBuffer(gl, [-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0], 2);
+
+    this.indexBuffer = new IndexBuffer(gl, [0, 1, 2, 3]);
+
+    const shader = new Shader(gl)
+      .addVertexSource(
+        `
 precision lowp float;
   
 uniform vec4 tlColor;
@@ -42,7 +37,10 @@ varying vec2 uv;
 void main(void) {
   gl_Position = vertexPosition;
   uv = vertexPosition.xy * 0.5 + vec2(0.5, 0.5);
-}`).addFragmentSource(`
+}`
+      )
+      .addFragmentSource(
+        `
 precision lowp float;
 
 uniform vec4 tlColor;
@@ -58,7 +56,9 @@ void main(void) {
     + trColor * uv.x * uv.y
     + blColor * (1.0 - uv.x) * (1.0 - uv.y)
     + brColor * uv.x * (1.0 - uv.y);
-}`).link();
+}`
+      )
+      .link();
 
     this.vertexPositionAttribute = shader.getAttributeLocation("vertexPosition");
     this.tlColorUniform = shader.getUniformLocation("tlColor") as WebGLUniformLocation;
@@ -74,27 +74,27 @@ void main(void) {
     this.setBrColor(Color.fromHex("#50377E"));
   }
 
-  public setTlColor(color: Color4){
+  public setTlColor(color: Color4) {
     this.gl.useProgram(this.program);
     this.gl.uniform4fv(this.tlColorUniform, color);
   }
 
-  public setTrColor(color: Color4){
+  public setTrColor(color: Color4) {
     this.gl.useProgram(this.program);
     this.gl.uniform4fv(this.trColorUniform, color);
   }
-  
-  public setBlColor(color: Color4){
+
+  public setBlColor(color: Color4) {
     this.gl.useProgram(this.program);
     this.gl.uniform4fv(this.blColorUniform, color);
   }
-  
-  public setBrColor(color: Color4){
+
+  public setBrColor(color: Color4) {
     this.gl.useProgram(this.program);
     this.gl.uniform4fv(this.brColorUniform, color);
   }
 
-  public render(){
+  public render() {
     this.gl.useProgram(this.program);
     this.positionBuffer.bindToAttribute(this.vertexPositionAttribute);
     this.indexBuffer.bindToAttribute();

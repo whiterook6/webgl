@@ -2,10 +2,10 @@ export abstract class Buffer {
   protected readonly gl: WebGL2RenderingContext;
   protected readonly buffer: WebGLBuffer;
 
-  constructor(gl: WebGL2RenderingContext){
+  constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
     const buffer = gl.createBuffer();
-    if (buffer === null){
+    if (buffer === null) {
       throw new Error("Error creating buffer");
     }
 
@@ -15,4 +15,4 @@ export abstract class Buffer {
   public getBuffer(): WebGLBuffer {
     return this.buffer;
   }
-};
+}
