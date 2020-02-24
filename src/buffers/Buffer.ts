@@ -15,4 +15,8 @@ export abstract class Buffer {
   public getBuffer(): WebGLBuffer {
     return this.buffer;
   }
+
+  public destroy() {
+    this.gl.deleteBuffer(this.buffer);
+  }
 }
