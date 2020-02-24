@@ -104,71 +104,44 @@ void main() {
       new Vector3([-1.0, 1.0, -1.0]),
     ]);
 
-    this.textureBuffer = new FloatBuffer(
-      gl,
-      [
-        // Front
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
+    // prettier-ignore
+    this.textureBuffer = new FloatBuffer(gl, [
+      // Front
+      0, 0,
+      1, 0,
+      1, 1,
+      0, 1,
 
-        // Back
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
+      // Back
+      1, 0,
+      1, 1,
+      0, 1,
+      0, 0,
 
-        // Top
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
+      // Top
+      0, 0,
+      1, 0,
+      1, 1,
+      0, 1,
 
-        // Bottom
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
+      // Bottom
+      0, 0,
+      1, 0,
+      1, 1,
+      0, 1,
 
-        // Right
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
+      // Right
+      1, 0,
+      1, 1,
+      0, 1,
+      0, 0,
 
-        // Left
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-      ],
-      2
-    );
+      // Left
+      0, 0,
+      1, 0,
+      1, 1,
+      0, 1,
+    ], 2);
 
     this.colorBuffer = new Color4Buffer(gl, [
       // Front
@@ -208,43 +181,14 @@ void main() {
       Color.fromHex("#038DC9"),
     ]);
 
+    // prettier-ignore
     this.indexBuffer = new IndexBuffer(gl, [
-      0,
-      1,
-      2,
-      0,
-      2,
-      3, // front
-      4,
-      5,
-      6,
-      4,
-      6,
-      7, // back
-      8,
-      9,
-      10,
-      8,
-      10,
-      11, // top
-      12,
-      13,
-      14,
-      12,
-      14,
-      15, // bottom
-      16,
-      17,
-      18,
-      16,
-      18,
-      19, // right
-      20,
-      21,
-      22,
-      20,
-      22,
-      23, // left
+      0, 1, 2, 0, 2, 3,    // front
+      4, 5, 6, 4, 6, 7,    // back
+      8, 9, 10, 8, 10, 11,   // top
+      12, 13, 14, 12, 14, 15,   // bottom
+      16, 17, 18, 16, 18, 19,   // right
+      20, 21, 22, 20, 22, 23,   // left
     ]);
 
     this.gl.useProgram(this.program);

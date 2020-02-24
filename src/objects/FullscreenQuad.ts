@@ -16,7 +16,13 @@ export class FullscreenQuad {
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
 
-    this.positionBuffer = new FloatBuffer(gl, [-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0], 2);
+    // prettier-ignore
+    this.positionBuffer = new FloatBuffer(gl, [
+      -1.0, -1.0,
+      1.0, -1.0,
+      -1.0, 1.0,
+      1.0, 1.0
+    ], 2);
 
     this.indexBuffer = new IndexBuffer(gl, [0, 1, 2, 3]);
 
