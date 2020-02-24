@@ -7,18 +7,29 @@ export class Framebuffer {
 
   constructor(gl: WebGL2RenderingContext, width: number, height: number){
     this.gl = gl;
-    this.texture = new Texture(gl, width, height);
 
+    // create a framebuffer, to which we will attach a texture for color and a render buffer for depth
     const framebuffer = gl.createFramebuffer();
     if (framebuffer === null){
       throw new Error("Error creating framebuffer");
     }
-
     this.framebuffer = framebuffer;
-    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-    const attachmentPoint = gl.COLOR_ATTACHMENT0;
-    const level = 0;
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentPoint, gl.TEXTURE_2D, this.texture.getGLTexture(), level);
+
+    // create a texture for rendering to
+    this.texture = new Texture(gl, width, height);
+    gl.bindFramebuffer(
+      gl.FRAMEBUFFER,
+      framebuffer
+    );
+
+    // attach the texture for rendering: color attachment
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0,
+      gl.TEXTURE_2D,
+      this.texture.getGLTexture(),
+      0
+    );
 
     // create a depth renderbuffer
     const depthBuffer = gl.createRenderbuffer();
@@ -34,8 +45,8 @@ export class Framebuffer {
   }
 
   public render(fn: (width: number, height: number) => void){
-    const textureWidth = 256;
-    const textureHeight = 256;
+    const textureWidth = this.texture.getWidth();
+    const textureHeight = this.texture.getHeight();
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
     this.gl.viewport(0, 0, textureWidth, textureHeight);
 

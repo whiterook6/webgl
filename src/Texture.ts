@@ -15,6 +15,8 @@ export class Texture {
     }
 
     this.texture = texture;
+
+    // set options for this texture
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(
       gl.TEXTURE_2D, // other options are for 3d textures
