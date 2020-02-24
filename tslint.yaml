@@ -1,0 +1,33 @@
+defaultSeverity: error
+extends:
+  - tslint:recommended
+  - tslint-config-prettier
+rules:
+  no-console:
+    severity: warning
+    options:
+      - trace
+  no-magic-numbers:
+    severity: warning
+  promise-function-async: true
+  no-duplicate-switch-case: true
+  no-floating-promises:
+    severity: warning
+  no-return-await: true
+  no-unnecessary-class:
+    severity: warning
+  no-unused-variable:
+    severity: warning
+  no-empty:
+    severity: warning
+  prefer-object-spread: true
+  prefer-readonly:
+    severity: error
+  file-name-casing:
+    severity: warning
+    options:
+      ".tsx": "pascal-case"
+      ".ts": "pascal-case"
+      "index.ts": "camel-case"
+  prefer-template: true
+  object-curly-spacing: ["error", "always"]

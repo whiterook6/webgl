@@ -7,14 +7,22 @@
   "private": true,
   "scripts": {
     "build": "webpack --mode production",
-    "watch": "webpack --watch --mode development"
+    "watch": "webpack --watch --mode development",
+    "format": "prettier src/**/*.ts --write",
+    "lint": "tslint --project tsconfig.json --fix",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "gl-matrix": "^3.1.0"
+    "gl-matrix": "^3.1.0",
+    "husky": "^4.2.3"
   },
   "devDependencies": {
     "@types/gl-matrix": "^2.4.5",
+    "lint-staged": "^10.0.7",
+    "prettier": "^1.19.1",
     "ts-loader": "^6.2.1",
+    "tslint": "^6.0.0",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.7.5",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
