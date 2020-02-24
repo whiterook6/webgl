@@ -13,7 +13,7 @@ export class AnimationLoop {
   private isPaused: boolean;
   private previousAge: number;
 
-  constructor(callback: RenderCallback){
+  constructor(callback: RenderCallback) {
     this.renderCallback = callback;
     this.start = this.previous = performance.now();
     this.isPaused = false;
@@ -21,51 +21,51 @@ export class AnimationLoop {
 
     requestAnimationFrame(this.render);
   }
-  
+
   public resume = (renderCallback?: RenderCallback) => {
-    if (!this.isPaused){
+    if (!this.isPaused) {
       return;
     }
 
-    if (renderCallback){
+    if (renderCallback) {
       this.renderCallback = renderCallback;
     }
 
     this.start = performance.now() - this.previousAge;
     this.isPaused = false;
     requestAnimationFrame(this.render);
-  }
+  };
 
   public render = () => {
-    if (this.isPaused){
+    if (this.isPaused) {
       return;
     }
 
     const now = performance.now();
     const deltaT = now - this.previous;
     const age = now - this.start;
-    
+
     this.previous = now;
     const timestamp = {
       now,
       age,
-      deltaT
+      deltaT,
     };
 
     this.renderCallback(timestamp);
     requestAnimationFrame(this.render);
-  }
+  };
 
   public pause = () => {
     this.isPaused = true;
     this.previousAge = performance.now() - this.start;
-  }
+  };
 
   public toggle = () => {
-    if (this.isPaused){
+    if (this.isPaused) {
       this.resume();
     } else {
       this.pause();
     }
-  }
+  };
 }

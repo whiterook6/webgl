@@ -1,8 +1,8 @@
-import { Vector3Buffer, IndexBuffer } from "../buffers";
-import { Shader } from "../Shader";
-import { Vector3 } from "../Vector3";
-import { mat4 } from "gl-matrix";
-import { Color4, Color } from "../Color";
+import {Vector3Buffer, IndexBuffer} from "../buffers";
+import {Shader} from "../Shader";
+import {Vector3} from "../Vector3";
+import {mat4} from "gl-matrix";
+import {Color4, Color} from "../Color";
 
 export class ThreeDGrid {
   private readonly gl: WebGL2RenderingContext;
@@ -16,14 +16,14 @@ export class ThreeDGrid {
   private readonly viewMatrixUniform: WebGLUniformLocation;
   private readonly projectionMatrixUniform: WebGLUniformLocation;
 
-  constructor(gl: WebGL2RenderingContext){
+  constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
 
     const gridPositions: Vector3[] = [];
     const indexPositions: number[] = [];
 
     let i: number;
-    for (i = -5; i <= 5; i++){
+    for (i = -5; i <= 5; i++) {
       gridPositions.push(new Vector3(i, -5, -5));
       gridPositions.push(new Vector3(i, 5, -5));
       gridPositions.push(new Vector3(-5, -i, -5));
@@ -40,12 +40,13 @@ export class ThreeDGrid {
       gridPositions.push(new Vector3(i, -5, -5));
     }
 
-    for (i = 0; i < gridPositions.length; i++){
+    for (i = 0; i < gridPositions.length; i++) {
       indexPositions.push(i);
     }
 
     const shader = new Shader(gl)
-      .addVertexSource(`
+      .addVertexSource(
+        `
 precision lowp float;
 
 uniform vec4 color;
@@ -56,15 +57,18 @@ attribute vec4 vertexPosition;
 
 void main(void) {
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vertexPosition;
-}`)
-      .addFragmentSource(`
+}`
+      )
+      .addFragmentSource(
+        `
 precision lowp float;
 
 uniform vec4 color;
 
 void main(void) {
   gl_FragColor = color;
-}`)
+}`
+      )
       .link();
 
     this.program = shader.getProgram();
@@ -72,7 +76,9 @@ void main(void) {
     this.colorUniform = shader.getUniformLocation("color") as WebGLUniformLocation;
     this.modelMatrixUniform = shader.getUniformLocation("modelMatrix") as WebGLUniformLocation;
     this.viewMatrixUniform = shader.getUniformLocation("viewMatrix") as WebGLUniformLocation;
-    this.projectionMatrixUniform = shader.getUniformLocation("projectionMatrix") as WebGLUniformLocation;
+    this.projectionMatrixUniform = shader.getUniformLocation(
+      "projectionMatrix"
+    ) as WebGLUniformLocation;
 
     this.positionBuffer = new Vector3Buffer(gl, gridPositions);
     this.indexBuffer = new IndexBuffer(gl, indexPositions);
@@ -80,12 +86,12 @@ void main(void) {
     this.setColor(Color.fromHex("#FFFFFF"));
   }
 
-  public setColor(color: Color4){
+  public setColor(color: Color4) {
     this.gl.useProgram(this.program);
     this.gl.uniform4fv(this.colorUniform, color);
   }
 
-  public render(modelMatrix: mat4, viewMatrix: mat4, projectionMatrix: mat4){
+  public render(modelMatrix: mat4, viewMatrix: mat4, projectionMatrix: mat4) {
     this.gl.useProgram(this.program);
     this.positionBuffer.bindToAttribute(this.vertexPositionAttribute);
     this.indexBuffer.bindToAttribute();

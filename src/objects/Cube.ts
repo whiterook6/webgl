@@ -1,8 +1,8 @@
-import { Shader } from "../Shader";
-import { Vector3Buffer, Color4Buffer, IndexBuffer } from "../buffers";
-import { Vector3 } from "../Vector3";
-import { Color } from "../Color";
-import { mat4 } from "gl-matrix";
+import {Shader} from "../Shader";
+import {Vector3Buffer, Color4Buffer, IndexBuffer} from "../buffers";
+import {Vector3} from "../Vector3";
+import {Color} from "../Color";
+import {mat4} from "gl-matrix";
 
 export class Cube {
   private readonly gl: WebGL2RenderingContext;
@@ -22,11 +22,12 @@ export class Cube {
   private readonly modelViewMatrixUniform: WebGLUniformLocation;
   private readonly projectionMatrixUniform: WebGLUniformLocation;
 
-  constructor(gl: WebGL2RenderingContext){
+  constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
 
     const shader = new Shader(gl)
-      .addVertexSource(`
+      .addVertexSource(
+        `
 precision lowp float;
 
 attribute vec4 vertexPosition;
@@ -52,8 +53,10 @@ void main(void) {
   highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
   vLighting = ambientLight + (directionalLightColor * directional);
   vColor = vertexColor;
-}`)
-      .addFragmentSource(`
+}`
+      )
+      .addFragmentSource(
+        `
 precision lowp float;
 
 varying highp vec3 vLighting;
@@ -61,47 +64,48 @@ varying lowp vec4 vColor;
 
 void main(void) {
   gl_FragColor = vec4(vColor.rgb * vLighting, 1.0);
-}`)
+}`
+      )
       .link();
-    
+
     this.program = shader.getProgram();
-    
+
     this.positionBuffer = new Vector3Buffer(gl, [
       // Front face
-      new Vector3([-1.0, -1.0,  1.0]),
-      new Vector3([1.0, -1.0,  1.0]),
-      new Vector3([1.0,  1.0,  1.0]),
-      new Vector3([-1.0,  1.0,  1.0]),
+      new Vector3([-1.0, -1.0, 1.0]),
+      new Vector3([1.0, -1.0, 1.0]),
+      new Vector3([1.0, 1.0, 1.0]),
+      new Vector3([-1.0, 1.0, 1.0]),
 
       // Back face
       new Vector3([-1.0, -1.0, -1.0]),
-      new Vector3([-1.0,  1.0, -1.0]),
-      new Vector3([1.0,  1.0, -1.0]),
+      new Vector3([-1.0, 1.0, -1.0]),
+      new Vector3([1.0, 1.0, -1.0]),
       new Vector3([1.0, -1.0, -1.0]),
 
       // Top face
-      new Vector3([-1.0,  1.0, -1.0]),
-      new Vector3([-1.0,  1.0,  1.0]),
-      new Vector3([1.0,  1.0,  1.0]),
-      new Vector3([1.0,  1.0, -1.0]),
+      new Vector3([-1.0, 1.0, -1.0]),
+      new Vector3([-1.0, 1.0, 1.0]),
+      new Vector3([1.0, 1.0, 1.0]),
+      new Vector3([1.0, 1.0, -1.0]),
 
       // Bottom face
       new Vector3([-1.0, -1.0, -1.0]),
       new Vector3([1.0, -1.0, -1.0]),
-      new Vector3([1.0, -1.0,  1.0]),
-      new Vector3([-1.0, -1.0,  1.0]),
+      new Vector3([1.0, -1.0, 1.0]),
+      new Vector3([-1.0, -1.0, 1.0]),
 
       // Right face
       new Vector3([1.0, -1.0, -1.0]),
-      new Vector3([1.0,  1.0, -1.0]),
-      new Vector3([1.0,  1.0,  1.0]),
-      new Vector3([1.0, -1.0,  1.0]),
+      new Vector3([1.0, 1.0, -1.0]),
+      new Vector3([1.0, 1.0, 1.0]),
+      new Vector3([1.0, -1.0, 1.0]),
 
       // Left face
       new Vector3([-1.0, -1.0, -1.0]),
-      new Vector3([-1.0, -1.0,  1.0]),
-      new Vector3([-1.0,  1.0,  1.0]),
-      new Vector3([-1.0,  1.0, -1.0]),
+      new Vector3([-1.0, -1.0, 1.0]),
+      new Vector3([-1.0, 1.0, 1.0]),
+      new Vector3([-1.0, 1.0, -1.0]),
     ]);
 
     this.colorBuffer = new Color4Buffer(gl, [
@@ -110,31 +114,31 @@ void main(void) {
       Color.fromHex("#700460"),
       Color.fromHex("#700460"),
       Color.fromHex("#700460"),
-    
+
       // Back
       Color.fromHex("#EC0F47"),
       Color.fromHex("#EC0F47"),
       Color.fromHex("#EC0F47"),
       Color.fromHex("#EC0F47"),
-    
+
       // Top
       Color.fromHex("#FBBF54"),
       Color.fromHex("#FBBF54"),
       Color.fromHex("#FBBF54"),
       Color.fromHex("#FBBF54"),
-    
+
       // Bottom
       Color.fromHex("#15C286"),
       Color.fromHex("#15C286"),
       Color.fromHex("#15C286"),
       Color.fromHex("#15C286"),
-    
+
       // Right
       Color.fromHex("#045459"),
       Color.fromHex("#045459"),
       Color.fromHex("#045459"),
       Color.fromHex("#045459"),
-    
+
       // Left
       Color.fromHex("#038DC9"),
       Color.fromHex("#038DC9"),
@@ -143,50 +147,51 @@ void main(void) {
     ]);
 
     this.normalBuffer = new Vector3Buffer(gl, [
-    // Front
-      new Vector3([0.0,  0.0,  1.0,]),
-      new Vector3([0.0,  0.0,  1.0,]),
-      new Vector3([0.0,  0.0,  1.0,]),
-      new Vector3([0.0,  0.0,  1.0,]),
+      // Front
+      new Vector3([0.0, 0.0, 1.0]),
+      new Vector3([0.0, 0.0, 1.0]),
+      new Vector3([0.0, 0.0, 1.0]),
+      new Vector3([0.0, 0.0, 1.0]),
 
-    // Back
-      new Vector3([0.0,  0.0, -1.0,]),
-      new Vector3([0.0,  0.0, -1.0,]),
-      new Vector3([0.0,  0.0, -1.0,]),
-      new Vector3([0.0,  0.0, -1.0,]),
+      // Back
+      new Vector3([0.0, 0.0, -1.0]),
+      new Vector3([0.0, 0.0, -1.0]),
+      new Vector3([0.0, 0.0, -1.0]),
+      new Vector3([0.0, 0.0, -1.0]),
 
-    // Top
-      new Vector3([0.0,  1.0,  0.0,]),
-      new Vector3([0.0,  1.0,  0.0,]),
-      new Vector3([0.0,  1.0,  0.0,]),
-      new Vector3([0.0,  1.0,  0.0,]),
+      // Top
+      new Vector3([0.0, 1.0, 0.0]),
+      new Vector3([0.0, 1.0, 0.0]),
+      new Vector3([0.0, 1.0, 0.0]),
+      new Vector3([0.0, 1.0, 0.0]),
 
-    // Bottom
-      new Vector3([0.0, -1.0,  0.0,]),
-      new Vector3([0.0, -1.0,  0.0,]),
-      new Vector3([0.0, -1.0,  0.0,]),
-      new Vector3([0.0, -1.0,  0.0,]),
+      // Bottom
+      new Vector3([0.0, -1.0, 0.0]),
+      new Vector3([0.0, -1.0, 0.0]),
+      new Vector3([0.0, -1.0, 0.0]),
+      new Vector3([0.0, -1.0, 0.0]),
 
-    // Right
-      new Vector3([1.0,  0.0,  0.0,]),
-      new Vector3([1.0,  0.0,  0.0,]),
-      new Vector3([1.0,  0.0,  0.0,]),
-      new Vector3([1.0,  0.0,  0.0,]),
+      // Right
+      new Vector3([1.0, 0.0, 0.0]),
+      new Vector3([1.0, 0.0, 0.0]),
+      new Vector3([1.0, 0.0, 0.0]),
+      new Vector3([1.0, 0.0, 0.0]),
 
-    // Left
-      new Vector3([-1.0,  0.0,  0.0,]),
-      new Vector3([-1.0,  0.0,  0.0,]),
-      new Vector3([-1.0,  0.0,  0.0,]),
-      new Vector3([-1.0,  0.0,  0.0]),
+      // Left
+      new Vector3([-1.0, 0.0, 0.0]),
+      new Vector3([-1.0, 0.0, 0.0]),
+      new Vector3([-1.0, 0.0, 0.0]),
+      new Vector3([-1.0, 0.0, 0.0]),
     ]);
 
+    // prettier-ignore
     this.indexBuffer = new IndexBuffer(gl, [
-      0,  1,  2,      0,  2,  3,    // front
-      4,  5,  6,      4,  6,  7,    // back
-      8,  9,  10,     8,  10, 11,   // top
-      12, 13, 14,     12, 14, 15,   // bottom
-      16, 17, 18,     16, 18, 19,   // right
-      20, 21, 22,     20, 22, 23,   // left
+      0, 1, 2,     0, 2, 3,    // front
+      4, 5, 6,     4, 6, 7,    // back
+      8, 9, 10,    8, 10, 11,   // top
+      12, 13, 14,  12, 14, 15,   // bottom
+      16, 17, 18,  16, 18, 19,   // right
+      20, 21, 22,  20, 22, 23,   // left
     ]);
 
     this.gl.useProgram(this.program);
@@ -194,11 +199,15 @@ void main(void) {
     this.vertexNormalAttribute = shader.getAttributeLocation("vertexNormal");
     this.vertexColorAttribute = shader.getAttributeLocation("vertexColor");
     this.normalMatrixUniform = shader.getUniformLocation("normalMatrix") as WebGLUniformLocation;
-    this.modelViewMatrixUniform = shader.getUniformLocation("modelViewMatrix") as WebGLUniformLocation;
-    this.projectionMatrixUniform = shader.getUniformLocation("projectionmatrix") as WebGLUniformLocation;
+    this.modelViewMatrixUniform = shader.getUniformLocation(
+      "modelViewMatrix"
+    ) as WebGLUniformLocation;
+    this.projectionMatrixUniform = shader.getUniformLocation(
+      "projectionmatrix"
+    ) as WebGLUniformLocation;
   }
 
-  public render(modelMatrix: mat4, viewMatrix: mat4, projectionMatrix: mat4){
+  public render(modelMatrix: mat4, viewMatrix: mat4, projectionMatrix: mat4) {
     this.positionBuffer.bindToAttribute(this.vertexPositionAttribute);
     this.normalBuffer.bindToAttribute(this.vertexNormalAttribute);
     this.colorBuffer.bindToAttribute(this.vertexColorAttribute);
@@ -210,7 +219,7 @@ void main(void) {
     const normalMatrix = mat4.create();
     mat4.invert(normalMatrix, modelViewMatrix);
     mat4.transpose(normalMatrix, normalMatrix);
-    
+
     this.gl.useProgram(this.program);
     this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
     this.gl.uniformMatrix4fv(this.modelViewMatrixUniform, false, modelViewMatrix);
