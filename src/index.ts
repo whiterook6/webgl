@@ -6,6 +6,8 @@ import { FullscreenQuad } from "./objects/FullscreenQuad";
 import { Sphere } from "./objects/Sphere";
 import { ThreeDGrid } from "./objects/ThreeDGrid";
 import { Vector3 } from "./Vector3";
+import { TexturedCube } from "./objects/TexturedCube";
+import { Framebuffer } from "./Framebuffer";
 
 main();
 
@@ -18,8 +20,8 @@ function main() {
     return;
   }
 
-  const width = window.innerWidth;
-  const height = window.innerHeight;
+  let width = window.innerWidth;
+  let height = window.innerHeight;
   canvas.setAttribute("width", `${width}px`);
   canvas.setAttribute("height", `${height}px`);
   const gl = canvas.getContext('webgl2', { antialias: false }) as WebGL2RenderingContext;
@@ -47,55 +49,64 @@ function main() {
 
   const background = new FullscreenQuad(gl);
   const grids = new ThreeDGrid(gl);
+  const sphere = new Sphere(gl, 64);
+  const texturedCube = new TexturedCube(gl);
+  const framebuffer = new Framebuffer(gl, 256, 256);
+  
   const camera = new OrbitCamera();
-  const sphere = new Sphere(gl);
   camera.setDistance(10);
-  camera.setTheta(Math.PI / 12);
+  camera.setTheta(-Math.PI / 12);
   camera.setTarget(new Vector3(0, 0, 0));
   camera.setUp(new Vector3(0, 1, 0))
+  
   const lens = new PerspectiveLens();
-  lens.aspect = width / height;
 
   function render(timestamp: ITimestamp) {
+    const modelMatrix = mat4.create();
+    
+    const angle = (timestamp.age / 100) * (Math.PI / 180);
+    camera.setPhi(angle);
+    const viewMatrix = camera.getViewMatrix();
+
+    framebuffer.render((bufferWidth: number, bufferHeight: number) => {
+      gl.viewport(0, 0, bufferWidth, bufferHeight);
+      gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
+      gl.clearDepth(1.0);                 // Clear everything
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.enable(gl.DEPTH_TEST);           // Enable depth testing
+      gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
+      lens.aspect = bufferWidth / bufferHeight;
+      const projectionMatrix = lens.getProjection();
+      grids.render(modelMatrix, viewMatrix, projectionMatrix);
+      sphere.render(modelMatrix, viewMatrix, projectionMatrix);
+    });
+
     if (mustResize){
       mustResize = false;
       canvas.setAttribute("width", `${newWidth}px`);
       canvas.setAttribute("height", `${newHeight}px`);
-      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-      lens.aspect = newWidth / newHeight;
+      width = newWidth;
+      height = newHeight;
     }
 
+    // normal time
+    lens.aspect = width / height;
+    const projectionMatrix = lens.getProjection();
+    gl.viewport(0, 0, width, height);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
     gl.clearDepth(1.0);                 // Clear everything
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.disable(gl.DEPTH_TEST);           // Enable depth testing
-    gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
-  
     background.render();
   
     gl.clearDepth(1.0);                 // Clear everything
     gl.enable(gl.DEPTH_TEST);           // Enable depth testing
     gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
   
-    const modelMatrix = mat4.create();
-    
-    const angle = (timestamp.age / 100) * (Math.PI / 180);
-    camera.setPhi(angle);
-    const viewMatrix = camera.getViewMatrix();
-    const projectionMatrix = lens.getProjection();
-  
     grids.render(modelMatrix, viewMatrix, projectionMatrix);
-    sphere.render(modelMatrix, viewMatrix, projectionMatrix);
-
-    mat4.translate(modelMatrix, modelMatrix, [2, 1, 1]);
-    sphere.render(modelMatrix, viewMatrix, projectionMatrix);
+    texturedCube.render(modelMatrix, viewMatrix, projectionMatrix);
   }
 
-  const looper = new AnimationLoop(render);
-  window.addEventListener("keyup", (event: KeyboardEvent) => {
-    if (event.keyCode == 32){ // spacebar
-      looper.toggle();
-    }
-  })
+  new AnimationLoop(render);
 }
 
