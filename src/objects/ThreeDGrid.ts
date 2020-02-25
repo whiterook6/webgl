@@ -8,7 +8,7 @@ export class ThreeDGrid {
   private readonly gl: WebGL2RenderingContext;
   private readonly positionBuffer: Vector3Buffer;
   private readonly indexBuffer: IndexBuffer;
-  private readonly program: WebGLProgram;
+  private readonly shader: Shader;
 
   private readonly vertexPositionAttribute: number;
   private readonly colorUniform: WebGLUniformLocation;
@@ -44,7 +44,7 @@ export class ThreeDGrid {
       indexPositions.push(i);
     }
 
-    const shader = new Shader(gl)
+    this.shader = new Shader(gl)
       .addVertexSource(
         `
 precision lowp float;
@@ -71,12 +71,11 @@ void main(void) {
       )
       .link();
 
-    this.program = shader.getProgram();
-    this.vertexPositionAttribute = shader.getAttributeLocation("vertexPosition");
-    this.colorUniform = shader.getUniformLocation("color") as WebGLUniformLocation;
-    this.modelMatrixUniform = shader.getUniformLocation("modelMatrix") as WebGLUniformLocation;
-    this.viewMatrixUniform = shader.getUniformLocation("viewMatrix") as WebGLUniformLocation;
-    this.projectionMatrixUniform = shader.getUniformLocation(
+    this.vertexPositionAttribute = this.shader.getAttributeLocation("vertexPosition");
+    this.colorUniform = this.shader.getUniformLocation("color") as WebGLUniformLocation;
+    this.modelMatrixUniform = this.shader.getUniformLocation("modelMatrix") as WebGLUniformLocation;
+    this.viewMatrixUniform = this.shader.getUniformLocation("viewMatrix") as WebGLUniformLocation;
+    this.projectionMatrixUniform = this.shader.getUniformLocation(
       "projectionMatrix"
     ) as WebGLUniformLocation;
 
@@ -87,12 +86,12 @@ void main(void) {
   }
 
   public setColor(color: Color4) {
-    this.gl.useProgram(this.program);
+    this.gl.useProgram(this.shader.getProgram());
     this.gl.uniform4fv(this.colorUniform, color);
   }
 
   public render(modelMatrix: mat4, viewMatrix: mat4, projectionMatrix: mat4) {
-    this.gl.useProgram(this.program);
+    this.gl.useProgram(this.shader.getProgram());
     this.positionBuffer.bindToAttribute(this.vertexPositionAttribute);
     this.indexBuffer.bindToAttribute();
 
@@ -100,5 +99,11 @@ void main(void) {
     this.gl.uniformMatrix4fv(this.viewMatrixUniform, false, viewMatrix);
     this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
     this.gl.drawElements(this.gl.LINES, this.indexBuffer.getLength(), this.gl.UNSIGNED_SHORT, 0);
+  }
+
+  public destroy() {
+    this.indexBuffer.destroy();
+    this.positionBuffer.destroy();
+    this.shader.destroy();
   }
 }

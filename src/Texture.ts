@@ -10,7 +10,7 @@ export class Texture {
     this.height = textureHeight;
 
     const texture = gl.createTexture();
-    if (texture === null){
+    if (texture === null) {
       throw new Error("Error creating texture");
     }
 
@@ -30,32 +30,39 @@ export class Texture {
       null
     );
 
-    gl.texParameteri( // set the filtering so we don't need mips
+    gl.texParameteri(
+      // set the filtering so we don't need mips
       gl.TEXTURE_2D,
       gl.TEXTURE_MIN_FILTER,
       gl.LINEAR
     );
-    gl.texParameteri( // no wrapping; clamp to edge
+    gl.texParameteri(
+      // no wrapping; clamp to edge
       gl.TEXTURE_2D,
       gl.TEXTURE_WRAP_S,
       gl.CLAMP_TO_EDGE
     );
-    gl.texParameteri( // no wrapping; clamp
+    gl.texParameteri(
+      // no wrapping; clamp
       gl.TEXTURE_2D,
       gl.TEXTURE_WRAP_T,
       gl.CLAMP_TO_EDGE
     );
   }
 
-  public getWidth(){
+  public getWidth() {
     return this.width;
   }
 
-  public getHeight(){
+  public getHeight() {
     return this.height;
   }
 
-  public getGLTexture(){
+  public getGLTexture() {
     return this.texture;
+  }
+
+  public destroy() {
+    this.gl.deleteTexture(this.texture);
   }
 }
