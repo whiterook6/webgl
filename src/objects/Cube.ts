@@ -12,7 +12,7 @@ export class Cube {
   private readonly normalBuffer: Vector3Buffer;
   private readonly indexBuffer: IndexBuffer;
 
-  private readonly program: WebGLShader;
+  private readonly shader: Shader;
 
   private readonly vertexPositionAttribute: number;
   private readonly vertexNormalAttribute: number;
@@ -25,7 +25,7 @@ export class Cube {
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
 
-    const shader = new Shader(gl)
+    this.shader = new Shader(gl)
       .addVertexSource(
         `
 precision lowp float;
@@ -67,8 +67,6 @@ void main(void) {
 }`
       )
       .link();
-
-    this.program = shader.getProgram();
 
     this.positionBuffer = new Vector3Buffer(gl, [
       // Front face
@@ -194,15 +192,17 @@ void main(void) {
       20, 21, 22,  20, 22, 23,   // left
     ]);
 
-    this.gl.useProgram(this.program);
-    this.vertexPositionAttribute = shader.getAttributeLocation("vertexPosition");
-    this.vertexNormalAttribute = shader.getAttributeLocation("vertexNormal");
-    this.vertexColorAttribute = shader.getAttributeLocation("vertexColor");
-    this.normalMatrixUniform = shader.getUniformLocation("normalMatrix") as WebGLUniformLocation;
-    this.modelViewMatrixUniform = shader.getUniformLocation(
+    this.gl.useProgram(this.shader.getProgram());
+    this.vertexPositionAttribute = this.shader.getAttributeLocation("vertexPosition");
+    this.vertexNormalAttribute = this.shader.getAttributeLocation("vertexNormal");
+    this.vertexColorAttribute = this.shader.getAttributeLocation("vertexColor");
+    this.normalMatrixUniform = this.shader.getUniformLocation(
+      "normalMatrix"
+    ) as WebGLUniformLocation;
+    this.modelViewMatrixUniform = this.shader.getUniformLocation(
       "modelViewMatrix"
     ) as WebGLUniformLocation;
-    this.projectionMatrixUniform = shader.getUniformLocation(
+    this.projectionMatrixUniform = this.shader.getUniformLocation(
       "projectionmatrix"
     ) as WebGLUniformLocation;
   }
@@ -220,7 +220,7 @@ void main(void) {
     mat4.invert(normalMatrix, modelViewMatrix);
     mat4.transpose(normalMatrix, normalMatrix);
 
-    this.gl.useProgram(this.program);
+    this.gl.useProgram(this.shader.getProgram());
     this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
     this.gl.uniformMatrix4fv(this.modelViewMatrixUniform, false, modelViewMatrix);
     this.gl.uniformMatrix4fv(this.normalMatrixUniform, false, normalMatrix);
@@ -229,5 +229,13 @@ void main(void) {
     const type = this.gl.UNSIGNED_SHORT;
     const offset = 0;
     this.gl.drawElements(this.gl.TRIANGLES, vertexCount, type, offset);
+  }
+
+  public destroy() {
+    this.positionBuffer.destroy();
+    this.colorBuffer.destroy();
+    this.normalBuffer.destroy();
+    this.indexBuffer.destroy();
+    this.shader.destroy();
   }
 }
