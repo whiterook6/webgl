@@ -14,7 +14,7 @@ export class Bezier {
     }
   }
 
-  public get(t: number) {
+  public get = (t: number) => {
     const [p0, p1, p2, p3] = this.nodes;
 
     const t2 = t * t;
@@ -25,27 +25,27 @@ export class Bezier {
     const mt3 = mt * mt * mt;
 
     return 1 * mt3 * p0 + 3 * mt2 * t * p1 + 3 * mt * t2 * p2 + 1 * t3 * p3;
-  }
+  };
 
-  public getDerivative(t: number) {
+  public getDerivative = (t: number) => {
     const [p0, p1, p2, p3] = this.nodes;
     const t2 = t * t;
     const mt = 1 - t;
     const mt2 = mt * mt;
     return 3 * mt2 * (p1 - p0) + 6 * mt * t * (p2 - p1) + 3 * t2 * (p3 - p2);
-  }
+  };
 
-  public getSecondDerivative(t: number) {
+  public getSecondDerivative = (t: number) => {
     const [p0, p1, p2, p3] = this.nodes;
     const mt = 1 - t;
     return 6 * mt * (p2 - 2 * p1 + p0) + 6 * t * (p3 - 2 * p2 + p1);
-  }
+  };
 
   /**
    * Prints when using string interpolation: `Curve: ${bezier}`
    */
-  public toString() {
+  public toString = (t: number) => {
     const [a, b, c, d] = this.nodes;
     return `[${a.toFixed(3)}, ${b.toFixed(2)}, ${c.toFixed(2)}, ${d.toFixed(2)}]`;
-  }
+  };
 }

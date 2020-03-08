@@ -75,10 +75,10 @@ function main() {
     Color.fromHex("#0182B2"),
     Color.fromHex("#0182B2")
   );
-  const tlPipe = pipe([loop(0, 10000), transform(0.0001), sin], tlBezier.get);
-  const trPipe = pipe([loop(0, 10000), transform(0.0001), sin], trBezier.get);
-  const blPipe = pipe([loop(0, 10000), transform(0.0001), sin], blBezier.get);
-  const brPipe = pipe([loop(0, 10000), transform(0.0001), sin], brBezier.get);
+  const tlPipe = pipe([loop(0, 5000), transform(0.0002), sin], tlBezier.get);
+  const trPipe = pipe([loop(0, 5000), transform(0.0002), sin], trBezier.get);
+  const blPipe = pipe([loop(0, 5000), transform(0.0002), sin], blBezier.get);
+  const brPipe = pipe([loop(0, 5000), transform(0.0002), sin], brBezier.get);
 
   const grids = new ThreeDGrid(gl);
   const sphere = new Sphere(gl, 64);
