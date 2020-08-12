@@ -202,7 +202,12 @@ void main() {
     this.textureLocation = this.shader.getUniformLocation("u_texture") as WebGLUniformLocation;
   }
 
-  public render(modelMatrix: mat4, viewMatrix: mat4, projectionMatrix: mat4) {
+  public render(
+    modelMatrix: mat4,
+    viewMatrix: mat4,
+    projectionMatrix: mat4,
+    textureNumber: number
+  ) {
     this.positionBuffer.bindToAttribute(this.vertexPositionAttribute);
     this.textureBuffer.bindToAttribute(this.vertexTextureAttribute);
     this.colorBuffer.bindToAttribute(this.vertexColorAttribute);
@@ -218,7 +223,7 @@ void main() {
     this.gl.useProgram(this.shader.getProgram());
     this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
     this.gl.uniformMatrix4fv(this.modelViewMatrixUniform, false, modelViewMatrix);
-    this.gl.uniform1i(this.textureLocation, 0);
+    this.gl.uniform1i(this.textureLocation, textureNumber);
 
     const vertexCount = 36;
     const type = this.gl.UNSIGNED_SHORT;

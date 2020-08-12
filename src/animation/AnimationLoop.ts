@@ -16,10 +16,8 @@ export class AnimationLoop {
   constructor(callback: RenderCallback) {
     this.renderCallback = callback;
     this.start = this.previous = performance.now();
-    this.isPaused = false;
+    this.isPaused = true;
     this.previousAge = 0;
-
-    requestAnimationFrame(this.render);
   }
 
   public resume = (renderCallback?: RenderCallback) => {
