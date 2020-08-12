@@ -66,4 +66,6 @@ export class AnimationLoop {
       this.pause();
     }
   };
+
+  public getIsPaused = () => this.isPaused;
 }

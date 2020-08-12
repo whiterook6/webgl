@@ -10,6 +10,7 @@ import {Sphere} from "./objects/Sphere";
 import {TexturedCube} from "./objects/TexturedCube";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {Vector3} from "./Vector3";
+import {Mouse, IMouseDrag} from "./interaction/Mouse";
 
 main();
 
@@ -89,17 +90,22 @@ function main() {
   camera.setTheta(-Math.PI / 12);
   camera.setTarget(new Vector3(0, 0, 0));
   camera.setUp(new Vector3(0, 1, 0));
+  const sceneCamera = new OrbitCamera();
+  sceneCamera.setDistance(10);
+  sceneCamera.setTheta(-Math.PI / 12);
+  sceneCamera.setTarget(new Vector3(0, 0, 0));
+  sceneCamera.setUp(new Vector3(0, 1, 0));
 
   const lens = new PerspectiveLens();
 
   function render(timestamp: ITimestamp) {
     const modelMatrix = mat4.create();
 
-    const angle = (timestamp.age / 100) * (Math.PI / 180);
-    camera.setPhi(angle);
-    const viewMatrix = camera.getViewMatrix();
-
     framebuffer.render((bufferWidth: number, bufferHeight: number) => {
+      const angle = (timestamp.age / 100) * (Math.PI / 180);
+      camera.setPhi(angle);
+      const _viewMatrix = camera.getViewMatrix();
+
       gl.viewport(0, 0, bufferWidth, bufferHeight);
       gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
       gl.clearDepth(1.0); // Clear everything
@@ -108,8 +114,8 @@ function main() {
       gl.depthFunc(gl.LEQUAL); // Near things obscure far things
       lens.aspect = bufferWidth / bufferHeight;
       const _projectionMatrix = lens.getProjection();
-      grids.render(modelMatrix, viewMatrix, _projectionMatrix);
-      sphere.render(modelMatrix, viewMatrix, _projectionMatrix);
+      grids.render(modelMatrix, _viewMatrix, _projectionMatrix);
+      sphere.render(modelMatrix, _viewMatrix, _projectionMatrix);
     });
 
     if (mustResize) {
@@ -122,6 +128,7 @@ function main() {
 
     // normal time
     lens.aspect = width / height;
+    const viewMatrix = sceneCamera.getViewMatrix();
     const projectionMatrix = lens.getProjection();
     gl.viewport(0, 0, width, height);
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
@@ -144,8 +151,25 @@ function main() {
 
   const looper = new AnimationLoop(render);
   document.addEventListener("keypress", (event) => {
+    if (event.repeat) {
+      return;
+    }
     if (event.keyCode === 32) {
       looper.toggle();
     }
   });
+  looper.resume();
+
+  const mouse = new Mouse();
+  const moveCamera = (event: IMouseDrag) => {
+    if (looper.getIsPaused()) {
+      return;
+    }
+
+    const {deltaX, deltaY} = event;
+    sceneCamera.movePhi(deltaX * 0.01);
+    sceneCamera.moveTheta(deltaY * 0.01);
+  };
+  mouse.addDragCallback(moveCamera);
+  mouse.register();
 }

@@ -46,11 +46,25 @@ export class OrbitCamera extends Camera {
   }
 
   /**
+   * @param deltaTheta Angle between x-z plane and line
+   */
+  public moveTheta(deltaTheta: number) {
+    this.setTheta(deltaTheta + this.theta);
+  }
+
+  /**
    * @param phi Angle along x-z plane
    */
   public setPhi(phi: number) {
     this.phi = phi % (2 * Math.PI);
   }
+
+  /**
+   * @param deltaPhi Angle along x-z plane
+   */
+  public movePhi = (deltaPhi: number) => {
+    this.setPhi(deltaPhi + this.phi);
+  };
 
   public setDistance(distance: number) {
     this.distance = Math.max(0, distance);
