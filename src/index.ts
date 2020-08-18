@@ -3,14 +3,13 @@ import {AnimationLoop, ITimestamp} from "./animation";
 import {PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
 import {Color} from "./Color";
-import {Framebuffer} from "./Framebuffer";
 import {Color4Bezier, loop, pipe, sin, transform} from "./interpolators";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Sphere} from "./objects/Sphere";
-import {TexturedCube} from "./objects/TexturedCube";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {Vector3} from "./Vector3";
-import {Mouse, IMouseDrag} from "./interaction/Mouse";
+import {Mouse, IMouseDrag, IMouseScroll} from "./interaction/Mouse";
+import {Cube} from "./objects/Cube";
 
 main();
 
@@ -82,8 +81,11 @@ function main() {
 
   const grids = new ThreeDGrid(gl);
   const sphere = new Sphere(gl, 64);
-  const texturedCube = new TexturedCube(gl);
-  const framebuffer = new Framebuffer(gl, 256, 256);
+  // const texturedCube = new TexturedCube(gl);
+  // const framebuffer = new Framebuffer(gl, 256, 256);
+
+  const cube = new Cube(gl);
+  const cubes: mat4[] = [];
 
   const camera = new OrbitCamera();
   camera.setDistance(10);
@@ -99,24 +101,24 @@ function main() {
   const lens = new PerspectiveLens();
 
   function render(timestamp: ITimestamp) {
-    const modelMatrix = mat4.create();
+    // framebuffer.render((bufferWidth: number, bufferHeight: number) => {
+    //   const angle = (timestamp.age / 100) * (Math.PI / 180);
+    //   camera.setPhi(angle);
+    //   const _viewMatrix = camera.getViewMatrix();
 
-    framebuffer.render((bufferWidth: number, bufferHeight: number) => {
-      const angle = (timestamp.age / 100) * (Math.PI / 180);
-      camera.setPhi(angle);
-      const _viewMatrix = camera.getViewMatrix();
+    //   gl.viewport(0, 0, bufferWidth, bufferHeight);
+    //   gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
+    //   gl.clearDepth(1.0); // Clear everything
+    //   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    //   gl.enable(gl.DEPTH_TEST); // Enable depth testing
+    //   gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
-      gl.viewport(0, 0, bufferWidth, bufferHeight);
-      gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
-      gl.clearDepth(1.0); // Clear everything
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      gl.enable(gl.DEPTH_TEST); // Enable depth testing
-      gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-      lens.aspect = bufferWidth / bufferHeight;
-      const _projectionMatrix = lens.getProjection();
-      grids.render(modelMatrix, _viewMatrix, _projectionMatrix);
-      sphere.render(modelMatrix, _viewMatrix, _projectionMatrix);
-    });
+    //   lens.aspect = bufferWidth / bufferHeight;
+    //   const _projectionMatrix = lens.getProjection();
+
+    //   grids.render(modelMatrix, _viewMatrix, _projectionMatrix);
+    //   sphere.render(modelMatrix, _viewMatrix, _projectionMatrix);
+    // });
 
     if (mustResize) {
       mustResize = false;
@@ -145,17 +147,67 @@ function main() {
     gl.enable(gl.DEPTH_TEST); // Enable depth testing
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
+    const modelMatrix = mat4.create();
     grids.render(modelMatrix, viewMatrix, projectionMatrix);
-    texturedCube.render(modelMatrix, viewMatrix, projectionMatrix, 0);
+
+    const cubeMat = mat4.clone(modelMatrix);
+    for (const instance of cubes) {
+      mat4.multiply(cubeMat, cubeMat, instance);
+      mat4.translate(cubeMat, cubeMat, [1, 0, 0]);
+      cube.render(cubeMat, viewMatrix, projectionMatrix);
+    }
+    // texturedCube.render(modelMatrix, viewMatrix, projectionMatrix, 0);
   }
 
   const looper = new AnimationLoop(render);
-  document.addEventListener("keypress", (event) => {
+  document.addEventListener("keydown", (event) => {
     if (event.repeat) {
       return;
     }
-    if (event.keyCode === 32) {
-      looper.toggle();
+    let last;
+    switch (event.keyCode) {
+      case 32:
+        looper.toggle();
+        return;
+      case 37: // left
+        if (cubes.length === 0) {
+          return;
+        }
+        last = cubes[cubes.length - 1];
+        mat4.rotateY(last, last, Math.PI / 8);
+        return;
+      case 38: // up
+        if (cubes.length === 0) {
+          return;
+        }
+        last = cubes[cubes.length - 1];
+        mat4.rotateZ(last, last, Math.PI / 8);
+        return;
+      case 39: // right
+        if (cubes.length === 0) {
+          return;
+        }
+        last = cubes[cubes.length - 1];
+        mat4.rotateY(last, last, -Math.PI / 8);
+        return;
+      case 40: // down
+        if (cubes.length === 0) {
+          return;
+        }
+        last = cubes[cubes.length - 1];
+        mat4.rotateZ(last, last, -Math.PI / 8);
+        return;
+      case 61:
+        if (event.key === "+") {
+          const newMat = mat4.create();
+          cubes.push(newMat);
+        }
+        return;
+      case 173: // -
+        if (cubes.length > 0) {
+          cubes.pop();
+        }
+        return;
     }
   });
   looper.resume();
@@ -170,6 +222,15 @@ function main() {
     sceneCamera.movePhi(deltaX * 0.01);
     sceneCamera.moveTheta(deltaY * 0.01);
   };
+  const panCamera = (event: IMouseScroll) => {
+    if (looper.getIsPaused()) {
+      return;
+    }
+
+    const {delta} = event;
+    sceneCamera.setDistance(sceneCamera.getDistance() + delta * 0.01);
+  };
   mouse.addDragCallback(moveCamera);
+  mouse.addScrollCallback(panCamera);
   mouse.register();
 }

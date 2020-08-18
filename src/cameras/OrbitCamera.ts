@@ -66,6 +66,10 @@ export class OrbitCamera extends Camera {
     this.setPhi(deltaPhi + this.phi);
   };
 
+  public getDistance = () => {
+    return this.distance;
+  };
+
   public setDistance(distance: number) {
     this.distance = Math.max(0, distance);
   }
