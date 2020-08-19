@@ -3,11 +3,19 @@ import {Buffer} from ".";
 export class FloatBuffer extends Buffer {
   private readonly width: number;
 
-  constructor(gl: WebGL2RenderingContext, data: number[], width: number) {
+  /**
+   * @param mode Either gl.STATIC_DRAW or gl.DYNAMIC_DRAW, depending on if you intend to update or not. Default is Static.
+   */
+  constructor(
+    gl: WebGL2RenderingContext,
+    data: number[],
+    width: number,
+    mode: number = gl.STATIC_DRAW
+  ) {
     super(gl);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), mode);
 
     this.width = width;
   }
@@ -32,5 +40,11 @@ export class FloatBuffer extends Buffer {
 
   public getLength() {
     return this.getBytes() / (this.width * 4);
+  }
+
+  public update(data: number[], offset: number = 0) {
+    const gl = this.gl;
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+    gl.bufferSubData(gl.ARRAY_BUFFER, offset, new Float32Array(data));
   }
 }

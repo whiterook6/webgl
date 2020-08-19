@@ -9,4 +9,8 @@ export class Vector3Buffer extends FloatBuffer {
   public getWidth() {
     return 3;
   }
+
+  public updateVectors(newVectors: Vector3[], offset: number = 0) {
+    this.update(newVectors.map((v) => v.toArray()).flat(1));
+  }
 }
