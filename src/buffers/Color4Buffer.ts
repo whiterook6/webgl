@@ -9,4 +9,8 @@ export class Color4Buffer extends FloatBuffer {
   public getWidth() {
     return 4;
   }
+
+  public updateColors (colors: Color4[], offset: number = 0) {
+    return this.update(colors.flat(1));
+  }
 }

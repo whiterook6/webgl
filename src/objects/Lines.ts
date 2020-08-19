@@ -1,10 +1,11 @@
 import {Vector3Buffer, IndexBuffer} from "../buffers";
 import {Shader} from "../Shader";
 import {Vector3} from "../Vector3";
-import {mat4, vec4} from "gl-matrix";
+import {mat4} from "gl-matrix";
 import {Color4, Color} from "../Color";
+import { Vector3Bezier } from "../interpolators";
 
-export class ThreeDGrid {
+export class Line {
   private readonly gl: WebGL2RenderingContext;
   private readonly positionBuffer: Vector3Buffer;
   private readonly indexBuffer: IndexBuffer;
@@ -16,32 +17,16 @@ export class ThreeDGrid {
   private readonly viewMatrixUniform: WebGLUniformLocation;
   private readonly projectionMatrixUniform: WebGLUniformLocation;
 
-  constructor(gl: WebGL2RenderingContext) {
+  constructor(gl: WebGL2RenderingContext, bezier: Vector3Bezier) {
     this.gl = gl;
 
-    const gridPositions: Vector3[] = [];
-    const indexPositions: number[] = [];
+    const vertices: Vector3[] = [];
+    const indices: number[] = [];
 
-    let i: number;
-    for (i = -5; i <= 5; i++) {
-      gridPositions.push(new Vector3(i, -5, -5));
-      gridPositions.push(new Vector3(i, 5, -5));
-      gridPositions.push(new Vector3(-5, -i, -5));
-      gridPositions.push(new Vector3(5, -i, -5));
-
-      gridPositions.push(new Vector3(-5, i, 5));
-      gridPositions.push(new Vector3(-5, i, -5));
-      gridPositions.push(new Vector3(-5, 5, i));
-      gridPositions.push(new Vector3(-5, -5, i));
-
-      gridPositions.push(new Vector3(5, -5, i));
-      gridPositions.push(new Vector3(-5, -5, i));
-      gridPositions.push(new Vector3(i, -5, 5));
-      gridPositions.push(new Vector3(i, -5, -5));
-    }
-
-    for (i = 0; i < gridPositions.length; i++) {
-      indexPositions.push(i);
+    for (let i = 0; i <= 100; i++){
+      const position = bezier.getPosition(i / 100);
+      vertices.push(position);
+      indices.push(i);
     }
 
     this.shader = new Shader(gl)
@@ -79,15 +64,26 @@ void main(void) {
       "projectionMatrix"
     ) as WebGLUniformLocation;
 
-    this.positionBuffer = new Vector3Buffer(gl, gridPositions);
-    this.indexBuffer = new IndexBuffer(gl, indexPositions);
-
+    this.positionBuffer = new Vector3Buffer(gl, vertices);
+    this.indexBuffer = new IndexBuffer(gl, indices);
     this.setColor(Color.fromHex("#FFFFFF"));
   }
 
   public setColor(color: Color4) {
     this.gl.useProgram(this.shader.getProgram());
     this.gl.uniform4fv(this.colorUniform, color);
+  }
+
+  public update = (newBezier: Vector3Bezier) => {
+    const vertices: Vector3[] = [];
+
+    for (let i = 0; i < 100; i++){
+      const position = newBezier.getPosition(i / 100);
+      vertices.push(position);
+    }
+    vertices.push(newBezier.getPosition(1));
+
+    this.positionBuffer.updateVectors(vertices);
   }
 
   public render(modelMatrix: mat4, viewMatrix: mat4, projectionMatrix: mat4) {
@@ -98,7 +94,7 @@ void main(void) {
     this.gl.uniformMatrix4fv(this.modelMatrixUniform, false, modelMatrix);
     this.gl.uniformMatrix4fv(this.viewMatrixUniform, false, viewMatrix);
     this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
-    this.gl.drawElements(this.gl.LINES, this.indexBuffer.getLength(), this.gl.UNSIGNED_SHORT, 0);
+    this.gl.drawElements(this.gl.LINE_STRIP, this.indexBuffer.getLength(), this.gl.UNSIGNED_SHORT, 0);
   }
 
   public destroy() {
