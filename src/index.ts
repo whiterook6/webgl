@@ -13,6 +13,41 @@ import {Vector3} from "./Vector3";
 import {Mouse, IMouseDrag, IMouseClick} from "./interaction/Mouse";
 import { Line } from "./objects/Lines";
 
+const unproject = (clickVector: Vector3, viewport: [number, number, number, number], viewMatrix: mat4, projectionMatric: mat4) => {
+  const [viewX, viewY, viewWidth, viewHeight] = viewport;
+  let [x, y, z] = clickVector.toArray();
+
+  // offsets from viewport, and flipping Y
+  x = x - viewX;
+  y = viewHeight - y - 1;
+  y = y - viewY;
+
+  // normalize to clip space: from 0 -> 1024 and 0 -> 768, for example, to -1 -> 1 for X and Y
+  x = (2 * x) / viewWidth - 1
+  y = (2 * y) / viewHeight - 1
+  z = 2 * z - 1
+
+  const projViewMatrix = mat4.create();
+  const invertedMatrix = mat4.create();
+  mat4.multiply(projViewMatrix, projectionMatric, viewMatrix);
+  mat4.invert(invertedMatrix, projViewMatrix);
+
+  const [
+    a00, a01, a02, a03,
+    a10, a11, a12, a13,
+    a20, a21, a22, a23,
+    a30, a31, a32, a33
+  ] = invertedMatrix;
+
+  const lw = 1 / (x * a03 + y * a13 + z * a23 + a33);
+
+  return new Vector3(
+    (x * a00 + y * a10 + z * a20 + a30) * lw,
+    (x * a01 + y * a11 + z * a21 + a31) * lw,
+    (x * a02 + y * a12 + z * a22 + a32) * lw,
+  );
+};
+
 main();
 
 //
@@ -179,42 +214,20 @@ function main() {
   };
   mouse.addDragCallback(moveCamera);
   document.addEventListener("mousedown", (event) => {
-    const unproject = (x: number, y: number, distance: number, viewMatrix: mat4, projectionMatrix: mat4) => {
-      const viewProjectionMatrix = mat4.create();
-      const invertedVPMatrix = mat4.create();
-      mat4.multiply(viewProjectionMatrix, viewMatrix, projectionMatrix);
-      mat4.invert(invertedVPMatrix, viewProjectionMatrix);
-      const output = vec4.create();
-      const plane = vec4.fromValues(x, y, 0, 1);
-      vec4.transformMat4(output, plane, invertedVPMatrix);
-      return output;
-    };
+    const {clientX, clientY} = event;
+    const viewport: [number, number, number, number] = [0, 0, width, height];
+    const clickVectorClose = new Vector3(clientX, clientY, 0);
+    const clickVectorFar = new Vector3(clientX, clientY, 1);
 
+    const unprojectedClose = unproject(clickVectorClose, viewport, sceneCamera.getViewMatrix(), lens.getProjection());
+    const unprojectedFar = unproject(clickVectorFar, viewport, sceneCamera.getViewMatrix(), lens.getProjection());
 
-    const project = (point: vec4, viewMatrix: mat4, projectionMatrix: mat4) => {
-      const viewProjectionMatrix = mat4.create();
-      mat4.multiply(viewProjectionMatrix, viewMatrix, projectionMatrix);
-      
-      const output = vec4.create();
-      vec4.transformMat4(output, point,viewProjectionMatrix);
-      return output;
-    };
-
-    const x = event.clientX;
-    const y = event.clientY;
-    console.log(`Clicked at ${x}, ${y}`);
-    const viewMatrix = sceneCamera.getViewMatrix();
-    const projectionMatrix = lens.getProjection();
-    const fromClipX = ((2 * x) / width) - 1.0;
-    const fromClipY = 1.0 - ((2 * y) / height);
-    const output = unproject(fromClipX, fromClipY, 0, viewMatrix, projectionMatrix);
-    console.log(output);
-
-    const test = vec4.fromValues(-5, -5, -5, 1);
-    const reprojected = project(test, viewMatrix, projectionMatrix);
-    reprojected[0] = (reprojected[0] + 1) * (width / 2);
-    reprojected[1] = (reprojected[1] - 1) * (-height / 2);
-    console.log(reprojected);
+    line.update(new Vector3Bezier(
+      new Vector3([unprojectedClose.x(), unprojectedClose.y(), unprojectedClose.z()]),
+      new Vector3([unprojectedClose.x(), unprojectedClose.y(), unprojectedClose.z()]),
+      new Vector3([unprojectedFar.x(), unprojectedFar.y(), unprojectedFar.z()]),
+      new Vector3([unprojectedFar.x(), unprojectedFar.y(), unprojectedFar.z()]),
+    ));
   });
   mouse.register();
 }
