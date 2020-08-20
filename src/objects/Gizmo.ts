@@ -13,7 +13,6 @@ export class Gizmo {
 
   private readonly vertexPositionAttribute: number;
   private readonly vertexColorAttribute: number;
-  private readonly modelMatrixUniform: WebGLUniformLocation;
   private readonly viewMatrixUniform: WebGLUniformLocation;
   private readonly projectionMatrixUniform: WebGLUniformLocation;
 
@@ -46,7 +45,6 @@ export class Gizmo {
       .addVertexSource(
         `precision lowp float;
 
-uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 attribute vec4 vertexColor;
@@ -55,7 +53,7 @@ varying vec4 vColor;
 
 void main(void) {
     vColor = vertexColor;
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vertexPosition;
+    gl_Position = projectionMatrix * viewMatrix * vertexPosition;
 }`
       )
       .addFragmentSource(
@@ -72,7 +70,6 @@ void main(void) {
 
     this.vertexPositionAttribute = this.shader.getAttributeLocation("vertexPosition");
     this.vertexColorAttribute = this.shader.getAttributeLocation("vertexColor");
-    this.modelMatrixUniform = this.shader.getUniformLocation("modelMatrix") as WebGLUniformLocation;
     this.viewMatrixUniform = this.shader.getUniformLocation("viewMatrix") as WebGLUniformLocation;
     this.projectionMatrixUniform = this.shader.getUniformLocation(
       "projectionMatrix"
@@ -83,15 +80,17 @@ void main(void) {
     this.indexBuffer = new IndexBuffer(gl, indices);
   }
 
-  public render(modelMatrix: mat4, viewMatrix: mat4, projectionMatrix: mat4) {
+  public render(viewMatrix: mat4, projectionMatrix: mat4) {
     this.gl.useProgram(this.shader.getProgram());
     this.positionBuffer.bindToAttribute(this.vertexPositionAttribute);
     this.colorBuffer.bindToAttribute(this.vertexColorAttribute);
     this.indexBuffer.bindToAttribute();
 
-    this.gl.uniformMatrix4fv(this.modelMatrixUniform, false, modelMatrix);
     this.gl.uniformMatrix4fv(this.viewMatrixUniform, false, viewMatrix);
-    this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
+
+    const bottomRightMat = mat4.create();
+    mat4.translate(bottomRightMat, projectionMatrix, [5, -3, 0]);
+    this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, bottomRightMat);
     this.gl.drawElements(this.gl.LINES, this.indexBuffer.getLength(), this.gl.UNSIGNED_SHORT, 0);
   }
 
