@@ -10,6 +10,7 @@ import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Sphere} from "./objects/Sphere";
 import {TexturedCube} from "./objects/TexturedCube";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
+import {Gizmo} from "./objects/Gizmo";
 
 main();
 
@@ -83,17 +84,18 @@ function main() {
   const sphere = new Sphere(gl, 64);
   const texturedCube = new TexturedCube(gl);
   const framebuffer = new Framebuffer(gl, 256, 256);
+  const gizmo = new Gizmo(gl);
 
   const camera = new OrbitCamera();
   camera.setDistance(10);
   camera.setTheta(-Math.PI / 12);
   camera.setTarget([0, 0, 0]);
-  camera.setUp([0, 1, 0]);
+  camera.setUp([0, 0, 1]);
   const sceneCamera = new OrbitCamera();
   sceneCamera.setDistance(10);
   sceneCamera.setTheta(-Math.PI / 12);
   sceneCamera.setTarget([0, 0, 0]);
-  sceneCamera.setUp([0, 1, 0]);
+  sceneCamera.setUp([0, 0, 1]);
 
   const lens = new PerspectiveLens();
 
@@ -145,7 +147,9 @@ function main() {
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
     grids.render(modelMatrix, viewMatrix, projectionMatrix);
-    texturedCube.render(modelMatrix, viewMatrix, projectionMatrix, 0);
+
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gizmo.render(modelMatrix, viewMatrix, projectionMatrix);
   }
 
   const looper = new AnimationLoop(render);
