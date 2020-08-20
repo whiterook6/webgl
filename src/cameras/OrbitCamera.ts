@@ -23,8 +23,8 @@ export class OrbitCamera extends Camera {
 
     return [
       target[0] + distance * Math.cos(theta) * Math.cos(phi),
-      target[1] + distance * Math.sin(theta),
-      target[2] + distance * Math.cos(theta) * Math.sin(phi),
+      target[1] + distance * Math.cos(theta) * Math.sin(phi),
+      target[2] + distance * Math.sin(theta),
     ];
   }
 
