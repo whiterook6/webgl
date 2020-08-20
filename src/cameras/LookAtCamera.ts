@@ -1,49 +1,46 @@
-import {Vector3} from "../Vector3";
+import {vector3, Vector3} from "../Vector3";
 import {mat4} from "gl-matrix";
 import {Camera} from "./Camera";
 
 export class LookAtCamera extends Camera {
-  private position: Vector3;
-  private forward: Vector3;
-  private up: Vector3;
+  private position: vector3;
+  private forward: vector3;
+  private up: vector3;
 
   constructor() {
     super();
-    this.position = new Vector3(0, 0, 0);
-    this.forward = new Vector3(0, 0, 0);
-    this.up = new Vector3(0, 1, 0);
+    this.position = [0, 0, 0];
+    this.forward = [0, 0, 0];
+    this.up = [0, 1, 0];
   }
 
-  public setPosition(position: Vector3) {
+  public setPosition(position: vector3) {
     this.position = position;
   }
 
-  public setForward(forward: Vector3) {
-    this.forward = forward.normalize();
+  public setForward(forward: vector3) {
+    this.forward = Vector3.normalize(forward);
   }
 
-  public setTarget(target: Vector3) {
-    this.forward = target.minus(this.position).normalize();
+  public setTarget(target: vector3) {
+    this.forward = Vector3.normalize(Vector3.subtract(target, this.position));
   }
 
-  public setUp(up: Vector3) {
-    this.up = up.normalize();
+  public setUp(up: vector3) {
+    this.up = Vector3.normalize(up);
   }
 
   public getViewMatrix() {
-    const position = this.position;
-    const forward = this.forward.normalize();
-    const right = forward.cross(this.up).normalize();
-    const up = right.cross(forward).normalize();
+    const {position, forward} = this;
+    const right = Vector3.normalize(Vector3.cross(forward, this.up));
+    const up = Vector3.normalize(Vector3.cross(forward, right));
 
     const lookAt = mat4.create();
-    mat4.lookAt(lookAt, position.toArray(), forward.toArray(), up.toArray());
+    mat4.lookAt(lookAt, position, forward, up);
     return lookAt;
   }
 
   public toString() {
-    return `Pos: ${JSON.stringify(this.position)}  Fwd: ${JSON.stringify(
-      this.forward
-    )} Up: ${JSON.stringify(this.up)}`;
+    return `Pos: ${this.position}  Fwd: ${this.forward} Up: ${this.up}`;
   }
 }
