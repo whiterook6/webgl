@@ -1,6 +1,6 @@
 import {FloatBuffer, IndexBuffer} from "../buffers";
 import {Shader} from "../Shader";
-import {Color4, Color} from "../Color";
+import {color4, Color} from "../Color";
 
 export class FullscreenQuad {
   private readonly gl: WebGL2RenderingContext;
@@ -79,22 +79,22 @@ void main(void) {
     this.setBrColor(Color.fromHex("#50377E"));
   }
 
-  public setTlColor(color: Color4) {
+  public setTlColor(color: color4) {
     this.gl.useProgram(this.shader.getProgram());
     this.gl.uniform4fv(this.tlColorUniform, color);
   }
 
-  public setTrColor(color: Color4) {
+  public setTrColor(color: color4) {
     this.gl.useProgram(this.shader.getProgram());
     this.gl.uniform4fv(this.trColorUniform, color);
   }
 
-  public setBlColor(color: Color4) {
+  public setBlColor(color: color4) {
     this.gl.useProgram(this.shader.getProgram());
     this.gl.uniform4fv(this.blColorUniform, color);
   }
 
-  public setBrColor(color: Color4) {
+  public setBrColor(color: color4) {
     this.gl.useProgram(this.shader.getProgram());
     this.gl.uniform4fv(this.brColorUniform, color);
   }

@@ -1,8 +1,8 @@
 import {Vector3Buffer, IndexBuffer} from "../buffers";
 import {Shader} from "../Shader";
-import {Vector3} from "../Vector3";
+import {vector3} from "../Vector3";
 import {mat4} from "gl-matrix";
-import {Color4, Color} from "../Color";
+import {color4, Color} from "../Color";
 
 export class ThreeDGrid {
   private readonly gl: WebGL2RenderingContext;
@@ -19,25 +19,25 @@ export class ThreeDGrid {
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
 
-    const gridPositions: Vector3[] = [];
+    const gridPositions: vector3[] = [];
     const indexPositions: number[] = [];
 
     let i: number;
     for (i = -5; i <= 5; i++) {
-      gridPositions.push(new Vector3(i, -5, -5));
-      gridPositions.push(new Vector3(i, 5, -5));
-      gridPositions.push(new Vector3(-5, -i, -5));
-      gridPositions.push(new Vector3(5, -i, -5));
+      gridPositions.push([i, -5, -5]);
+      gridPositions.push([i, 5, -5]);
+      gridPositions.push([-5, -i, -5]);
+      gridPositions.push([5, -i, -5]);
 
-      gridPositions.push(new Vector3(-5, i, 5));
-      gridPositions.push(new Vector3(-5, i, -5));
-      gridPositions.push(new Vector3(-5, 5, i));
-      gridPositions.push(new Vector3(-5, -5, i));
+      gridPositions.push([-5, i, 5]);
+      gridPositions.push([-5, i, -5]);
+      gridPositions.push([-5, 5, i]);
+      gridPositions.push([-5, -5, i]);
 
-      gridPositions.push(new Vector3(5, -5, i));
-      gridPositions.push(new Vector3(-5, -5, i));
-      gridPositions.push(new Vector3(i, -5, 5));
-      gridPositions.push(new Vector3(i, -5, -5));
+      gridPositions.push([5, -5, i]);
+      gridPositions.push([-5, -5, i]);
+      gridPositions.push([i, -5, 5]);
+      gridPositions.push([i, -5, -5]);
     }
 
     for (i = 0; i < gridPositions.length; i++) {
@@ -85,7 +85,7 @@ void main(void) {
     this.setColor(Color.fromHex("#FFFFFF"));
   }
 
-  public setColor(color: Color4) {
+  public setColor(color: color4) {
     this.gl.useProgram(this.shader.getProgram());
     this.gl.uniform4fv(this.colorUniform, color);
   }

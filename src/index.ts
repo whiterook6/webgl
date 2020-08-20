@@ -4,13 +4,12 @@ import {PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
 import {Color} from "./Color";
 import {Framebuffer} from "./Framebuffer";
+import {IMouseDrag, Mouse} from "./interaction/Mouse";
 import {Color4Bezier, loop, pipe, sin, transform} from "./interpolators";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Sphere} from "./objects/Sphere";
 import {TexturedCube} from "./objects/TexturedCube";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
-import {Vector3} from "./Vector3";
-import {Mouse, IMouseDrag} from "./interaction/Mouse";
 
 main();
 
@@ -88,13 +87,13 @@ function main() {
   const camera = new OrbitCamera();
   camera.setDistance(10);
   camera.setTheta(-Math.PI / 12);
-  camera.setTarget(new Vector3(0, 0, 0));
-  camera.setUp(new Vector3(0, 1, 0));
+  camera.setTarget([0, 0, 0]);
+  camera.setUp([0, 1, 0]);
   const sceneCamera = new OrbitCamera();
   sceneCamera.setDistance(10);
   sceneCamera.setTheta(-Math.PI / 12);
-  sceneCamera.setTarget(new Vector3(0, 0, 0));
-  sceneCamera.setUp(new Vector3(0, 1, 0));
+  sceneCamera.setTarget([0, 0, 0]);
+  sceneCamera.setUp([0, 1, 0]);
 
   const lens = new PerspectiveLens();
 

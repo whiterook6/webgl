@@ -1,6 +1,5 @@
 import {Shader} from "../Shader";
 import {Vector3Buffer, Color4Buffer, IndexBuffer, FloatBuffer} from "../buffers";
-import {Vector3} from "../Vector3";
 import {Color} from "../Color";
 import {mat4} from "gl-matrix";
 
@@ -66,40 +65,40 @@ void main() {
 
     this.positionBuffer = new Vector3Buffer(gl, [
       // Front face
-      new Vector3([-1.0, -1.0, 1.0]),
-      new Vector3([1.0, -1.0, 1.0]),
-      new Vector3([1.0, 1.0, 1.0]),
-      new Vector3([-1.0, 1.0, 1.0]),
+      [-1.0, -1.0, 1.0],
+      [1.0, -1.0, 1.0],
+      [1.0, 1.0, 1.0],
+      [-1.0, 1.0, 1.0],
 
       // Back face
-      new Vector3([-1.0, -1.0, -1.0]),
-      new Vector3([-1.0, 1.0, -1.0]),
-      new Vector3([1.0, 1.0, -1.0]),
-      new Vector3([1.0, -1.0, -1.0]),
+      [-1.0, -1.0, -1.0],
+      [-1.0, 1.0, -1.0],
+      [1.0, 1.0, -1.0],
+      [1.0, -1.0, -1.0],
 
       // Top face
-      new Vector3([-1.0, 1.0, -1.0]),
-      new Vector3([-1.0, 1.0, 1.0]),
-      new Vector3([1.0, 1.0, 1.0]),
-      new Vector3([1.0, 1.0, -1.0]),
+      [-1.0, 1.0, -1.0],
+      [-1.0, 1.0, 1.0],
+      [1.0, 1.0, 1.0],
+      [1.0, 1.0, -1.0],
 
       // Bottom face
-      new Vector3([-1.0, -1.0, -1.0]),
-      new Vector3([1.0, -1.0, -1.0]),
-      new Vector3([1.0, -1.0, 1.0]),
-      new Vector3([-1.0, -1.0, 1.0]),
+      [-1.0, -1.0, -1.0],
+      [1.0, -1.0, -1.0],
+      [1.0, -1.0, 1.0],
+      [-1.0, -1.0, 1.0],
 
       // Right face
-      new Vector3([1.0, -1.0, -1.0]),
-      new Vector3([1.0, 1.0, -1.0]),
-      new Vector3([1.0, 1.0, 1.0]),
-      new Vector3([1.0, -1.0, 1.0]),
+      [1.0, -1.0, -1.0],
+      [1.0, 1.0, -1.0],
+      [1.0, 1.0, 1.0],
+      [1.0, -1.0, 1.0],
 
       // Left face
-      new Vector3([-1.0, -1.0, -1.0]),
-      new Vector3([-1.0, -1.0, 1.0]),
-      new Vector3([-1.0, 1.0, 1.0]),
-      new Vector3([-1.0, 1.0, -1.0]),
+      [-1.0, -1.0, -1.0],
+      [-1.0, -1.0, 1.0],
+      [-1.0, 1.0, 1.0],
+      [-1.0, 1.0, -1.0],
     ]);
 
     // prettier-ignore
