@@ -1,24 +1,16 @@
+import {mat4} from "gl-matrix";
 import {Color4Buffer, IndexBuffer, Vector3Buffer} from "../buffers";
 import {color4} from "../Color";
-import {Shader} from "../Shader";
 import {vector3} from "../Vector3";
-import {mat4} from "gl-matrix";
+import {Lines} from "./Lines";
 
-export class Gizmo {
-  private readonly gl: WebGL2RenderingContext;
+export class Gizmo extends Lines {
   private readonly positionBuffer: Vector3Buffer;
   private readonly colorBuffer: Color4Buffer;
   private readonly indexBuffer: IndexBuffer;
-  private readonly shader: Shader;
-
-  private readonly vertexPositionAttribute: number;
-  private readonly vertexColorAttribute: number;
-  private readonly modelMatrixUniform: WebGLUniformLocation;
-  private readonly viewMatrixUniform: WebGLUniformLocation;
-  private readonly projectionMatrixUniform: WebGLUniformLocation;
 
   constructor(gl: WebGL2RenderingContext) {
-    this.gl = gl;
+    super(gl);
 
     const positions: vector3[] = [
       [0, 0, 0],
@@ -42,63 +34,22 @@ export class Gizmo {
       [0, 0, 1, 1],
     ];
 
-    this.shader = new Shader(gl)
-      .addVertexSource(
-        `precision lowp float;
-
-uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
-attribute vec4 vertexColor;
-attribute vec4 vertexPosition;
-varying vec4 vColor;
-
-void main(void) {
-    vColor = vertexColor;
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vertexPosition;
-}`
-      )
-      .addFragmentSource(
-        `
-precision lowp float;
-
-varying vec4 vColor;
-
-void main(void) {
-  gl_FragColor = vColor;
-}`
-      )
-      .link();
-
-    this.vertexPositionAttribute = this.shader.getAttributeLocation("vertexPosition");
-    this.vertexColorAttribute = this.shader.getAttributeLocation("vertexColor");
-    this.modelMatrixUniform = this.shader.getUniformLocation("modelMatrix") as WebGLUniformLocation;
-    this.viewMatrixUniform = this.shader.getUniformLocation("viewMatrix") as WebGLUniformLocation;
-    this.projectionMatrixUniform = this.shader.getUniformLocation(
-      "projectionMatrix"
-    ) as WebGLUniformLocation;
-
     this.positionBuffer = new Vector3Buffer(gl, positions);
     this.colorBuffer = new Color4Buffer(gl, colors);
     this.indexBuffer = new IndexBuffer(gl, indices);
   }
 
-  public render(modelMatrix: mat4, viewMatrix: mat4, projectionMatrix: mat4) {
-    this.gl.useProgram(this.shader.getProgram());
-    this.positionBuffer.bindToAttribute(this.vertexPositionAttribute);
-    this.colorBuffer.bindToAttribute(this.vertexColorAttribute);
-    this.indexBuffer.bindToAttribute();
+  public renderGizmo = (modelMatrix: mat4, viewMatrix: mat4, projectionMatrix: mat4) => {
+    const matrix = mat4.create();
+    mat4.multiply(matrix, projectionMatrix, viewMatrix);
+    mat4.multiply(matrix, modelMatrix, matrix);
+    this.render(matrix, this.positionBuffer, this.colorBuffer, this.indexBuffer);
+  };
 
-    this.gl.uniformMatrix4fv(this.modelMatrixUniform, false, modelMatrix);
-    this.gl.uniformMatrix4fv(this.viewMatrixUniform, false, viewMatrix);
-    this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
-    this.gl.drawElements(this.gl.LINES, this.indexBuffer.getLength(), this.gl.UNSIGNED_SHORT, 0);
-  }
-
-  public destroy() {
-    this.indexBuffer.destroy();
+  public destroy = () => {
+    super.destroy();
     this.positionBuffer.destroy();
     this.colorBuffer.destroy();
-    this.shader.destroy();
-  }
+    this.indexBuffer.destroy();
+  };
 }

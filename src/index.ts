@@ -115,7 +115,7 @@ function main() {
       gl.depthFunc(gl.LEQUAL); // Near things obscure far things
       lens.aspect = bufferWidth / bufferHeight;
       const _projectionMatrix = lens.getProjection();
-      grids.render(modelMatrix, _viewMatrix, _projectionMatrix);
+      grids.renderGrid(modelMatrix, _viewMatrix, _projectionMatrix);
       sphere.render(modelMatrix, _viewMatrix, _projectionMatrix);
     });
 
@@ -146,10 +146,8 @@ function main() {
     gl.enable(gl.DEPTH_TEST); // Enable depth testing
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
-    grids.render(modelMatrix, viewMatrix, projectionMatrix);
-
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gizmo.render(modelMatrix, viewMatrix, projectionMatrix);
+    grids.renderGrid(modelMatrix, viewMatrix, projectionMatrix);
+    gizmo.renderGizmo(modelMatrix, viewMatrix, projectionMatrix);
   }
 
   const looper = new AnimationLoop(render);
