@@ -21,6 +21,10 @@ function main() {
   if (!canvas) {
     return;
   }
+  canvas.addEventListener("contextmenu", (event) => {
+    event.stopPropagation();
+    event.preventDefault();
+  });
 
   let width = window.innerWidth;
   let height = window.innerHeight;
@@ -150,7 +154,13 @@ function main() {
     line.render(modelMatrix, viewMatrix, projectionMatrix);
 
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gizmo.render(modelMatrix, viewMatrix, projectionMatrix);
+    gl.viewport(width - 200, 0, 200, 200);
+    lens.aspect = 1;
+    sceneCamera.setDistance(3);
+    gizmo.render(modelMatrix, sceneCamera.getViewMatrix(), lens.getProjection());
+    sceneCamera.setDistance(10);
+    lens.aspect = width / height;
+    gl.viewport(0, 0, width, height);
   }
 
   const looper = new AnimationLoop(render);
