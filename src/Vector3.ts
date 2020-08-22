@@ -17,7 +17,7 @@ export class Vector3 {
   /**
    * Return a new Vector that is bounded by min and max: min.x <= this.x <= max.x, etc.
    */
-  public bound(min: vector3, max: vector3, v: vector3): vector3 {
+  public static bound(min: vector3, max: vector3, v: vector3): vector3 {
     return [
       Math.max(min[0], Math.min(max[0], v[0])),
       Math.max(min[1], Math.min(max[1], v[1])),
@@ -133,7 +133,7 @@ export class Vector3 {
   /**
    * Returns an up vector from a forward vector and a right vector.
    */
-  public up(forward: vector3, right: vector3): vector3 {
+  public static up(forward: vector3, right: vector3): vector3 {
     return Vector3.scale(
       Vector3.cross(Vector3.cross(forward, right), forward),
       Vector3.len(forward)
