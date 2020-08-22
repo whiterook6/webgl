@@ -1,31 +1,31 @@
 import {Camera} from "./Camera";
 import {mat4} from "gl-matrix";
-import {Vector3} from "../Vector3";
+import {Vector3, vector3} from "../Vector3";
 
 export class OrbitCamera extends Camera {
   private theta: number; // angle between x-y plane and line
   private phi: number; // angle around x-z plane
   private distance: number;
-  private target: Vector3;
-  private up: Vector3;
+  private target: vector3;
+  private up: vector3;
 
   constructor() {
     super();
     this.theta = 0;
     this.phi = 0;
     this.distance = 1;
-    this.target = new Vector3(0, 0, 0);
-    this.up = new Vector3([0, 1, 0]);
+    this.target = [0, 0, 0];
+    this.up = [0, 1, 0];
   }
 
-  public getPosition(): Vector3 {
+  public getPosition(): vector3 {
     const {theta, phi, distance, target} = this;
 
-    return new Vector3([
-      target.x() + distance * Math.cos(theta) * Math.cos(phi),
-      target.y() + distance * Math.sin(theta),
-      target.z() + distance * Math.cos(theta) * Math.sin(phi),
-    ]);
+    return [
+      target[0] + distance * Math.cos(theta) * Math.cos(phi),
+      target[1] + distance * Math.cos(theta) * Math.sin(phi),
+      target[2] + distance * Math.sin(theta),
+    ];
   }
 
   public getViewMatrix(): mat4 {
@@ -34,7 +34,7 @@ export class OrbitCamera extends Camera {
     const position = this.getPosition();
 
     const viewMatrix = mat4.create();
-    return mat4.lookAt(viewMatrix, position.toArray(), target.toArray(), up.toArray());
+    return mat4.lookAt(viewMatrix, position, target, up);
   }
 
   /**
@@ -70,11 +70,11 @@ export class OrbitCamera extends Camera {
     this.distance = Math.max(0, distance);
   }
 
-  public setTarget(target: Vector3) {
-    this.target = target;
+  public setTarget(target: vector3) {
+    this.target = Vector3.clone(target);
   }
 
-  public setUp(up: Vector3) {
-    this.up = up;
+  public setUp(up: vector3) {
+    this.up = Vector3.normalize(up);
   }
 }

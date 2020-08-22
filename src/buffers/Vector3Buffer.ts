@@ -1,16 +1,16 @@
 import {FloatBuffer} from "./FloatBuffer";
-import {Vector3} from "../Vector3";
+import {vector3} from "../Vector3";
 
 export class Vector3Buffer extends FloatBuffer {
-  constructor(gl: WebGL2RenderingContext, vectors: Vector3[]) {
-    super(gl, vectors.map((v) => v.toArray()).flat(1), 3);
+  constructor(gl: WebGL2RenderingContext, vectors: vector3[]) {
+    super(gl, vectors.flat(1), 3);
   }
 
   public getWidth() {
     return 3;
   }
 
-  public updateVectors(newVectors: Vector3[], offset: number = 0) {
-    this.update(newVectors.map((v) => v.toArray()).flat(1));
+  public updateVectors(newVectors: vector3[], offset: number = 0) {
+    this.update(newVectors.flat(1));
   }
 }

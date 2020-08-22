@@ -1,21 +1,24 @@
-import {mat4, vec4} from "gl-matrix";
+import {mat4} from "gl-matrix";
 import {AnimationLoop, ITimestamp} from "./animation";
 import {PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
 import {Color} from "./Color";
-import {Framebuffer} from "./Framebuffer";
 import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier} from "./interpolators";
+import {IMouseDrag, Mouse} from "./interaction/Mouse";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
-import {Sphere} from "./objects/Sphere";
-import {TexturedCube} from "./objects/TexturedCube";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
-import {Vector3} from "./Vector3";
-import {Mouse, IMouseDrag, IMouseClick} from "./interaction/Mouse";
-import { Line } from "./objects/Lines";
+import {Gizmo} from "./objects/Gizmo";
+import {vector3} from "./Vector3";
+import {Line} from "./objects/Lines";
 
-const unproject = (clickVector: Vector3, viewport: [number, number, number, number], viewMatrix: mat4, projectionMatric: mat4) => {
+const unproject = (
+  clickVector: vector3,
+  viewport: [number, number, number, number],
+  viewMatrix: mat4,
+  projectionMatric: mat4
+): vector3 => {
   const [viewX, viewY, viewWidth, viewHeight] = viewport;
-  let [x, y, z] = clickVector.toArray();
+  let [x, y, z] = clickVector;
 
   // offsets from viewport, and flipping Y
   x = x - viewX;
@@ -23,9 +26,9 @@ const unproject = (clickVector: Vector3, viewport: [number, number, number, numb
   y = y - viewY;
 
   // normalize to clip space: from 0 -> 1024 and 0 -> 768, for example, to -1 -> 1 for X and Y
-  x = (2 * x) / viewWidth - 1
-  y = (2 * y) / viewHeight - 1
-  z = 2 * z - 1
+  x = (2 * x) / viewWidth - 1;
+  y = (2 * y) / viewHeight - 1;
+  z = 2 * z - 1;
 
   const projViewMatrix = mat4.create();
   const invertedMatrix = mat4.create();
@@ -33,19 +36,31 @@ const unproject = (clickVector: Vector3, viewport: [number, number, number, numb
   mat4.invert(invertedMatrix, projViewMatrix);
 
   const [
-    a00, a01, a02, a03,
-    a10, a11, a12, a13,
-    a20, a21, a22, a23,
-    a30, a31, a32, a33
+    a00,
+    a01,
+    a02,
+    a03,
+    a10,
+    a11,
+    a12,
+    a13,
+    a20,
+    a21,
+    a22,
+    a23,
+    a30,
+    a31,
+    a32,
+    a33,
   ] = invertedMatrix;
 
   const lw = 1 / (x * a03 + y * a13 + z * a23 + a33);
 
-  return new Vector3(
+  return [
     (x * a00 + y * a10 + z * a20 + a30) * lw,
     (x * a01 + y * a11 + z * a21 + a31) * lw,
     (x * a02 + y * a12 + z * a22 + a32) * lw,
-  );
+  ];
 };
 
 main();
@@ -129,16 +144,12 @@ function main() {
   const sceneCamera = new OrbitCamera();
   sceneCamera.setDistance(10);
   sceneCamera.setTheta(-Math.PI / 12);
-  sceneCamera.setTarget(new Vector3(0, 0, 0));
-  sceneCamera.setUp(new Vector3(0, 1, 0));
+  sceneCamera.setTarget([0, 0, 0]);
+  sceneCamera.setUp([0, 0, 1]);
 
   const lens = new PerspectiveLens();
-  const line = new Line(gl, new Vector3Bezier(
-    new Vector3([0, 0, 0]),
-    new Vector3([0, 1, 0]),
-    new Vector3([1, 1, 0]),
-    new Vector3([1, 0, 0]),
-  ));
+  const line = new Line(gl, new Vector3Bezier([0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0]));
+  const gizmo = new Gizmo(gl);
 
   function render(timestamp: ITimestamp) {
     const modelMatrix = mat4.create();
@@ -189,6 +200,9 @@ function main() {
 
     grids.render(modelMatrix, viewMatrix, projectionMatrix);
     line.render(modelMatrix, viewMatrix, projectionMatrix);
+
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gizmo.render(modelMatrix, viewMatrix, projectionMatrix);
   }
 
   const looper = new AnimationLoop(render);
@@ -216,18 +230,25 @@ function main() {
   document.addEventListener("mousedown", (event) => {
     const {clientX, clientY} = event;
     const viewport: [number, number, number, number] = [0, 0, width, height];
-    const clickVectorClose = new Vector3(clientX, clientY, 0);
-    const clickVectorFar = new Vector3(clientX, clientY, 1);
+    const clickVectorClose: vector3 = [clientX, clientY, 0];
+    const clickVectorFar: vector3 = [clientX, clientY, 1];
 
-    const unprojectedClose = unproject(clickVectorClose, viewport, sceneCamera.getViewMatrix(), lens.getProjection());
-    const unprojectedFar = unproject(clickVectorFar, viewport, sceneCamera.getViewMatrix(), lens.getProjection());
+    const unprojectedClose = unproject(
+      clickVectorClose,
+      viewport,
+      sceneCamera.getViewMatrix(),
+      lens.getProjection()
+    );
+    const unprojectedFar = unproject(
+      clickVectorFar,
+      viewport,
+      sceneCamera.getViewMatrix(),
+      lens.getProjection()
+    );
 
-    line.update(new Vector3Bezier(
-      new Vector3([unprojectedClose.x(), unprojectedClose.y(), unprojectedClose.z()]),
-      new Vector3([unprojectedClose.x(), unprojectedClose.y(), unprojectedClose.z()]),
-      new Vector3([unprojectedFar.x(), unprojectedFar.y(), unprojectedFar.z()]),
-      new Vector3([unprojectedFar.x(), unprojectedFar.y(), unprojectedFar.z()]),
-    ));
+    line.update(
+      new Vector3Bezier(unprojectedClose, unprojectedClose, unprojectedFar, unprojectedFar)
+    );
   });
   mouse.register();
 }

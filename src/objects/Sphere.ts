@@ -1,6 +1,6 @@
 import {Shader} from "../Shader";
 import {Vector3Buffer, IndexBuffer} from "../buffers";
-import {Vector3} from "../Vector3";
+import {vector3} from "../Vector3";
 import {Color} from "../Color";
 import {mat4} from "gl-matrix";
 
@@ -66,8 +66,8 @@ void main(void) {
       )
       .link();
 
-    const positions: Vector3[] = [];
-    const normals: Vector3[] = [];
+    const positions: vector3[] = [];
+    const normals: vector3[] = [];
     const indices: number[] = [];
 
     let i: number;
@@ -91,10 +91,10 @@ void main(void) {
         // vertex position (x, y, z)
         const x = xy * Math.cos(sectorAngle); // r * cos(u) * cos(v)
         const y = xy * Math.sin(sectorAngle); // r * cos(u) * sin(v)
-        positions.push(new Vector3(x, y, z));
+        positions.push([x, y, z]);
 
         // normalized vertex normal (nx, ny, nz)
-        normals.push(new Vector3(x, y, z).scale(1 / 2));
+        normals.push([x / 2, y / 2, z / 2]);
       }
     }
 
