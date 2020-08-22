@@ -1,6 +1,6 @@
 import {mat4} from "gl-matrix";
 import {AnimationLoop, ITimestamp} from "./animation";
-import {PerspectiveLens} from "./cameras";
+import {PerspectiveLens, Camera} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
 import {Color} from "./Color";
 import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier} from "./interpolators";
@@ -10,58 +10,6 @@ import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {Gizmo} from "./objects/Gizmo";
 import {vector3} from "./Vector3";
 import {Line} from "./objects/Lines";
-
-const unproject = (
-  clickVector: vector3,
-  viewport: [number, number, number, number],
-  viewMatrix: mat4,
-  projectionMatric: mat4
-): vector3 => {
-  const [viewX, viewY, viewWidth, viewHeight] = viewport;
-  let [x, y, z] = clickVector;
-
-  // offsets from viewport, and flipping Y
-  x = x - viewX;
-  y = viewHeight - y - 1;
-  y = y - viewY;
-
-  // normalize to clip space: from 0 -> 1024 and 0 -> 768, for example, to -1 -> 1 for X and Y
-  x = (2 * x) / viewWidth - 1;
-  y = (2 * y) / viewHeight - 1;
-  z = 2 * z - 1;
-
-  const projViewMatrix = mat4.create();
-  const invertedMatrix = mat4.create();
-  mat4.multiply(projViewMatrix, projectionMatric, viewMatrix);
-  mat4.invert(invertedMatrix, projViewMatrix);
-
-  const [
-    a00,
-    a01,
-    a02,
-    a03,
-    a10,
-    a11,
-    a12,
-    a13,
-    a20,
-    a21,
-    a22,
-    a23,
-    a30,
-    a31,
-    a32,
-    a33,
-  ] = invertedMatrix;
-
-  const lw = 1 / (x * a03 + y * a13 + z * a23 + a33);
-
-  return [
-    (x * a00 + y * a10 + z * a20 + a30) * lw,
-    (x * a01 + y * a11 + z * a21 + a31) * lw,
-    (x * a02 + y * a12 + z * a22 + a32) * lw,
-  ];
-};
 
 main();
 
@@ -232,19 +180,10 @@ function main() {
     const viewport: [number, number, number, number] = [0, 0, width, height];
     const clickVectorClose: vector3 = [clientX, clientY, 0];
     const clickVectorFar: vector3 = [clientX, clientY, 1];
-
-    const unprojectedClose = unproject(
-      clickVectorClose,
-      viewport,
-      sceneCamera.getViewMatrix(),
-      lens.getProjection()
-    );
-    const unprojectedFar = unproject(
-      clickVectorFar,
-      viewport,
-      sceneCamera.getViewMatrix(),
-      lens.getProjection()
-    );
+    const projViewMatrix = mat4.create();
+    mat4.multiply(projViewMatrix, lens.getProjection(), sceneCamera.getViewMatrix());
+    const unprojectedClose = Camera.unproject(clickVectorClose, viewport, projViewMatrix);
+    const unprojectedFar = Camera.unproject(clickVectorFar, viewport, projViewMatrix);
 
     line.update(
       new Vector3Bezier(unprojectedClose, unprojectedClose, unprojectedFar, unprojectedFar)
