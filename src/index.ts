@@ -152,7 +152,6 @@ function main() {
 
     grids.render(modelMatrix, viewMatrix, projectionMatrix);
     line.render(modelMatrix, viewMatrix, projectionMatrix);
-    gizmo.render(modelMatrix, viewMatrix, projectionMatrix);
 
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(width - 200, 0, 200, 200);
