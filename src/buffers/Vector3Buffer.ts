@@ -1,5 +1,5 @@
+import {vector3} from "../types";
 import {FloatBuffer} from "./FloatBuffer";
-import {vector3} from "../Vector3";
 
 export class Vector3Buffer extends FloatBuffer {
   constructor(gl: WebGL2RenderingContext, vectors: vector3[]) {

@@ -1,5 +1,5 @@
+import {Vector3, vector3} from "../types";
 import {Bezier} from "./";
-import {Vector3, vector3} from "../Vector3";
 
 export class Vector3Bezier {
   private readonly xCurve: Bezier;

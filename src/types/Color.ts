@@ -8,7 +8,7 @@ export class Color {
    * @param hex string a css-style hex code representing either RGB or RGBA as 00-ff components. For
    * RGB (no alpha) hex strings, alpha is set to FF (1.0).
    */
-  public static fromHex(hex: string): color4 {
+  public static fromHex = (hex: string): color4 => {
     if (hex.length !== 7 && hex.length !== 9) {
       // includes "#" at start
       console.warn(`Invalid hex code: ${hex}: invalid length`);
@@ -35,5 +35,5 @@ export class Color {
         parseInt(hex.substr(7, 2), 16) / 255,
       ];
     }
-  }
+  };
 }

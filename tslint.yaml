@@ -14,10 +14,7 @@ rules:
   no-floating-promises:
     severity: warning
   no-return-await: true
-  no-unnecessary-class:
-    severity: warning
-  no-unused-variable:
-    severity: warning
+  no-unnecessary-class: false
   no-empty:
     severity: warning
   prefer-object-spread: true
