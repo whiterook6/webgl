@@ -9,6 +9,8 @@ import {Gizmo} from "./objects/Gizmo";
 import {Line} from "./objects/Lines";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {Color, vector3, ray, Ray} from "./types";
+import {Sphere} from "./objects/Sphere";
+import {Plane} from "./types/Plane";
 
 main();
 
@@ -83,7 +85,8 @@ function main() {
   const brPipe = pipe([loop(0, 5000), transform(0.0002), sin], brBezier.get);
 
   const grids = new ThreeDGrid(gl);
-  // const sphere = new Sphere(gl, 64);
+  const sphere = new Sphere(gl, 64);
+  const sphereModelMatrix = mat4.create();
   // const texturedCube = new TexturedCube(gl);
   // const framebuffer = new Framebuffer(gl, 256, 256);
 
@@ -99,7 +102,6 @@ function main() {
   sceneCamera.setUp([0, 0, 1]);
 
   const lens = new PerspectiveLens();
-  const line = new Line(gl, new Vector3Bezier([0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0]));
   const gizmo = new Gizmo(gl);
 
   function render(timestamp: ITimestamp) {
@@ -150,7 +152,7 @@ function main() {
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
     grids.render(modelMatrix, viewMatrix, projectionMatrix);
-    line.render(modelMatrix, viewMatrix, projectionMatrix);
+    sphere.render(sphereModelMatrix, viewMatrix, projectionMatrix);
 
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(width - 200, 0, 200, 200);
@@ -191,9 +193,10 @@ function main() {
     const projViewMatrix = mat4.create();
     mat4.multiply(projViewMatrix, lens.getProjection(), sceneCamera.getViewMatrix());
     const r: ray = Camera.unprojectRay([clientX, clientY], viewport, projViewMatrix);
-    console.log(JSON.stringify(r));
-
-    line.update(new Vector3Bezier(r.start, Ray.lerp(r, 1 / 3), Ray.lerp(r, 2 / 3), r.end));
+    const spherePos = Plane.getIntersection(Plane.in([-5, 0, 0]), r);
+    if (spherePos) {
+      mat4.fromTranslation(sphereModelMatrix, spherePos);
+    }
   });
   mouse.register();
 }

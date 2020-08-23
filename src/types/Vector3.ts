@@ -142,16 +142,16 @@ export class Vector3 {
 
   /**
    * Returns mixing of the two vectors by the given amount.
-   * @param mix How much of the Right vector is in the mix.
+   * @param mix How much of the right vector is in the mix.
    *  0.0 => 100% left;
    *  1.0 => 100% right;
    *  0.5 => 50% left, 50% right
    */
   public static lerp = (left: vector3, right: vector3, mix: number): vector3 => {
     return [
-      mix * left[0] + (1.0 - mix) * right[0],
-      mix * left[1] + (1.0 - mix) * right[1],
-      mix * left[2] + (1.0 - mix) * right[2],
+      (1.0 - mix) * left[0] + mix * right[0],
+      (1.0 - mix) * left[1] + mix * right[1],
+      (1.0 - mix) * left[2] + mix * right[2],
     ];
   };
 
