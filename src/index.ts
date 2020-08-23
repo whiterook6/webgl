@@ -9,6 +9,13 @@ import {Gizmo} from "./objects/Gizmo";
 import {Sphere} from "./objects/Sphere";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {Color, Plane, ray} from "./types";
+import {parseOBJ, ObjModel} from "./meshes/Obj";
+import mesh from "./meshes/GizmoCone.obj"; // mesh will be a string pointing to the public URI of the file
+
+const loadOBJ = async () => {
+  const response = await fetch(mesh);
+  return response.text();
+};
 
 main();
 
@@ -36,6 +43,14 @@ function main() {
     alert("Unable to initialize WebGL. Your browser or machine may not support it.");
     return;
   }
+
+  let obj: ObjModel | undefined;
+  loadOBJ()
+    .then((text) => {
+      const data = parseOBJ(text, gl);
+      obj = new ObjModel(gl, data.vertices, data.normals, data.indices);
+    })
+    .catch(console.error);
 
   let mustResize: boolean = false;
   let newWidth: number;
@@ -150,7 +165,9 @@ function main() {
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
     grids.render(modelMatrix, viewMatrix, projectionMatrix);
-    sphere.render(sphereModelMatrix, viewMatrix, projectionMatrix);
+    if (obj) {
+      obj.render(modelMatrix, viewMatrix, projectionMatrix);
+    }
 
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(width - 200, 0, 200, 200);
