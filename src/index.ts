@@ -3,14 +3,12 @@ import {AnimationLoop, ITimestamp} from "./animation";
 import {Camera, PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
 import {IMouseDrag, Mouse} from "./interaction/Mouse";
-import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier} from "./interpolators";
+import {Color4Bezier, loop, pipe, sin, transform} from "./interpolators";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
-import {Line} from "./objects/Lines";
-import {ThreeDGrid} from "./objects/ThreeDGrid";
-import {Color, vector3, ray, Ray} from "./types";
 import {Sphere} from "./objects/Sphere";
-import {Plane} from "./types/Plane";
+import {ThreeDGrid} from "./objects/ThreeDGrid";
+import {Color, Plane, ray} from "./types";
 
 main();
 
