@@ -1,5 +1,5 @@
 import {FloatBuffer} from "./FloatBuffer";
-import {color4} from "../Color";
+import {color4} from "../types";
 
 export class Color4Buffer extends FloatBuffer {
   constructor(gl: WebGL2RenderingContext, colors: color4[]) {

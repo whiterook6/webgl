@@ -1,6 +1,6 @@
 import {Shader} from "../Shader";
 import {Vector3Buffer, Color4Buffer, IndexBuffer, FloatBuffer} from "../buffers";
-import {Color} from "../Color";
+import {Color} from "../types";
 import {mat4} from "gl-matrix";
 
 export class TexturedCube {

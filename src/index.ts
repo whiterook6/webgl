@@ -1,15 +1,14 @@
 import {mat4} from "gl-matrix";
 import {AnimationLoop, ITimestamp} from "./animation";
-import {PerspectiveLens, Camera} from "./cameras";
+import {Camera, PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
-import {Color} from "./Color";
-import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier} from "./interpolators";
 import {IMouseDrag, Mouse} from "./interaction/Mouse";
+import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier} from "./interpolators";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
-import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {Gizmo} from "./objects/Gizmo";
-import {vector3} from "./Vector3";
 import {Line} from "./objects/Lines";
+import {ThreeDGrid} from "./objects/ThreeDGrid";
+import {Color, vector3, ray, Ray} from "./types";
 
 main();
 
@@ -188,16 +187,13 @@ function main() {
   document.addEventListener("mousedown", (event) => {
     const {clientX, clientY} = event;
     const viewport: [number, number, number, number] = [0, 0, width, height];
-    const clickVectorClose: vector3 = [clientX, clientY, 0];
-    const clickVectorFar: vector3 = [clientX, clientY, 1];
+
     const projViewMatrix = mat4.create();
     mat4.multiply(projViewMatrix, lens.getProjection(), sceneCamera.getViewMatrix());
-    const unprojectedClose = Camera.unproject(clickVectorClose, viewport, projViewMatrix);
-    const unprojectedFar = Camera.unproject(clickVectorFar, viewport, projViewMatrix);
+    const r: ray = Camera.unprojectRay([clientX, clientY], viewport, projViewMatrix);
+    console.log(JSON.stringify(r));
 
-    line.update(
-      new Vector3Bezier(unprojectedClose, unprojectedClose, unprojectedFar, unprojectedFar)
-    );
+    line.update(new Vector3Bezier(r.start, Ray.lerp(r, 1 / 3), Ray.lerp(r, 2 / 3), r.end));
   });
   mouse.register();
 }

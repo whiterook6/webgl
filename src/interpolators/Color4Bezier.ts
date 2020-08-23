@@ -1,4 +1,4 @@
-import {color4} from "../Color";
+import {color4} from "../types";
 import {Bezier} from "./";
 
 export class Color4Bezier {
