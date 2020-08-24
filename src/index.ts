@@ -1,14 +1,15 @@
 import {mat4} from "gl-matrix";
 import {AnimationLoop, ITimestamp} from "./animation";
-import {Camera, PerspectiveLens} from "./cameras";
+import {PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
+import {Track} from "./coaster/Track";
 import {IMouseDrag, Mouse} from "./interaction/Mouse";
 import {Color4Bezier, loop, pipe, sin, transform} from "./interpolators";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
-import {Sphere} from "./objects/Sphere";
+import {Line} from "./objects/Lines";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
-import {Color, Plane, ray} from "./types";
+import {Color} from "./types";
 
 main();
 
@@ -16,6 +17,7 @@ main();
 // Start here
 //
 function main() {
+  const track = new Track(3, 4);
   const canvas = document.querySelector("#glcanvas") as HTMLCanvasElement;
   if (!canvas) {
     return;
@@ -83,16 +85,6 @@ function main() {
   const brPipe = pipe([loop(0, 5000), transform(0.0002), sin], brBezier.get);
 
   const grids = new ThreeDGrid(gl);
-  const sphere = new Sphere(gl, 64);
-  const sphereModelMatrix = mat4.create();
-  // const texturedCube = new TexturedCube(gl);
-  // const framebuffer = new Framebuffer(gl, 256, 256);
-
-  // const camera = new OrbitCamera();
-  // camera.setDistance(10);
-  // camera.setTheta(-Math.PI / 12);
-  // camera.setTarget(new Vector3(0, 0, 0));
-  // camera.setUp(new Vector3(0, 1, 0));
   const sceneCamera = new OrbitCamera();
   sceneCamera.setDistance(10);
   sceneCamera.setTheta(-Math.PI / 12);
@@ -101,26 +93,10 @@ function main() {
 
   const lens = new PerspectiveLens();
   const gizmo = new Gizmo(gl);
+  const trackLines = new Line(gl, track.getPoints());
 
   function render(timestamp: ITimestamp) {
     const modelMatrix = mat4.create();
-
-    // framebuffer.render((bufferWidth: number, bufferHeight: number) => {
-    //   const angle = (timestamp.age / 100) * (Math.PI / 180);
-    //   camera.setPhi(angle);
-    //   const _viewMatrix = camera.getViewMatrix();
-
-    //   gl.viewport(0, 0, bufferWidth, bufferHeight);
-    //   gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
-    //   gl.clearDepth(1.0); // Clear everything
-    //   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    //   gl.enable(gl.DEPTH_TEST); // Enable depth testing
-    //   gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-    //   lens.aspect = bufferWidth / bufferHeight;
-    //   const _projectionMatrix = lens.getProjection();
-    //   grids.render(modelMatrix, _viewMatrix, _projectionMatrix);
-    //   sphere.render(modelMatrix, _viewMatrix, _projectionMatrix);
-    // });
 
     if (mustResize) {
       mustResize = false;
@@ -150,7 +126,7 @@ function main() {
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
     grids.render(modelMatrix, viewMatrix, projectionMatrix);
-    sphere.render(sphereModelMatrix, viewMatrix, projectionMatrix);
+    trackLines.render(modelMatrix, viewMatrix, projectionMatrix);
 
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(width - 200, 0, 200, 200);
@@ -184,17 +160,6 @@ function main() {
     sceneCamera.moveTheta(deltaY * 0.01);
   };
   mouse.addDragCallback(moveCamera);
-  document.addEventListener("mousedown", (event) => {
-    const {clientX, clientY} = event;
-    const viewport: [number, number, number, number] = [0, 0, width, height];
 
-    const projViewMatrix = mat4.create();
-    mat4.multiply(projViewMatrix, lens.getProjection(), sceneCamera.getViewMatrix());
-    const r: ray = Camera.unprojectRay([clientX, clientY], viewport, projViewMatrix);
-    const spherePos = Plane.getIntersection(Plane.in([-5, 0, 0]), r);
-    if (spherePos) {
-      mat4.fromTranslation(sphereModelMatrix, spherePos);
-    }
-  });
   mouse.register();
 }

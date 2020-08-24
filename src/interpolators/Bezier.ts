@@ -1,5 +1,5 @@
 export class Bezier {
-  private readonly nodes: [number, number, number, number];
+  protected readonly nodes: [number, number, number, number];
 
   constructor(
     a: [number, number, number, number] | number = 0,
@@ -14,6 +14,24 @@ export class Bezier {
     }
   }
 
+  public static continue = (previous: Bezier, c: number, d: number): Bezier => {
+    const [, , previousC, previousD] = previous.nodes;
+    return new Bezier(previousD, previousD - previousC, c, d);
+  };
+
+  public split = (t: number = 0.5) => {
+    const [A, B, C, D] = this.nodes;
+    const m = 1 - t;
+    const E = m * A + t * B;
+    const F = m * B + t * C;
+    const G = m * C + t * D;
+    const H = m * E + t * F;
+    const J = m * F + t * G;
+    const K = m * H + t * J;
+
+    return [new Bezier([A, F, H, K]), new Bezier([K, J, G, D])];
+  };
+
   public get = (t: number) => {
     const [p0, p1, p2, p3] = this.nodes;
 
@@ -25,6 +43,18 @@ export class Bezier {
     const mt3 = mt * mt * mt;
 
     return 1 * mt3 * p0 + 3 * mt2 * t * p1 + 3 * mt * t2 * p2 + 1 * t3 * p3;
+  };
+
+  public getLength = (): number => {
+    let length = 0;
+    let previous = this.nodes[0];
+    for (let i = 1; i <= 25; i++) {
+      const next = this.get(i / 25);
+      length += next - previous;
+      previous = next;
+    }
+
+    return length;
   };
 
   public getDerivative = (t: number) => {

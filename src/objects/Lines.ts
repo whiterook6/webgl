@@ -16,15 +16,11 @@ export class Line {
   private readonly viewMatrixUniform: WebGLUniformLocation;
   private readonly projectionMatrixUniform: WebGLUniformLocation;
 
-  constructor(gl: WebGL2RenderingContext, bezier: Vector3Bezier) {
+  constructor(gl: WebGL2RenderingContext, vertices: vector3[]) {
     this.gl = gl;
 
-    const vertices: vector3[] = [];
     const indices: number[] = [];
-
-    for (let i = 0; i <= 100; i++) {
-      const position = bezier.getPosition(i / 100);
-      vertices.push(position);
+    for (let i = 0; i < vertices.length; i++) {
       indices.push(i);
     }
 
@@ -94,7 +90,7 @@ void main(void) {
     this.gl.uniformMatrix4fv(this.viewMatrixUniform, false, viewMatrix);
     this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
     this.gl.drawElements(
-      this.gl.LINE_STRIP,
+      this.gl.LINE_LOOP,
       this.indexBuffer.getLength(),
       this.gl.UNSIGNED_SHORT,
       0

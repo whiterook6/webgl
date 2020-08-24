@@ -52,4 +52,16 @@ export class Vector3Bezier {
       finalPosition
     );
   }
+
+  public getLength(): number {
+    let length: number = 0;
+    let previous: vector3 = this.getPosition(0);
+    for (let i = 1; i <= 25; i++) {
+      const next = this.getPosition(i / 25);
+      length += Vector3.len(Vector3.subtract(previous, next));
+      previous = next;
+    }
+
+    return length;
+  }
 }
