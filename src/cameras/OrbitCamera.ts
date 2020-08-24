@@ -1,6 +1,6 @@
-import {Camera} from "./Camera";
 import {mat4} from "gl-matrix";
-import {Vector3, vector3} from "../Vector3";
+import {Vector3, vector3} from "../types";
+import {Camera} from "./Camera";
 
 export class OrbitCamera extends Camera {
   private theta: number; // angle between x-y plane and line

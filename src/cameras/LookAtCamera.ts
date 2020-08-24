@@ -1,4 +1,4 @@
-import {vector3, Vector3} from "../Vector3";
+import {vector3, Vector3} from "../types";
 import {mat4} from "gl-matrix";
 import {Camera} from "./Camera";
 

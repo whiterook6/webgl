@@ -50,7 +50,7 @@ export class Shader {
   public addFragmentSource(source: string) {
     const fragmentShader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
     if (fragmentShader === null) {
-      throw new Error("Error creating empty Vertex Shader");
+      throw new Error("Error creating empty Fragment Shader");
     }
 
     this.fragmentShader = fragmentShader;
@@ -118,7 +118,7 @@ export class Shader {
   /**
    * Gets this shader's WebGL Program.
    *
-   * @throws Error if this shader's program has already been compiled and linked.
+   * @throws Error if this shader's program has not been compiled and linked.
    */
   public getProgram(): WebGLProgram {
     if (!this.program) {
