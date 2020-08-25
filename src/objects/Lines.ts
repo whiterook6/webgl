@@ -36,6 +36,7 @@ uniform mat4 projectionMatrix;
 attribute vec4 vertexPosition;
 
 void main(void) {
+    gl_PointSize = 4.0;
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vertexPosition;
 }`
       )
@@ -89,12 +90,7 @@ void main(void) {
     this.gl.uniformMatrix4fv(this.modelMatrixUniform, false, modelMatrix);
     this.gl.uniformMatrix4fv(this.viewMatrixUniform, false, viewMatrix);
     this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
-    this.gl.drawElements(
-      this.gl.LINE_LOOP,
-      this.indexBuffer.getLength(),
-      this.gl.UNSIGNED_SHORT,
-      0
-    );
+    this.gl.drawElements(this.gl.POINTS, this.indexBuffer.getLength(), this.gl.UNSIGNED_SHORT, 0);
   }
 
   public destroy() {

@@ -12,24 +12,24 @@ export class Track {
       new Vector3Bezier( // turn right around 2-unit radius
         [length, 0, 0],
         [length + radiusHandle, 0, 0],
-        [length + radius, radius - radiusHandle, 0],
-        [length + radius, radius, 0]
+        [length + radius, radius - radiusHandle, -1],
+        [length + radius, radius, -1]
       ),
       new Vector3Bezier( // turn right again around 2-unit radius
-        [length + radius, radius, 0],
-        [length + radius, radius + radiusHandle, 0],
-        [length + radiusHandle, 2 * radius, 0],
-        [length, 2 * radius, 0]
+        [length + radius, radius, -1],
+        [length + radius, radius + radiusHandle, -1],
+        [length + radiusHandle, 2 * radius, -1],
+        [length, 2 * radius, -1]
       ),
       new Vector3Bezier( // straight
-        [length, 2 * radius, 0],
-        [(2 * length) / 3, 2 * radius, 0],
-        [length / 3, 2 * radius, 0],
-        [0, 2 * radius, 0]
+        [length, 2 * radius, -1],
+        [(2 * length) / 3, 2 * radius, -1],
+        [length / 3, 2 * radius, -1],
+        [0, 2 * radius, -1]
       ),
       new Vector3Bezier( // turn right around 2-unit radius
-        [0, 2 * radius, 0],
-        [-radiusHandle, 2 * radius, 0],
+        [0, 2 * radius, -1],
+        [-radiusHandle, 2 * radius, -1],
         [-radius, radius + radiusHandle, 0],
         [-radius, radius, 0]
       ),
@@ -49,11 +49,16 @@ export class Track {
   }
 
   public getPoints() {
+    const distance = 0.5;
     return this.sections
       .map((section: Vector3Bezier) => {
+        const length = section.getLength();
+        const pointCount = length / distance;
+
         const points = [];
-        for (let i = 0; i < 25; i++) {
-          points.push(section.getPosition(i / 25));
+        for (let i = 0; i < pointCount; i++) {
+          const d = length * (i / pointCount);
+          points.push(section.getPosition(section.getT(d)));
         }
 
         return points;

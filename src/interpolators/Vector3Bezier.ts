@@ -1,15 +1,18 @@
-import {Vector3, vector3} from "../types";
+import {Vector3, vector3, epsilon, Plane} from "../types";
 import {Bezier} from "./";
 
 export class Vector3Bezier {
   private readonly xCurve: Bezier;
   private readonly yCurve: Bezier;
   private readonly zCurve: Bezier;
+  private centilengths!: number[];
 
   constructor(a: vector3, b: vector3, c: vector3, d: vector3) {
     this.xCurve = new Bezier([a[0], b[0], c[0], d[0]]);
     this.yCurve = new Bezier([a[1], b[1], c[1], d[1]]);
     this.zCurve = new Bezier([a[2], b[2], c[2], d[2]]);
+
+    this.calculateCentilengths();
   }
 
   public getPosition(t: number): vector3 {
@@ -32,36 +35,60 @@ export class Vector3Bezier {
     ];
   }
 
-  /**
-   * Prints when using string interpolation: `Curve: ${bezier}`
-   */
   public toString() {
     return `${this.xCurve}\n${this.yCurve},${this.zCurve}`;
   }
 
-  public static createFromMotion(
-    initialPosition: vector3,
-    initialVelocity: vector3,
-    finalPosition: vector3,
-    finalVelocity: vector3
-  ) {
-    return new Vector3Bezier(
-      initialPosition,
-      Vector3.add(initialPosition, Vector3.scale(initialVelocity, 1 / 3)),
-      Vector3.subtract(finalPosition, Vector3.scale(finalVelocity, 1 / 3)),
-      finalPosition
-    );
+  public getLength(): number {
+    if (this.centilengths.length > 0) {
+      return this.centilengths[this.centilengths.length - 1];
+    } else {
+      return 0;
+    }
   }
 
-  public getLength(): number {
-    let length: number = 0;
-    let previous: vector3 = this.getPosition(0);
-    for (let i = 1; i <= 25; i++) {
-      const next = this.getPosition(i / 25);
-      length += Vector3.len(Vector3.subtract(previous, next));
-      previous = next;
+  public getT(distance: number): number {
+    if (distance < epsilon) {
+      return 0;
+    } else if (distance > this.getLength()) {
+      return 1;
     }
 
-    return length;
+    const maxIterations = 10;
+    let low = 0;
+    let high = this.centilengths.length - 1;
+    let iterations = 0;
+    let middle = 0;
+
+    while (low < high && iterations < maxIterations) {
+      middle = Math.floor((low + high) / 2);
+      const centilength = this.centilengths[middle];
+
+      if (Math.abs(centilength - distance) < epsilon) {
+        break;
+      } else if (distance > centilength) {
+        low = middle + 1;
+        iterations++;
+      } else {
+        high = middle;
+        iterations++;
+      }
+    }
+
+    const t = middle / this.centilengths.length;
+    return t;
+  }
+
+  private calculateCentilengths() {
+    let length: number = 0;
+    let previous: vector3 = this.getPosition(0);
+    this.centilengths = [0];
+
+    for (let i = 1; i <= 99; i++) {
+      const next = this.getPosition(i / 99);
+      length += Vector3.len(Vector3.subtract(previous, next));
+      this.centilengths.push(length);
+      previous = next;
+    }
   }
 }
