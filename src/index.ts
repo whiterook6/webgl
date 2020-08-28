@@ -1,5 +1,6 @@
 import {mat4} from "gl-matrix";
 import {AnimationLoop, ITimestamp} from "./animation";
+import {Vector3Buffer, IndexBuffer} from "./buffers";
 import {PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
 import {Track} from "./coaster/Track";
@@ -7,9 +8,9 @@ import {IMouseDrag, Mouse} from "./interaction/Mouse";
 import {Color4Bezier, loop, pipe, sin, transform} from "./interpolators";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
-import {Line} from "./objects/Lines";
+import {Triangles} from "./objects/Triangles";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
-import {Color} from "./types";
+import {Color, vector3} from "./types";
 
 main();
 
@@ -93,7 +94,14 @@ function main() {
 
   const lens = new PerspectiveLens();
   const gizmo = new Gizmo(gl);
-  const trackLines = new Line(gl, track.getPoints());
+  const triangles: vector3[] = track.getTriangles();
+  console.log(triangles);
+  const indices: number[] = triangles.map((triangle, index) => index);
+  const trackLines = new Triangles(
+    gl,
+    new Vector3Buffer(gl, triangles),
+    new IndexBuffer(gl, indices)
+  );
 
   function render(timestamp: ITimestamp) {
     const modelMatrix = mat4.create();

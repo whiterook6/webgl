@@ -1,4 +1,6 @@
 import {Vector3Bezier} from "../interpolators";
+import {vector3, Vector3} from "../types";
+import {mat4, vec3} from "gl-matrix";
 
 // https://spencermortensen.com/articles/bezier-circle/
 const circleApproximation = 0.551915024494;
@@ -62,6 +64,39 @@ export class Track {
         }
 
         return points;
+      })
+      .flat(1);
+  }
+
+  public getTriangles() {
+    const distance = 0.5;
+    return this.sections
+      .map((section: Vector3Bezier) => {
+        const length = section.getLength();
+        const pointCount = length / distance;
+
+        const triangles: vector3[] = [];
+
+        for (let i = 0; i < pointCount; i++) {
+          const d = length * (i / pointCount);
+          const t = section.getT(d);
+          const position = section.getPosition(t);
+          const velocity = section.getVelocity(t);
+          const mat = mat4.create();
+          mat4.targetTo(mat, position, Vector3.add(position, velocity), [0, 0, 1]);
+
+          const vertices: vec3[] = [
+            vec3.fromValues(-0.1, 0, 0),
+            vec3.fromValues(0.1, 0, 0),
+            vec3.fromValues(0, -0.173205, 0),
+          ];
+          vec3.transformMat4(vertices[0], vertices[0], mat);
+          vec3.transformMat4(vertices[1], vertices[1], mat);
+          vec3.transformMat4(vertices[2], vertices[2], mat);
+          triangles.push(...vertices.map((v) => [v[0], v[1], v[2]] as vector3));
+        }
+
+        return triangles;
       })
       .flat(1);
   }
