@@ -64,7 +64,7 @@ export class Vector3Bezier {
     let high = this.centilengths.length - 1;
     let iterations = 0;
     let middle = 0;
-    const maxIterations = 20;
+    const maxIterations = 7;
 
     while (low < high - 1 && iterations < maxIterations) {
       middle = Math.floor((low + high) / 2);
