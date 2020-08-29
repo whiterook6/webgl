@@ -1,18 +1,18 @@
 import {mat4} from "gl-matrix";
 import {IndexBuffer, Vector3Buffer} from "../buffers";
-import {SolicColorRenderer} from "../renderers/SolidColorRenderer";
+import {SolidColorRenderer} from "../renderers/SolidColorRenderer";
 import {Color, vector3, color4} from "../types";
 
 export class ThreeDGrid {
   private readonly gl: WebGL2RenderingContext;
   private readonly color: color4;
-  private readonly renderer: SolicColorRenderer;
+  private readonly renderer: SolidColorRenderer;
   private readonly positionBuffer: Vector3Buffer;
   private readonly indexBuffer: IndexBuffer;
 
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
-    this.renderer = new SolicColorRenderer(gl);
+    this.renderer = new SolidColorRenderer(gl);
     this.color = Color.fromHex("#FFFFFF");
 
     const gridPositions: vector3[] = [];

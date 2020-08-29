@@ -1,15 +1,24 @@
-import {Vector3, vector3} from "../types";
+import {Vector3, vector3, epsilon} from "../types";
 import {Bezier} from "./";
+
+export type frenetFrame = {
+  forward: vector3;
+  up: vector3;
+  right: vector3;
+};
 
 export class Vector3Bezier {
   private readonly xCurve: Bezier;
   private readonly yCurve: Bezier;
   private readonly zCurve: Bezier;
+  private centilengths!: number[];
 
   constructor(a: vector3, b: vector3, c: vector3, d: vector3) {
     this.xCurve = new Bezier([a[0], b[0], c[0], d[0]]);
     this.yCurve = new Bezier([a[1], b[1], c[1], d[1]]);
     this.zCurve = new Bezier([a[2], b[2], c[2], d[2]]);
+
+    this.calculateCentilengths();
   }
 
   public getPosition(t: number): vector3 {
@@ -32,24 +41,74 @@ export class Vector3Bezier {
     ];
   }
 
-  /**
-   * Prints when using string interpolation: `Curve: ${bezier}`
-   */
   public toString() {
     return `${this.xCurve}\n${this.yCurve},${this.zCurve}`;
   }
 
-  public static createFromMotion(
-    initialPosition: vector3,
-    initialVelocity: vector3,
-    finalPosition: vector3,
-    finalVelocity: vector3
-  ) {
-    return new Vector3Bezier(
-      initialPosition,
-      Vector3.add(initialPosition, Vector3.scale(initialVelocity, 1 / 3)),
-      Vector3.subtract(finalPosition, Vector3.scale(finalVelocity, 1 / 3)),
-      finalPosition
-    );
+  public getLength(): number {
+    if (this.centilengths.length > 0) {
+      return this.centilengths[this.centilengths.length - 1];
+    } else {
+      return 0;
+    }
+  }
+
+  public getT(distance: number): number {
+    if (distance < epsilon) {
+      return 0;
+    } else if (distance > this.getLength()) {
+      return 1;
+    }
+
+    let low = 0;
+    let high = this.centilengths.length - 1;
+    let iterations = 0;
+    let middle = 0;
+    const maxIterations = 7;
+
+    while (low < high - 1 && iterations < maxIterations) {
+      middle = Math.floor((low + high) / 2);
+      const centilength = this.centilengths[middle];
+
+      if (Math.abs(centilength - distance) < epsilon) {
+        return middle / this.centilengths.length;
+      } else if (distance > centilength) {
+        low = middle;
+        iterations++;
+      } else {
+        high = middle;
+        iterations++;
+      }
+    }
+
+    const m =
+      (distance - this.centilengths[low]) / (this.centilengths[high] - this.centilengths[low]);
+    const t = (low + m) / this.centilengths.length;
+    return t;
+  }
+
+  public getFrenetFrame(t: number): frenetFrame {
+    const forward = Vector3.normalize(this.getVelocity(t));
+    const b = Vector3.add(forward, this.getAcceleration(t));
+    const right = Vector3.normalize(Vector3.cross(b, forward));
+    const up = Vector3.normalize(Vector3.cross(right, forward));
+    return {
+      forward,
+      right,
+      up,
+    };
+  }
+
+  private calculateCentilengths() {
+    let length: number = 0;
+    let previous: vector3 = this.getPosition(0);
+    this.centilengths = [0];
+
+    for (let i = 1; i <= 100; i++) {
+      const next = this.getPosition(i / 100);
+      length += Vector3.len(Vector3.subtract(previous, next));
+      this.centilengths.push(length);
+      previous = next;
+    }
   }
 }

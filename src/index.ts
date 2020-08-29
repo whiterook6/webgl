@@ -1,18 +1,21 @@
 import {mat4} from "gl-matrix";
 import {AnimationLoop, ITimestamp} from "./animation";
+import {IndexBuffer, Vector3Buffer} from "./buffers";
 import {PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
+import {Track} from "./coaster/Track";
 import {IMouseDrag, Mouse} from "./interaction/Mouse";
-import {Color4Bezier, loop, pipe, sin, transform} from "./interpolators";
+import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier} from "./interpolators";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
-import {Color} from "./types";
-import {ThreeDGrid} from "./objects/ThreeDGrid";
+import {Color, vector3} from "./types";
+import {RenderableBezier} from "./objects/RenderableBezier";
 
-//
+main();
 // Start here
 //
 function main() {
+  const track = new Track(3, 4);
   const canvas = document.querySelector("#glcanvas") as HTMLCanvasElement;
   if (!canvas) {
     return;
@@ -92,8 +95,11 @@ function main() {
   sceneCamera.setUp([0, 0, 1]);
 
   const lens = new PerspectiveLens();
-  const grids = new ThreeDGrid(gl);
   const gizmo = new Gizmo(gl);
+  const bezier = new RenderableBezier(
+    gl,
+    new Vector3Bezier([6.0, 0.0, 0.0], [6.0, 11.0, 0.0], [3.0, 0.0, 3.0], [0.0, 0.0, 10.0])
+  );
 
   function render(timestamp: ITimestamp) {
     const modelMatrix = mat4.create();
@@ -123,11 +129,15 @@ function main() {
     gl.enable(gl.DEPTH_TEST); // Enable depth testing
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
-    grids.render(sceneCamera.getViewMatrix(), lens.getProjection());
+    const viewMatrix = sceneCamera.getViewMatrix();
+    const projectionMatrix = lens.getProjection();
+    bezier.render(viewMatrix, projectionMatrix);
+
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(width - 200, 0, 200, 200);
     lens.aspect = 1;
     sceneCamera.setDistance(3);
+    sceneCamera.setTarget([0, 0, 0]);
     gizmo.render(sceneCamera.getViewMatrix(), lens.getProjection());
     sceneCamera.setDistance(10);
     lens.aspect = width / height;
