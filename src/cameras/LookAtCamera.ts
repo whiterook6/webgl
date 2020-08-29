@@ -18,16 +18,32 @@ export class LookAtCamera extends Camera {
     this.position = position;
   }
 
+  public getPosition(): vector3 {
+    return Vector3.clone(this.position);
+  }
+
   public setForward(forward: vector3) {
     this.forward = Vector3.normalize(forward);
+  }
+
+  public getForward(): vector3 {
+    return Vector3.clone(this.forward);
   }
 
   public setTarget(target: vector3) {
     this.forward = Vector3.normalize(Vector3.subtract(target, this.position));
   }
 
+  public getTarget(): vector3 {
+    return Vector3.add(this.position, this.forward);
+  }
+
   public setUp(up: vector3) {
     this.up = Vector3.normalize(up);
+  }
+
+  public getUp(): vector3 {
+    return Vector3.clone(this.up);
   }
 
   public getViewMatrix() {

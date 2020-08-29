@@ -10,6 +10,7 @@ import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
 import {Color, vector3} from "./types";
 import {RenderableBezier} from "./objects/RenderableBezier";
+import {ThreeDGrid} from "./objects/ThreeDGrid";
 
 main();
 // Start here
@@ -91,8 +92,13 @@ function main() {
   const sceneCamera = new OrbitCamera();
   sceneCamera.setDistance(10);
   sceneCamera.setTheta(-Math.PI / 12);
-  sceneCamera.setTarget([0, 0, 0]);
+  sceneCamera.setTarget([0, 0, 5]);
   sceneCamera.setUp([0, 0, 1]);
+  const gizmoCamera = new OrbitCamera();
+  gizmoCamera.setDistance(3);
+  gizmoCamera.setTheta(-Math.PI / 12);
+  gizmoCamera.setTarget([0, 0, 0]);
+  gizmoCamera.setUp([0, 0, 1]);
 
   const lens = new PerspectiveLens();
   const gizmo = new Gizmo(gl);
@@ -136,10 +142,9 @@ function main() {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(width - 200, 0, 200, 200);
     lens.aspect = 1;
-    sceneCamera.setDistance(3);
-    sceneCamera.setTarget([0, 0, 0]);
-    gizmo.render(sceneCamera.getViewMatrix(), lens.getProjection());
-    sceneCamera.setDistance(10);
+    gizmoCamera.setPhi(sceneCamera.getPhi());
+    gizmoCamera.setTheta(sceneCamera.getTheta());
+    gizmo.render(gizmoCamera.getViewMatrix(), lens.getProjection());
     lens.aspect = width / height;
     gl.viewport(0, 0, width, height);
   }
