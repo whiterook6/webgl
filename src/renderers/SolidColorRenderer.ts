@@ -3,7 +3,7 @@ import {Vector3Buffer, IndexBuffer} from "../buffers";
 import {mat4} from "gl-matrix";
 import {color4} from "../types";
 
-export class SolicColorRenderer {
+export class SolidColorRenderer {
   private static shader: Shader;
   private static vertexPositionAttribute: number;
   private static colorUniform: WebGLUniformLocation;
@@ -13,13 +13,13 @@ export class SolicColorRenderer {
 
   constructor(gl: WebGL2RenderingContext) {
     this.gl = gl;
-    if (!SolicColorRenderer.shader) {
-      SolicColorRenderer.loadShader(gl);
+    if (!SolidColorRenderer.shader) {
+      SolidColorRenderer.loadShader(gl);
     }
   }
 
   static loadShader(gl: WebGL2RenderingContext) {
-    SolicColorRenderer.shader = new Shader(gl)
+    SolidColorRenderer.shader = new Shader(gl)
       .addVertexSource(
         `
 precision lowp float;
@@ -43,24 +43,24 @@ void main(void) {
       )
       .link();
 
-    SolicColorRenderer.vertexPositionAttribute = SolicColorRenderer.shader.getAttributeLocation(
+    SolidColorRenderer.vertexPositionAttribute = SolidColorRenderer.shader.getAttributeLocation(
       "vertexPosition"
     );
-    SolicColorRenderer.matrixUniform = SolicColorRenderer.shader.getUniformLocation(
+    SolidColorRenderer.matrixUniform = SolidColorRenderer.shader.getUniformLocation(
       "matrix"
     ) as WebGLUniformLocation;
-    SolicColorRenderer.colorUniform = SolicColorRenderer.shader.getUniformLocation(
+    SolidColorRenderer.colorUniform = SolidColorRenderer.shader.getUniformLocation(
       "color"
     ) as WebGLUniformLocation;
   }
 
   render(vertices: Vector3Buffer, indices: IndexBuffer, color: color4, matrix: mat4, mode: number) {
-    vertices.bindToAttribute(SolicColorRenderer.vertexPositionAttribute);
+    vertices.bindToAttribute(SolidColorRenderer.vertexPositionAttribute);
     indices.bindToAttribute();
 
-    this.gl.useProgram(SolicColorRenderer.shader.getProgram());
-    this.gl.uniformMatrix4fv(SolicColorRenderer.matrixUniform, false, matrix);
-    this.gl.uniform4fv(SolicColorRenderer.colorUniform, color);
+    this.gl.useProgram(SolidColorRenderer.shader.getProgram());
+    this.gl.uniformMatrix4fv(SolidColorRenderer.matrixUniform, false, matrix);
+    this.gl.uniform4fv(SolidColorRenderer.colorUniform, color);
 
     const vertexCount = indices.getLength();
     const type = this.gl.UNSIGNED_SHORT;

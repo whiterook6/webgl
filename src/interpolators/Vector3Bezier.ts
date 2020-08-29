@@ -1,5 +1,11 @@
-import {Vector3, vector3, epsilon, Plane} from "../types";
+import {Vector3, vector3, epsilon} from "../types";
 import {Bezier} from "./";
+
+export type frenetFrame = {
+  forward: vector3;
+  up: vector3;
+  right: vector3;
+};
 
 export class Vector3Bezier {
   private readonly xCurve: Bezier;
@@ -79,13 +85,25 @@ export class Vector3Bezier {
     return t;
   }
 
+  public getFrenetFrame(t: number): frenetFrame {
+    const forward = Vector3.normalize(this.getVelocity(t));
+    const b = Vector3.add(forward, this.getAcceleration(t));
+    const right = Vector3.normalize(Vector3.cross(b, forward));
+    const up = Vector3.normalize(Vector3.cross(right, forward));
+    return {
+      forward,
+      right,
+      up,
+    };
+  }
+
   private calculateCentilengths() {
     let length: number = 0;
     let previous: vector3 = this.getPosition(0);
     this.centilengths = [0];
 
-    for (let i = 1; i <= 99; i++) {
-      const next = this.getPosition(i / 99);
+    for (let i = 1; i <= 199; i++) {
+      const next = this.getPosition(i / 199);
       length += Vector3.len(Vector3.subtract(previous, next));
       this.centilengths.push(length);
       previous = next;

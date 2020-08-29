@@ -5,10 +5,11 @@ import {PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
 import {Track} from "./coaster/Track";
 import {IMouseDrag, Mouse} from "./interaction/Mouse";
-import {Color4Bezier, loop, pipe, sin, transform} from "./interpolators";
+import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier} from "./interpolators";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
 import {Color, vector3} from "./types";
+import {RenderableBezier} from "./objects/RenderableBezier";
 
 main();
 // Start here
@@ -95,6 +96,10 @@ function main() {
 
   const lens = new PerspectiveLens();
   const gizmo = new Gizmo(gl);
+  const bezier = new RenderableBezier(
+    gl,
+    new Vector3Bezier([6.0, 0.0, 0.0], [6.0, 11.0, 0.0], [3.0, 0.0, 3.0], [0.0, 0.0, 10.0])
+  );
 
   function render(timestamp: ITimestamp) {
     const modelMatrix = mat4.create();
@@ -126,11 +131,13 @@ function main() {
 
     const viewMatrix = sceneCamera.getViewMatrix();
     const projectionMatrix = lens.getProjection();
+    bezier.render(viewMatrix, projectionMatrix);
 
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(width - 200, 0, 200, 200);
     lens.aspect = 1;
     sceneCamera.setDistance(3);
+    sceneCamera.setTarget([0, 0, 0]);
     gizmo.render(sceneCamera.getViewMatrix(), lens.getProjection());
     sceneCamera.setDistance(10);
     lens.aspect = width / height;
