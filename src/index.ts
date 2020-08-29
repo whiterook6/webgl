@@ -1,6 +1,6 @@
 import {mat4} from "gl-matrix";
 import {AnimationLoop, ITimestamp} from "./animation";
-import {Vector3Buffer, IndexBuffer} from "./buffers";
+import {IndexBuffer, Vector3Buffer} from "./buffers";
 import {PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
 import {Track} from "./coaster/Track";
@@ -8,13 +8,9 @@ import {IMouseDrag, Mouse} from "./interaction/Mouse";
 import {Color4Bezier, loop, pipe, sin, transform} from "./interpolators";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
-import {Triangles} from "./objects/Triangles";
-import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {Color, vector3} from "./types";
 
 main();
-
-//
 // Start here
 //
 function main() {
@@ -27,6 +23,12 @@ function main() {
     event.stopPropagation();
     event.preventDefault();
   });
+
+  // disable right-click menu
+  canvas.oncontextmenu = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
 
   let width = window.innerWidth;
   let height = window.innerHeight;
@@ -85,7 +87,6 @@ function main() {
   const blPipe = pipe([loop(0, 5000), transform(0.0002), sin], blBezier.get);
   const brPipe = pipe([loop(0, 5000), transform(0.0002), sin], brBezier.get);
 
-  const grids = new ThreeDGrid(gl);
   const sceneCamera = new OrbitCamera();
   sceneCamera.setDistance(10);
   sceneCamera.setTheta(-Math.PI / 12);
@@ -94,14 +95,6 @@ function main() {
 
   const lens = new PerspectiveLens();
   const gizmo = new Gizmo(gl);
-  const triangles: vector3[] = track.getTriangles();
-  console.log(triangles);
-  const indices: number[] = triangles.map((triangle, index) => index);
-  const trackLines = new Triangles(
-    gl,
-    new Vector3Buffer(gl, triangles),
-    new IndexBuffer(gl, indices)
-  );
 
   function render(timestamp: ITimestamp) {
     const modelMatrix = mat4.create();
@@ -116,8 +109,6 @@ function main() {
 
     // normal time
     lens.aspect = width / height;
-    const viewMatrix = sceneCamera.getViewMatrix();
-    const projectionMatrix = lens.getProjection();
     gl.viewport(0, 0, width, height);
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
     gl.clearDepth(1.0); // Clear everything
@@ -133,14 +124,14 @@ function main() {
     gl.enable(gl.DEPTH_TEST); // Enable depth testing
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
-    grids.render(modelMatrix, viewMatrix, projectionMatrix);
-    trackLines.render(modelMatrix, viewMatrix, projectionMatrix);
+    const viewMatrix = sceneCamera.getViewMatrix();
+    const projectionMatrix = lens.getProjection();
 
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(width - 200, 0, 200, 200);
     lens.aspect = 1;
     sceneCamera.setDistance(3);
-    gizmo.render(modelMatrix, sceneCamera.getViewMatrix(), lens.getProjection());
+    gizmo.render(sceneCamera.getViewMatrix(), lens.getProjection());
     sceneCamera.setDistance(10);
     lens.aspect = width / height;
     gl.viewport(0, 0, width, height);
@@ -164,10 +155,11 @@ function main() {
     }
 
     const {deltaX, deltaY} = event;
-    sceneCamera.movePhi(deltaX * 0.01);
+    sceneCamera.movePhi(deltaX * -0.01);
     sceneCamera.moveTheta(deltaY * 0.01);
   };
   mouse.addDragCallback(moveCamera);
-
   mouse.register();
 }
+
+main();
