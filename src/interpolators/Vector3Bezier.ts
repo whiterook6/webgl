@@ -60,20 +60,20 @@ export class Vector3Bezier {
       return 1;
     }
 
-    const maxIterations = 10;
     let low = 0;
     let high = this.centilengths.length - 1;
     let iterations = 0;
     let middle = 0;
+    const maxIterations = 20;
 
-    while (low < high && iterations < maxIterations) {
+    while (low < high - 1 && iterations < maxIterations) {
       middle = Math.floor((low + high) / 2);
       const centilength = this.centilengths[middle];
 
       if (Math.abs(centilength - distance) < epsilon) {
-        break;
+        return middle / this.centilengths.length;
       } else if (distance > centilength) {
-        low = middle + 1;
+        low = middle;
         iterations++;
       } else {
         high = middle;
@@ -81,7 +81,9 @@ export class Vector3Bezier {
       }
     }
 
-    const t = middle / this.centilengths.length;
+    const m =
+      (distance - this.centilengths[low]) / (this.centilengths[high] - this.centilengths[low]);
+    const t = (low + m) / this.centilengths.length;
     return t;
   }
 
@@ -102,8 +104,8 @@ export class Vector3Bezier {
     let previous: vector3 = this.getPosition(0);
     this.centilengths = [0];
 
-    for (let i = 1; i <= 199; i++) {
-      const next = this.getPosition(i / 199);
+    for (let i = 1; i <= 100; i++) {
+      const next = this.getPosition(i / 100);
       length += Vector3.len(Vector3.subtract(previous, next));
       this.centilengths.push(length);
       previous = next;

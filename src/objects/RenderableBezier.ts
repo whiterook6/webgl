@@ -22,9 +22,6 @@ export class RenderableBezier {
     let segmentLength = 0.33;
     const segments = Math.ceil(length / segmentLength);
     segmentLength = length / segments;
-    console.log(length);
-    console.log(segments);
-    console.log(segmentLength);
 
     const positions: vector3[] = [];
     const colors: color4[] = [];
