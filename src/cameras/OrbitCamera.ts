@@ -28,6 +28,16 @@ export class OrbitCamera extends Camera {
     ];
   }
 
+  public getForward(): vector3 {
+    const {theta, phi} = this;
+
+    return [Math.cos(theta) * Math.cos(phi), Math.cos(theta) * Math.sin(phi), Math.sin(theta)];
+  }
+
+  public getUp(): vector3 {
+    return Vector3.clone(this.up);
+  }
+
   public getViewMatrix(): mat4 {
     const {target, up} = this;
 
@@ -52,6 +62,10 @@ export class OrbitCamera extends Camera {
     this.setTheta(deltaTheta + this.theta);
   }
 
+  public getTheta() {
+    return this.theta;
+  }
+
   /**
    * @param phi Angle along x-z plane
    */
@@ -66,8 +80,16 @@ export class OrbitCamera extends Camera {
     this.setPhi(deltaPhi + this.phi);
   };
 
+  public getPhi() {
+    return this.phi;
+  }
+
   public setDistance(distance: number) {
     this.distance = Math.max(0, distance);
+  }
+
+  public getDistance() {
+    return this.distance;
   }
 
   public setTarget(target: vector3) {
