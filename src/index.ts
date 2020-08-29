@@ -22,6 +22,12 @@ function main() {
     event.preventDefault();
   });
 
+  // disable right-click menu
+  canvas.oncontextmenu = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
   let width = window.innerWidth;
   let height = window.innerHeight;
   canvas.setAttribute("width", `${width}px`);
@@ -146,8 +152,8 @@ function main() {
     }
 
     const {deltaX, deltaY} = event;
-    sceneCamera.movePhi(deltaX * 0.01);
-    sceneCamera.moveTheta(-deltaY * 0.01);
+    sceneCamera.movePhi(deltaX * -0.01);
+    sceneCamera.moveTheta(deltaY * 0.01);
   };
   mouse.addDragCallback(moveCamera);
   mouse.register();
