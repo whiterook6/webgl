@@ -10,7 +10,7 @@ import {Sphere} from "./objects/Sphere";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {Color, Plane, ray} from "./types";
 import {parseOBJ, ObjModel} from "./meshes/Obj";
-import mesh from "./meshes/GizmoCone.obj"; // mesh will be a string pointing to the public URI of the file
+import mesh from "./meshes/myrmidon.obj"; // mesh will be a string pointing to the public URI of the file
 
 const loadOBJ = async () => {
   const response = await fetch(mesh);

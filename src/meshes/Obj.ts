@@ -1,7 +1,7 @@
 import {mat4} from "gl-matrix";
 import {IndexBuffer, Vector3Buffer} from "../buffers";
 import {Shader} from "../Shader";
-import {Color, vector3} from "../types";
+import {Color, vector3, Vector3} from "../types";
 
 export const parseOBJ = (text: string, gl: WebGL2RenderingContext): any => {
   const lines = text
@@ -34,25 +34,35 @@ export const parseOBJ = (text: string, gl: WebGL2RenderingContext): any => {
         break;
 
       case "f": // face
-        const [vertex0String, normal0String] = args[0].split("//", 2);
-        const [vertex1String, normal1String] = args[1].split("//", 2);
-        const [vertex2String, normal2String] = args[2].split("//", 2);
-        const vertex0Index = parseInt(vertex0String, 10) - 1;
-        const normal0Index = parseInt(normal0String, 10) - 1;
-        const vertex1Index = parseInt(vertex1String, 10) - 1;
-        const normal1Index = parseInt(normal1String, 10) - 1;
-        const vertex2Index = parseInt(vertex2String, 10) - 1;
-        const normal2Index = parseInt(normal2String, 10) - 1;
+        const argsSplit = args.map((arg) => arg.split("/"));
+        const vertexIndices = argsSplit.map((argSplit) => parseInt(argSplit[0], 10) - 1);
+        const normalIndices = argsSplit.map((argSplit) => {
+          if (argSplit.length > 2 && typeof argSplit[2] === "string" && argSplit[2].length > 0) {
+            return parseInt(argSplit[2], 10) - 1;
+          } else {
+            return undefined;
+          }
+        });
 
-        vertices.push(vLines[vertex0Index]);
-        normals.push(nLines[normal0Index]);
-        indices.push(index++);
-        vertices.push(vLines[vertex1Index]);
-        normals.push(nLines[normal1Index]);
-        indices.push(index++);
-        vertices.push(vLines[vertex2Index]);
-        normals.push(nLines[normal2Index]);
-        indices.push(index++);
+        const faceVertices = vertexIndices.map((vertexIndex) => vLines[vertexIndex]);
+        vertices.push(...faceVertices);
+
+        const hasNormalIndices = normalIndices.every((normalIndex) => normalIndex !== undefined);
+        if (hasNormalIndices) {
+          normals.push(...normalIndices.map((normalIndex) => nLines[normalIndex!]));
+        } else {
+          // compute normal from faces
+
+          const normal = Vector3.cross(
+            Vector3.subtract(faceVertices[1], faceVertices[0]),
+            Vector3.subtract(faceVertices[2], faceVertices[0])
+          );
+          const normalized = Vector3.normalize(normal);
+          normals.push(normalized, normalized, normalized);
+        }
+
+        indices.push(index, index + 1, index + 2);
+        index += 3;
         break;
     }
   }
@@ -155,7 +165,9 @@ void main(void) {
     this.indexBuffer.bindToAttribute();
 
     const modelViewMatrix = mat4.create();
-    mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
+    const scaledModelMatrix = mat4.create();
+    mat4.scale(scaledModelMatrix, modelMatrix, [0.01, 0.01, 0.01]);
+    mat4.multiply(modelViewMatrix, viewMatrix, scaledModelMatrix);
 
     const normalMatrix = mat4.create();
     mat4.invert(normalMatrix, modelViewMatrix);
@@ -165,7 +177,7 @@ void main(void) {
     this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
     this.gl.uniformMatrix4fv(this.modelViewMatrixUniform, false, modelViewMatrix);
     this.gl.uniformMatrix4fv(this.normalMatrixUniform, false, normalMatrix);
-    this.gl.uniform4fv(this.colorUniform, Color.fromHex("#e74c3c"));
+    this.gl.uniform4fv(this.colorUniform, Color.fromHex("#ffffff"));
 
     const vertexCount = this.indexBuffer.getLength();
     const type = this.gl.UNSIGNED_SHORT;

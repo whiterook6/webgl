@@ -104,7 +104,7 @@ export class Vector3 {
   };
 
   /**
-   * Returns a new vector by subtracting another from this.
+   * Returns a new vector by subtracting v2 from v1.
    */
   public static subtract = (v1: vector3, v2: vector3): vector3 => {
     return [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]];
