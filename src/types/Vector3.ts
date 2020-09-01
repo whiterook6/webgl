@@ -83,6 +83,13 @@ export class Vector3 {
   };
 
   /**
+   * Returns a new vector by subtracting v1 from v2 (v2 - v1)
+   */
+  public static minus = (v1: vector3, v2: vector3): vector3 => {
+    return [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]];
+  };
+
+  /**
    * Returns the negative of this vector: [-x, -y, -z]
    */
   public static negative = (v: vector3): vector3 => {
@@ -106,9 +113,7 @@ export class Vector3 {
   /**
    * Returns a new vector by subtracting v1 from v2 (v2 - v1)
    */
-  public static subtract = (v1: vector3, v2: vector3): vector3 => {
-    return [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]];
-  };
+  public static subtract = Vector3.minus;
 
   /**
    * Prints when using string interpolation: `Vector: ${vector}`

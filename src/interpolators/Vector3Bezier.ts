@@ -1,5 +1,6 @@
 import {Vector3, vector3, epsilon} from "../types";
 import {Bezier} from "./";
+import {mat4} from "gl-matrix";
 
 export type frenetFrame = {
   forward: vector3;
@@ -7,18 +8,34 @@ export type frenetFrame = {
   right: vector3;
 };
 
+const getMatFromFrenetFrame = (position: vector3, f: frenetFrame): mat4 => {
+  const matrix = mat4.create();
+  return mat4.targetTo(matrix, position, Vector3.add(position, f.forward), f.up);
+};
+
 export class Vector3Bezier {
   private readonly xCurve: Bezier;
   private readonly yCurve: Bezier;
   private readonly zCurve: Bezier;
+
+  /**
+   * Used to get T from distance. centilengths[T] = distance at T.
+   * @see getT(distance: number)
+   */
   private centilengths!: number[];
+
+  /**
+   * matrices encoding position and rotation by T. Uses rotation minimizing frames
+   * @see getFrame(t: number)
+   */
+  private frames!: mat4[];
 
   constructor(a: vector3, b: vector3, c: vector3, d: vector3) {
     this.xCurve = new Bezier([a[0], b[0], c[0], d[0]]);
     this.yCurve = new Bezier([a[1], b[1], c[1], d[1]]);
     this.zCurve = new Bezier([a[2], b[2], c[2], d[2]]);
 
-    this.calculateCentilengths();
+    this.generateLookups();
   }
 
   public getPosition(t: number): vector3 {
@@ -39,10 +56,6 @@ export class Vector3Bezier {
       this.yCurve.getSecondDerivative(t),
       this.zCurve.getSecondDerivative(t),
     ];
-  }
-
-  public toString() {
-    return `${this.xCurve}\n${this.yCurve},${this.zCurve}`;
   }
 
   public getLength(): number {
@@ -99,16 +112,64 @@ export class Vector3Bezier {
     };
   }
 
-  private calculateCentilengths() {
+  public getMatrix(t: number): mat4 {
+    if (t <= 0) {
+      return this.frames[0];
+    } else if (t >= 1) {
+      return this.frames[this.frames.length - 1];
+    } else {
+      return this.frames[Math.floor(t * this.frames.length)];
+    }
+  }
+
+  private generateLookups() {
     let length: number = 0;
-    let previous: vector3 = this.getPosition(0);
-    this.centilengths = [0];
+    let previousPosition: vector3 = this.getPosition(0);
+    this.centilengths = new Array<number>(101);
+    this.centilengths[0] = 0;
+
+    this.frames = new Array<mat4>(101);
+    let previousFrame = this.getFrenetFrame(0);
+    this.frames[0] = getMatFromFrenetFrame(previousPosition, previousFrame);
 
     for (let i = 1; i <= 100; i++) {
-      const next = this.getPosition(i / 100);
-      length += Vector3.len(Vector3.subtract(previous, next));
-      this.centilengths.push(length);
-      previous = next;
+      const t = i / 100;
+      const position = this.getPosition(t);
+      length += Vector3.len(Vector3.subtract(previousPosition, position));
+      this.centilengths[i] = length;
+
+      // https://pomax.github.io/bezierinfo/#pointvectors3d
+      const forward = Vector3.normalize(this.getVelocity(t));
+      const v1 = Vector3.minus(position, previousPosition);
+      const c1 = Vector3.dot(v1, v1);
+      const riL = Vector3.minus(
+        previousFrame.right,
+        Vector3.scale(v1, 2 * c1 * Vector3.dot(v1, previousFrame.right))
+      );
+      const tiL = Vector3.minus(
+        previousFrame.forward,
+        Vector3.scale(v1, 2 * c1 * Vector3.dot(v1, previousFrame.forward))
+      );
+
+      const v2 = Vector3.minus(forward, tiL);
+      const c2 = Vector3.dot(v2, v2);
+      const right = Vector3.minus(riL, Vector3.scale(v2, 2 * c2 * Vector3.dot(v2, riL)));
+      const up = Vector3.cross(right, forward);
+
+      const frame: frenetFrame = {
+        forward,
+        right,
+        up,
+      };
+
+      this.frames[i] = getMatFromFrenetFrame(position, frame);
+
+      previousPosition = position;
+      previousFrame = frame;
     }
+  }
+
+  public toString() {
+    return `${this.xCurve}\n${this.yCurve},${this.zCurve}`;
   }
 }
