@@ -17,6 +17,8 @@ export interface IMouseDrag {
 }
 type DragCallback = (event: IMouseDrag) => void;
 
+type WheelCallback = (delta: number) => void;
+
 export class Mouse {
   private mouseDown: boolean;
   private mouseDownTimestamp?: number;
@@ -25,6 +27,7 @@ export class Mouse {
 
   private readonly clickCallbacks: ClickCallback[] = [];
   private readonly dragCallbacks: DragCallback[] = [];
+  private readonly wheelCallbacks: WheelCallback[] = [];
 
   constructor() {
     this.mouseDown = false;
@@ -78,6 +81,13 @@ export class Mouse {
     }
   };
 
+  onMouseScroll = (event: WheelEvent) => {
+    const delta = event.deltaY;
+    for (const callback of this.wheelCallbacks) {
+      callback(delta);
+    }
+  };
+
   addDragCallback = (callback: DragCallback) => {
     if (this.dragCallbacks.indexOf(callback) === -1) {
       this.dragCallbacks.push(callback);
@@ -91,15 +101,30 @@ export class Mouse {
     }
   };
 
+  addWheelCallback = (callback: WheelCallback) => {
+    if (this.wheelCallbacks.indexOf(callback) === -1) {
+      this.wheelCallbacks.push(callback);
+    }
+  };
+
+  removeWheelCallback = (callback: WheelCallback) => {
+    const indexOf = this.wheelCallbacks.indexOf(callback);
+    if (indexOf >= 0) {
+      this.wheelCallbacks.splice(indexOf, 1);
+    }
+  };
+
   register = () => {
     document.addEventListener("mousedown", this.onMouseDown);
     document.addEventListener("mousemove", this.onMouseMove);
     document.addEventListener("mouseup", this.onMouseUp);
+    document.addEventListener("wheel", this.onMouseScroll);
   };
 
   unregister = () => {
     document.removeEventListener("mousedown", this.onMouseDown);
     document.removeEventListener("mousemove", this.onMouseMove);
     document.removeEventListener("mouseup", this.onMouseUp);
+    document.removeEventListener("wheel", this.onMouseScroll);
   };
 }
