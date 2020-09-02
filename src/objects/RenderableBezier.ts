@@ -1,5 +1,5 @@
 import {Vector3Bezier} from "../interpolators";
-import {mat4} from "gl-matrix";
+import {mat4, vec3} from "gl-matrix";
 import {VertexColorRenderer} from "../renderers/VertexColorRenderer";
 import {Vector3Buffer, Color4Buffer, IndexBuffer} from "../buffers";
 import {vector3, color4, Vector3, Color} from "../types";
@@ -26,29 +26,32 @@ export class RenderableBezier {
     const positions: vector3[] = [];
     const colors: color4[] = [];
     const indices: number[] = [];
-    const white = Color.fromHex("#FFFFFF");
     const red = Color.fromHex("#FF0000");
     const green = Color.fromHex("#00FF00");
+    const blue = Color.fromHex("#0000FF");
 
     for (let i = 0; i <= segments; i++) {
       const t = bezier.getT(i * segmentLength);
       const index = i * 6;
-      const frame = this.bezier.getFrenetFrame(t);
       const point = this.bezier.getPosition(t);
+      const matrix = this.bezier.getMatrix(t);
 
       // tangent
-      positions.push(point, Vector3.add(frame.forward, point));
-      colors.push(white, white);
+      const forward = Vector3.multiply([1, 0, 0], matrix);
+      positions.push(point, Vector3.add(forward, point));
+      colors.push(red, red);
       indices.push(index, index + 1);
 
-      // up
-      positions.push(point, Vector3.add(frame.up, point));
+      // right
+      const right = Vector3.multiply([0, 1, 0], matrix);
+      positions.push(point, Vector3.add(right, point));
       colors.push(green, green);
       indices.push(index + 2, index + 3);
 
-      // right
-      positions.push(point, Vector3.add(frame.right, point));
-      colors.push(red, red);
+      // up
+      const up = Vector3.multiply([0, 0, 1], matrix);
+      positions.push(point, Vector3.add(up, point));
+      colors.push(blue, blue);
       indices.push(index + 4, index + 5);
     }
 

@@ -8,9 +8,9 @@ export type frenetFrame = {
   right: vector3;
 };
 
-const getMatFromFrenetFrame = (position: vector3, f: frenetFrame): mat4 => {
+const getMatFromFrenetFrame = (f: frenetFrame): mat4 => {
   const matrix = mat4.create();
-  return mat4.targetTo(matrix, position, Vector3.add(position, f.forward), f.up);
+  return mat4.targetTo(matrix, [0, 0, 0], f.forward, f.up);
 };
 
 export class Vector3Bezier {
@@ -130,7 +130,7 @@ export class Vector3Bezier {
 
     this.frames = new Array<mat4>(101);
     let previousFrame = this.getFrenetFrame(0);
-    this.frames[0] = getMatFromFrenetFrame(previousPosition, previousFrame);
+    this.frames[0] = getMatFromFrenetFrame(previousFrame);
 
     for (let i = 1; i <= 100; i++) {
       const t = i / 100;
@@ -162,8 +162,8 @@ export class Vector3Bezier {
         up,
       };
 
-      this.frames[i] = getMatFromFrenetFrame(position, frame);
-
+      const matrix = getMatFromFrenetFrame(frame);
+      this.frames[i] = matrix;
       previousPosition = position;
       previousFrame = frame;
     }

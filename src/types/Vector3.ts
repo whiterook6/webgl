@@ -1,4 +1,5 @@
 import {epsilon} from ".";
+import {vec3, mat4} from "gl-matrix";
 
 export type vector3 = [number, number, number];
 
@@ -87,6 +88,12 @@ export class Vector3 {
    */
   public static minus = (v1: vector3, v2: vector3): vector3 => {
     return [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]];
+  };
+
+  public static multiply = (v: vector3, m: mat4): vector3 => {
+    const out = vec3.create();
+    vec3.transformMat4(out, v, m);
+    return [out[0], out[1], out[2]];
   };
 
   /**

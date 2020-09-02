@@ -16,7 +16,6 @@ main();
 // Start here
 //
 function main() {
-  const track = new Track(3, 4);
   const canvas = document.querySelector("#glcanvas") as HTMLCanvasElement;
   if (!canvas) {
     return;
@@ -108,8 +107,6 @@ function main() {
   );
 
   function render(timestamp: ITimestamp) {
-    const modelMatrix = mat4.create();
-
     if (mustResize) {
       mustResize = false;
       canvas.setAttribute("width", `${newWidth}px`);
