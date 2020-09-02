@@ -170,7 +170,15 @@ function main() {
     sceneCamera.movePhi(deltaX * -0.01);
     sceneCamera.moveTheta(deltaY * 0.01);
   };
+  const zoomCamera = (delta: number) => {
+    if (looper.getIsPaused()) {
+      return;
+    }
+
+    sceneCamera.setDistance(sceneCamera.getDistance() + delta);
+  };
   mouse.addDragCallback(moveCamera);
+  mouse.addWheelCallback(zoomCamera);
   mouse.register();
 }
 
