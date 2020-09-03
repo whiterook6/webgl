@@ -1,6 +1,6 @@
 import {mat4} from "gl-matrix";
 import {AnimationLoop, ITimestamp} from "./animation";
-import {IndexBuffer, Vector3Buffer} from "./buffers";
+import {IndexBuffer, Vector3Buffer, Color4Buffer} from "./buffers";
 import {PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
 import {Track} from "./coaster/Track";
@@ -11,6 +11,7 @@ import {Gizmo} from "./objects/Gizmo";
 import {Color, vector3} from "./types";
 import {RenderableBezier} from "./objects/RenderableBezier";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
+import {VertexColorRenderer} from "./renderers/VertexColorRenderer";
 
 main();
 // Start here
@@ -101,10 +102,32 @@ function main() {
 
   const lens = new PerspectiveLens();
   const gizmo = new Gizmo(gl);
-  const bezier = new RenderableBezier(
-    gl,
-    new Vector3Bezier([6.0, 0.0, 0.0], [6.0, 11.0, 0.0], [3.0, 0.0, 3.0], [0.0, 0.0, 10.0])
+  const bezier = new Vector3Bezier(
+    [6.0, 0.0, 0.0],
+    [6.0, 11.0, 0.0],
+    [3.0, 0.0, 3.0],
+    [0.0, 0.0, 10.0]
   );
+  const bezierGizmo = new VertexColorRenderer(gl);
+  const bezierGizmoVertexBuffer = new Vector3Buffer(gl, [
+    [0, 0, 0],
+    [1, 0, 0],
+    [0, 0, 0],
+    [0, 1, 0],
+    [0, 0, 0],
+    [0, 0, 1],
+  ]);
+  const bezierGizmoColorBuffer = new Color4Buffer(gl, [
+    Color.fromHex("#FF0000"),
+    Color.fromHex("#FF0000"),
+    Color.fromHex("#00FF00"),
+    Color.fromHex("#00FF00"),
+    Color.fromHex("#0000FF"),
+    Color.fromHex("#0000FF"),
+  ]);
+  const bezierGizmoIndexBuffer = new IndexBuffer(gl, [0, 1, 2, 3, 4, 5]);
+  const bezierGizmoMatrix = mat4.create();
+  const bezierPipe = pipe([loop(0, 10000), transform(0.0001)], (t) => t);
 
   function render(timestamp: ITimestamp) {
     if (mustResize) {
@@ -134,7 +157,19 @@ function main() {
 
     const viewMatrix = sceneCamera.getViewMatrix();
     const projectionMatrix = lens.getProjection();
-    bezier.render(viewMatrix, projectionMatrix);
+    const t = bezierPipe(timestamp.age);
+    const frame = bezier.getMatrix(t);
+    const position = bezier.getPosition(t);
+    mat4.translate(bezierGizmoMatrix, frame, position);
+    mat4.multiply(bezierGizmoMatrix, viewMatrix, bezierGizmoMatrix);
+    mat4.multiply(bezierGizmoMatrix, projectionMatrix, bezierGizmoMatrix);
+    bezierGizmo.render(
+      bezierGizmoVertexBuffer,
+      bezierGizmoColorBuffer,
+      bezierGizmoIndexBuffer,
+      bezierGizmoMatrix,
+      gl.LINES
+    );
 
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(width - 200, 0, 200, 200);
