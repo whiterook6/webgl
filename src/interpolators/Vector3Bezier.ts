@@ -1,16 +1,11 @@
 import {Vector3, vector3, epsilon} from "../types";
 import {Bezier} from "./";
-import {mat4} from "gl-matrix";
+import {mat4, quat} from "gl-matrix";
 
 export type frenetFrame = {
   forward: vector3;
   up: vector3;
   right: vector3;
-};
-
-const getMatFromFrenetFrame = (f: frenetFrame): mat4 => {
-  const matrix = mat4.create();
-  return mat4.targetTo(matrix, [0, 0, 0], f.forward, f.up);
 };
 
 export class Vector3Bezier {
@@ -25,10 +20,10 @@ export class Vector3Bezier {
   private centilengths!: number[];
 
   /**
-   * matrices encoding position and rotation by T. Uses rotation minimizing frames
+   * quaternions rotation by T. Uses rotation minimizing frames
    * @see getFrame(t: number)
    */
-  private frames!: mat4[];
+  private frames!: quat[];
 
   constructor(a: vector3, b: vector3, c: vector3, d: vector3) {
     this.xCurve = new Bezier([a[0], b[0], c[0], d[0]]);
@@ -113,13 +108,23 @@ export class Vector3Bezier {
   }
 
   public getMatrix(t: number): mat4 {
+    let quaternion: quat;
     if (t <= 0) {
-      return this.frames[0];
+      quaternion = this.frames[0];
     } else if (t >= 1) {
-      return this.frames[this.frames.length - 1];
+      quaternion = this.frames[this.frames.length - 1];
     } else {
-      return this.frames[Math.floor(t * this.frames.length)];
+      const left = Math.min(this.frames.length - 2, Math.floor(this.frames.length * t));
+      const right = left + 1;
+      const mix = t * this.frames.length - left;
+
+      quaternion = quat.create();
+      quat.slerp(quaternion, this.frames[left], this.frames[right], mix);
     }
+    const position = this.getPosition(t);
+    const matrix = mat4.create();
+    mat4.fromRotationTranslation(matrix, quaternion, position);
+    return matrix;
   }
 
   private generateLookups() {
@@ -128,9 +133,10 @@ export class Vector3Bezier {
     this.centilengths = new Array<number>(101);
     this.centilengths[0] = 0;
 
-    this.frames = new Array<mat4>(101);
+    this.frames = new Array<quat>(101);
     let previousFrame = this.getFrenetFrame(0);
-    this.frames[0] = getMatFromFrenetFrame(previousFrame);
+    this.frames[0] = quat.create();
+    quat.setAxes(this.frames[0], previousFrame.forward, previousFrame.right, previousFrame.up);
 
     for (let i = 1; i <= 100; i++) {
       const t = i / 100;
@@ -162,8 +168,8 @@ export class Vector3Bezier {
         up,
       };
 
-      const matrix = getMatFromFrenetFrame(frame);
-      this.frames[i] = matrix;
+      this.frames[i] = quat.create();
+      quat.setAxes(this.frames[i], frame.forward, frame.right, frame.up);
       previousPosition = position;
       previousFrame = frame;
     }

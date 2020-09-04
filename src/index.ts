@@ -5,7 +5,7 @@ import {PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
 import {Track} from "./coaster/Track";
 import {IMouseDrag, Mouse} from "./interaction/Mouse";
-import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier} from "./interpolators";
+import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier, Bezier} from "./interpolators";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
 import {Color, vector3} from "./types";
@@ -108,6 +108,7 @@ function main() {
     [3.0, 0.0, 3.0],
     [0.0, 0.0, 10.0]
   );
+  const renderableBezier = new RenderableBezier(gl, bezier);
   const bezierGizmo = new VertexColorRenderer(gl);
   const bezierGizmoVertexBuffer = new Vector3Buffer(gl, [
     [0, 0, 0],
@@ -122,8 +123,8 @@ function main() {
     Color.fromHex("#FF0000"),
     Color.fromHex("#00FF00"),
     Color.fromHex("#00FF00"),
-    Color.fromHex("#0000FF"),
-    Color.fromHex("#0000FF"),
+    Color.fromHex("#ffffff"),
+    Color.fromHex("#ffffff"),
   ]);
   const bezierGizmoIndexBuffer = new IndexBuffer(gl, [0, 1, 2, 3, 4, 5]);
   const bezierGizmoMatrix = mat4.create();
@@ -157,11 +158,10 @@ function main() {
 
     const viewMatrix = sceneCamera.getViewMatrix();
     const projectionMatrix = lens.getProjection();
+    renderableBezier.render(viewMatrix, projectionMatrix);
     const t = bezierPipe(timestamp.age);
     const frame = bezier.getMatrix(t);
-    const position = bezier.getPosition(t);
-    mat4.translate(bezierGizmoMatrix, frame, position);
-    mat4.multiply(bezierGizmoMatrix, viewMatrix, bezierGizmoMatrix);
+    mat4.multiply(bezierGizmoMatrix, viewMatrix, frame);
     mat4.multiply(bezierGizmoMatrix, projectionMatrix, bezierGizmoMatrix);
     bezierGizmo.render(
       bezierGizmoVertexBuffer,
