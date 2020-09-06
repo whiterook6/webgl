@@ -1,8 +1,7 @@
 import {mat4} from "gl-matrix";
 import {Color4Buffer, IndexBuffer, Vector3Buffer} from "../buffers";
-import {Shader} from "../Shader";
-import {color4, vector3} from "../types";
 import {VertexColorRenderer} from "../renderers/VertexColorRenderer";
+import {color4, vector3} from "../types";
 
 export class Gizmo {
   private readonly gl: WebGL2RenderingContext;
@@ -17,13 +16,13 @@ export class Gizmo {
 
     const positions: vector3[] = [
       [0, 0, 0],
-      [1, 0, 0],
+      [1, 0, 0], // right
 
       [0, 0, 0],
-      [0, 1, 0],
+      [0, 1, 0], // in/forward
 
       [0, 0, 0],
-      [0, 0, 1],
+      [0, 0, 1], // up
     ];
     const indices = [0, 1, 2, 3, 4, 5];
     const colors: color4[] = [

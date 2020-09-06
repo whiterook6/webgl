@@ -24,7 +24,6 @@ export class VertexColorRenderer {
         `
 precision lowp float;
 
-
 attribute vec4 vertexColor;
 attribute vec4 vertexPosition;
 uniform mat4 matrix;

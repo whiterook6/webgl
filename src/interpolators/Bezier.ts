@@ -45,6 +45,20 @@ export class Bezier {
     return 1 * mt3 * p0 + 3 * mt2 * t * p1 + 3 * mt * t2 * p2 + 1 * t3 * p3;
   };
 
+  public getDerivative = (t: number) => {
+    const [p0, p1, p2, p3] = this.nodes;
+    const t2 = t * t;
+    const m = 1 - t;
+    const m2 = m * m;
+    return 3 * m2 * (p1 - p0) + 6 * t * m * (p2 - p1) + 3 * t2 * (p3 - p2);
+  };
+
+  public getSecondDerivative = (t: number) => {
+    const [p0, p1, p2, p3] = this.nodes;
+    const mt = 1 - t;
+    return 6 * mt * (p2 - 2 * p1 + p0) + 6 * t * (p3 - 2 * p2 + p1);
+  };
+
   public getLength = (): number => {
     let length = 0;
     let previous = this.nodes[0];
@@ -55,20 +69,6 @@ export class Bezier {
     }
 
     return length;
-  };
-
-  public getDerivative = (t: number) => {
-    const [p0, p1, p2, p3] = this.nodes;
-    const t2 = t * t;
-    const mt = 1 - t;
-    const mt2 = mt * mt;
-    return 3 * mt2 * (p1 - p0) + 6 * mt * t * (p2 - p1) + 3 * t2 * (p3 - p2);
-  };
-
-  public getSecondDerivative = (t: number) => {
-    const [p0, p1, p2, p3] = this.nodes;
-    const mt = 1 - t;
-    return 6 * mt * (p2 - 2 * p1 + p0) + 6 * t * (p3 - 2 * p2 + p1);
   };
 
   /**

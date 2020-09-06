@@ -1,19 +1,17 @@
 import {mat4} from "gl-matrix";
 import {AnimationLoop, ITimestamp} from "./animation";
-import {IndexBuffer, Vector3Buffer, Color4Buffer} from "./buffers";
+import {Color4Buffer, IndexBuffer, Vector3Buffer} from "./buffers";
 import {PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
-import {Track} from "./coaster/Track";
 import {IMouseDrag, Mouse} from "./interaction/Mouse";
-import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier, Bezier} from "./interpolators";
+import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier} from "./interpolators";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
-import {Color, vector3} from "./types";
 import {RenderableBezier} from "./objects/RenderableBezier";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {VertexColorRenderer} from "./renderers/VertexColorRenderer";
+import {Color, Vector3} from "./types";
 
-main();
 // Start here
 //
 function main() {
@@ -123,13 +121,13 @@ function main() {
     Color.fromHex("#FF0000"),
     Color.fromHex("#00FF00"),
     Color.fromHex("#00FF00"),
-    Color.fromHex("#ffffff"),
-    Color.fromHex("#ffffff"),
+    Color.fromHex("#0000FF"),
+    Color.fromHex("#0000FF"),
   ]);
   const bezierGizmoIndexBuffer = new IndexBuffer(gl, [0, 1, 2, 3, 4, 5]);
   const bezierGizmoMatrix = mat4.create();
   const bezierPipe = pipe([loop(0, 10000), transform(0.0001)], (t) => t);
-
+  const grid = new ThreeDGrid(gl);
   function render(timestamp: ITimestamp) {
     if (mustResize) {
       mustResize = false;
@@ -158,8 +156,10 @@ function main() {
 
     const viewMatrix = sceneCamera.getViewMatrix();
     const projectionMatrix = lens.getProjection();
+    grid.render(viewMatrix, projectionMatrix);
     renderableBezier.render(viewMatrix, projectionMatrix);
     const t = bezierPipe(timestamp.age);
+    sceneCamera.setTarget(bezier.getPosition(t));
     const frame = bezier.getMatrix(t);
     mat4.multiply(bezierGizmoMatrix, viewMatrix, frame);
     mat4.multiply(bezierGizmoMatrix, projectionMatrix, bezierGizmoMatrix);

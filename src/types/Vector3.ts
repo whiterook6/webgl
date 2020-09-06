@@ -146,10 +146,7 @@ export class Vector3 {
    * Returns an up vector from a forward vector and a right vector.
    */
   public static up = (forward: vector3, right: vector3): vector3 => {
-    return Vector3.scale(
-      Vector3.cross(Vector3.cross(forward, right), forward),
-      Vector3.len(forward)
-    );
+    return Vector3.normalize(Vector3.cross(Vector3.normalize(right), Vector3.normalize(forward)));
   };
 
   /**
