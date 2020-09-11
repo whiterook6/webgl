@@ -10,7 +10,7 @@ import {Gizmo} from "./objects/Gizmo";
 import {RenderableBezier} from "./objects/RenderableBezier";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {VertexColorRenderer} from "./renderers/VertexColorRenderer";
-import {Color, Vector3} from "./types";
+import {Color, Vector3, vector3} from "./types";
 
 // Start here
 //
@@ -101,34 +101,68 @@ function main() {
   const lens = new PerspectiveLens();
   const gizmo = new Gizmo(gl);
   const bezier = new Vector3Bezier(
-    [6.0, 0.0, 0.0],
-    [6.0, 11.0, 0.0],
+    [0.0, 0.0, 10.0],
     [3.0, 0.0, 3.0],
-    [0.0, 0.0, 10.0]
+    [6.0, 11.0, 0.0],
+    [6.0, 0.0, 0.0],
   );
   const renderableBezier = new RenderableBezier(gl, bezier);
-  const bezierGizmo = new VertexColorRenderer(gl);
-  const bezierGizmoVertexBuffer = new Vector3Buffer(gl, [
-    [0, 0, 0],
-    [1, 0, 0],
-    [0, 0, 0],
-    [0, 1, 0],
-    [0, 0, 0],
-    [0, 0, 1],
-  ]);
-  const bezierGizmoColorBuffer = new Color4Buffer(gl, [
-    Color.fromHex("#FF0000"),
-    Color.fromHex("#FF0000"),
-    Color.fromHex("#00FF00"),
-    Color.fromHex("#00FF00"),
-    Color.fromHex("#0000FF"),
-    Color.fromHex("#0000FF"),
-  ]);
-  const bezierGizmoIndexBuffer = new IndexBuffer(gl, [0, 1, 2, 3, 4, 5]);
-  const bezierGizmoMatrix = mat4.create();
-  const bezierPipe = pipe([loop(0, 10000), transform(0.0001)], (t) => t);
   const grid = new ThreeDGrid(gl);
+
+  let carT: number = 0;
+  let carPreviousT: number = 0;
+  let carVelocity: vector3 = [0, 0, 0];
+  let carPreviousVelocity: vector3 = [0, 0, 0];
+
+  const carMass: number = 1;
+  const g: vector3 = [0, 0, -9.8];
+  const carVertices = new Vector3Buffer(gl, [
+    [0, 0, 0]
+  ]);
+  const carColors = new Color4Buffer(gl, [
+    Color.fromHex("#FFFFFF")
+  ]);
+  const carIndices = new IndexBuffer(gl, [0]);
+  const carRenderer = new VertexColorRenderer(gl);
+  const carMatrix = mat4.create();
+
   function render(timestamp: ITimestamp) {
+    {
+      const carPosition = bezier.getPosition(carT);
+      const carPreviousPosition = bezier.getPosition(carPreviousT);
+      const pathAtT = Vector3.normalize(bezier.getVelocity(carT));
+      const lengthAtT = bezier.getDistance(carT);
+      const force = Vector3.scale(pathAtT, (Vector3.dot(g, pathAtT) / Vector3.dot(pathAtT, pathAtT)));
+      console.log(`force: ${force}, mag: ${Vector3.len(force)}, direction: ${Vector3.normalize(force)}`);
+      const deltaTSquared = (timestamp.deltaT * timestamp.deltaT )/ 1000000; // turn into seconds squared from milliseconds squared
+      console.log(`deltaTSquared: ${deltaTSquared}`);
+      const _2xn = Vector3.scale(carPosition, 2);
+      console.log(`2*Xn: ${_2xn}, Xn-1: ${carPreviousPosition}`);
+      const _2xnMinusXN1 = Vector3.subtract(
+        _2xn,
+        carPreviousPosition
+      );
+      console.log(`2Xn - Xn-1 = ${_2xnMinusXN1}`);
+      const aDeltaT2 = Vector3.scale(force, deltaTSquared);
+      console.log(`a*dt2: ${aDeltaT2}`);
+      const newCarPosition = Vector3.add(
+        _2xnMinusXN1,
+        aDeltaT2
+      );
+      console.log(`newCarPosition: ${newCarPosition}`);
+      const distanceTravelled = Vector3.len(Vector3.subtract(newCarPosition, carPosition));
+      console.log(`Distance travelled: ${distanceTravelled}`);
+      const newT = bezier.getT(distanceTravelled + lengthAtT);
+      console.log(`New T: ${newT}`);
+      if (newT > 1){
+        carT = 0;
+        carPreviousT = 0;
+      } else {
+        carPreviousT = carT;
+        carT = newT;
+      }
+    }
+
     if (mustResize) {
       mustResize = false;
       canvas.setAttribute("width", `${newWidth}px`);
@@ -158,19 +192,11 @@ function main() {
     const projectionMatrix = lens.getProjection();
     grid.render(viewMatrix, projectionMatrix);
     renderableBezier.render(viewMatrix, projectionMatrix);
-    const t = bezierPipe(timestamp.age);
-    sceneCamera.setTarget(bezier.getPosition(t));
-    const frame = bezier.getMatrix(t);
-    mat4.multiply(bezierGizmoMatrix, viewMatrix, frame);
-    mat4.multiply(bezierGizmoMatrix, projectionMatrix, bezierGizmoMatrix);
-    bezierGizmo.render(
-      bezierGizmoVertexBuffer,
-      bezierGizmoColorBuffer,
-      bezierGizmoIndexBuffer,
-      bezierGizmoMatrix,
-      gl.LINES
-    );
-
+    const carPosition = bezier.getPosition(carT);
+    mat4.fromTranslation(carMatrix, carPosition);
+    mat4.multiply(carMatrix, viewMatrix, carMatrix);
+    mat4.multiply(carMatrix, projectionMatrix, carMatrix);
+    carRenderer.render(carVertices, carColors, carIndices, carMatrix, gl.POINTS);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(width - 200, 0, 200, 200);
     lens.aspect = 1;

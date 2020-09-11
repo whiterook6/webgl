@@ -61,6 +61,20 @@ export class Vector3Bezier {
     }
   }
 
+  public getDistance(t: number): number {
+    if (t <= 0){
+      return 0;
+    } else if (t>= 1){
+      return this.getLength();
+    } else {
+      const left = Math.min(this.centilengths.length - 2, Math.floor(this.centilengths.length * t));
+      const right = left + 1;
+      const mix = t * this.centilengths.length - left;
+
+      return this.centilengths[left] * (1 - mix) + this.centilengths[right] * (mix);
+    }
+  }
+
   public getT(distance: number): number {
     if (distance < epsilon) {
       return 0;
