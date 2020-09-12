@@ -19,15 +19,15 @@ export class Ray {
    * Gets the length of the ray, from start to end. Rays can be considered infinitely long,
    * but this method is the distance between two points.
    */
-  public static len = (r: ray): number => {
-    return Vector3.len(Vector3.subtract(r.end, r.start));
+  public static mag = (r: ray): number => {
+    return Vector3.mag(Vector3.subtract(r.end, r.start));
   };
 
   /**
    * Gets a point at some distance along a ray, from start to end.
    */
   public static traverse = (r: ray, distance: number): vector3 => {
-    const length = Ray.len(r);
+    const length = Ray.mag(r);
     if (length < epsilon) {
       return r.start;
     }

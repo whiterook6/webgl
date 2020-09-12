@@ -10,7 +10,7 @@ import {Gizmo} from "./objects/Gizmo";
 import {RenderableBezier} from "./objects/RenderableBezier";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {VertexColorRenderer} from "./renderers/VertexColorRenderer";
-import {Color, Vector3, vector3} from "./types";
+import {Color, Vector3, vector3, epsilon} from "./types";
 
 // Start here
 //
@@ -88,7 +88,7 @@ function main() {
   const brPipe = pipe([loop(0, 5000), transform(0.0002), sin], brBezier.get);
 
   const sceneCamera = new OrbitCamera();
-  sceneCamera.setDistance(10);
+  sceneCamera.setDistance(20);
   sceneCamera.setTheta(-Math.PI / 12);
   sceneCamera.setTarget([0, 0, 5]);
   sceneCamera.setUp([0, 0, 1]);
@@ -100,66 +100,42 @@ function main() {
 
   const lens = new PerspectiveLens();
   const gizmo = new Gizmo(gl);
-  const bezier = new Vector3Bezier(
-    [0.0, 0.0, 10.0],
-    [3.0, 0.0, 3.0],
-    [6.0, 11.0, 0.0],
-    [6.0, 0.0, 0.0],
-  );
+  const bezier = new Vector3Bezier([0, 0, 9], [0, 10, 1], [0, -5, 1], [0, 7, 10]);
   const renderableBezier = new RenderableBezier(gl, bezier);
   const grid = new ThreeDGrid(gl);
 
-  let carT: number = 0;
-  let carPreviousT: number = 0;
-  let carVelocity: vector3 = [0, 0, 0];
-  let carPreviousVelocity: vector3 = [0, 0, 0];
-
-  const carMass: number = 1;
+  let carT: number = 0.0;
+  let carPreviousT: number = 0.0;
   const g: vector3 = [0, 0, -9.8];
-  const carVertices = new Vector3Buffer(gl, [
-    [0, 0, 0]
-  ]);
-  const carColors = new Color4Buffer(gl, [
-    Color.fromHex("#FFFFFF")
-  ]);
+  const carVertices = new Vector3Buffer(gl, [[0, 0, 0]]);
+  const carColors = new Color4Buffer(gl, [Color.fromHex("#FFFFFF")]);
   const carIndices = new IndexBuffer(gl, [0]);
   const carRenderer = new VertexColorRenderer(gl);
   const carMatrix = mat4.create();
 
   function render(timestamp: ITimestamp) {
     {
-      const carPosition = bezier.getPosition(carT);
-      const carPreviousPosition = bezier.getPosition(carPreviousT);
+      const deltaT = timestamp.deltaT / 1000;
+      const distance = bezier.getDistance(carT);
+      const speed = (distance - bezier.getDistance(carPreviousT)) / deltaT;
+      console.log(`speed: ${speed}`);
       const pathAtT = Vector3.normalize(bezier.getVelocity(carT));
-      const lengthAtT = bezier.getDistance(carT);
-      const force = Vector3.scale(pathAtT, (Vector3.dot(g, pathAtT) / Vector3.dot(pathAtT, pathAtT)));
-      console.log(`force: ${force}, mag: ${Vector3.len(force)}, direction: ${Vector3.normalize(force)}`);
-      const deltaTSquared = (timestamp.deltaT * timestamp.deltaT )/ 1000000; // turn into seconds squared from milliseconds squared
-      console.log(`deltaTSquared: ${deltaTSquared}`);
-      const _2xn = Vector3.scale(carPosition, 2);
-      console.log(`2*Xn: ${_2xn}, Xn-1: ${carPreviousPosition}`);
-      const _2xnMinusXN1 = Vector3.subtract(
-        _2xn,
-        carPreviousPosition
-      );
-      console.log(`2Xn - Xn-1 = ${_2xnMinusXN1}`);
-      const aDeltaT2 = Vector3.scale(force, deltaTSquared);
-      console.log(`a*dt2: ${aDeltaT2}`);
-      const newCarPosition = Vector3.add(
-        _2xnMinusXN1,
-        aDeltaT2
-      );
-      console.log(`newCarPosition: ${newCarPosition}`);
-      const distanceTravelled = Vector3.len(Vector3.subtract(newCarPosition, carPosition));
-      console.log(`Distance travelled: ${distanceTravelled}`);
-      const newT = bezier.getT(distanceTravelled + lengthAtT);
-      console.log(`New T: ${newT}`);
-      if (newT > 1){
-        carT = 0;
-        carPreviousT = 0;
+      const velocity = Vector3.scale(pathAtT, speed);
+      const forceAlongPath = Vector3.project(g, pathAtT);
+      const acceleration = Vector3.scale(forceAlongPath, deltaT);
+      const newVelocity = Vector3.add(velocity, acceleration);
+
+      const deltaDistance = Vector3.mag(newVelocity) * deltaT;
+      carPreviousT = carT;
+      if (Vector3.dot(velocity, pathAtT) < 0) {
+        carT = bezier.getT(distance - deltaDistance);
       } else {
-        carPreviousT = carT;
-        carT = newT;
+        carT = bezier.getT(distance + deltaDistance);
+      }
+
+      if (carT >= 1) {
+        carPreviousT = 0;
+        carT = bezier.getT(deltaDistance);
       }
     }
 

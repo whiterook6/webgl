@@ -62,16 +62,16 @@ export class Vector3Bezier {
   }
 
   public getDistance(t: number): number {
-    if (t <= 0){
+    if (t <= 0) {
       return 0;
-    } else if (t>= 1){
+    } else if (t >= 1) {
       return this.getLength();
     } else {
       const left = Math.min(this.centilengths.length - 2, Math.floor(this.centilengths.length * t));
       const right = left + 1;
       const mix = t * this.centilengths.length - left;
 
-      return this.centilengths[left] * (1 - mix) + this.centilengths[right] * (mix);
+      return this.centilengths[left] * (1 - mix) + this.centilengths[right] * mix;
     }
   }
 
@@ -114,7 +114,7 @@ export class Vector3Bezier {
     const acc = this.getAcceleration(t);
     let up;
     let right;
-    if (Vector3.len(acc) > epsilon) {
+    if (Vector3.mag(acc) > epsilon) {
       const b = Vector3.add(forward, acc);
       const r = Vector3.normalize(Vector3.cross(b, forward));
       up = Vector3.normalize(Vector3.cross(r, forward));
@@ -175,7 +175,7 @@ export class Vector3Bezier {
     for (let i = 1; i <= 100; i++) {
       const t = i / 100;
       const position = this.getPosition(t);
-      length += Vector3.len(Vector3.subtract(previousPosition, position));
+      length += Vector3.mag(Vector3.subtract(previousPosition, position));
       this.centilengths[i] = length;
 
       // // https://pomax.github.io/bezierinfo/#pointvectors3d
