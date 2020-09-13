@@ -117,25 +117,26 @@ function main() {
     {
       const deltaT = timestamp.deltaT / 1000;
       const distance = bezier.getDistance(carT);
-      const speed = (distance - bezier.getDistance(carPreviousT)) / deltaT;
-      console.log(`speed: ${speed}`);
-      const pathAtT = Vector3.normalize(bezier.getVelocity(carT));
-      const velocity = Vector3.scale(pathAtT, speed);
-      const forceAlongPath = Vector3.project(g, pathAtT);
-      const acceleration = Vector3.scale(forceAlongPath, deltaT);
-      const newVelocity = Vector3.add(velocity, acceleration);
+      const previousDistance = bezier.getDistance(carPreviousT);
 
-      const deltaDistance = Vector3.mag(newVelocity) * deltaT;
-      carPreviousT = carT;
-      if (Vector3.dot(velocity, pathAtT) < 0) {
-        carT = bezier.getT(distance - deltaDistance);
+      const pathAtT = Vector3.normalize(bezier.getVelocity(carT));
+      const forceAlongPath = Vector3.project(g, pathAtT);
+      const acceleration = Vector3.scale(forceAlongPath, deltaT * deltaT * 0.5);
+      const accelerationMagnitude = Vector3.mag(acceleration);
+      let newDistance;
+      if (pathAtT[2] < 0) {
+        // if track is descending
+        newDistance = 2 * distance - previousDistance + accelerationMagnitude;
       } else {
-        carT = bezier.getT(distance + deltaDistance);
+        newDistance = 2 * distance - previousDistance - accelerationMagnitude;
       }
 
-      if (carT >= 1) {
+      carPreviousT = carT;
+      carT = bezier.getT(newDistance);
+
+      if (carT >= 1.0) {
+        carT = 0;
         carPreviousT = 0;
-        carT = bezier.getT(deltaDistance);
       }
     }
 
