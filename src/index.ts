@@ -100,7 +100,7 @@ function main() {
 
   const lens = new PerspectiveLens();
   const gizmo = new Gizmo(gl);
-  const bezier = new Vector3Bezier([0, 0, 9], [0, 10, 1], [0, -5, 1], [0, 7, 10]);
+  const bezier = new Vector3Bezier([0, 0, 9], [0, 10, 1], [3, -5, 1], [4, 7, 10]);
   const renderableBezier = new RenderableBezier(gl, bezier);
   const grid = new ThreeDGrid(gl);
 
