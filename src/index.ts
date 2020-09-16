@@ -102,6 +102,7 @@ function main() {
 
   let carT: number = 0.0;
   let carPreviousT: number = 0.0;
+  let carPreviousDT: undefined | number;
   const g: vector3 = [0, 0, -9.8];
   const carVertices = new Vector3Buffer(gl, [[0, 0, 0]]);
   const carColors = new Color4Buffer(gl, [Color.fromHex("#FFFFFF")]);
@@ -112,22 +113,30 @@ function main() {
   function render(timestamp: ITimestamp) {
     {
       const deltaT = timestamp.deltaT / 1000;
+      if (carPreviousDT === undefined) {
+        carPreviousDT = deltaT;
+      }
+
       const distance = bezier.getDistance(carT);
       const previousDistance = bezier.getDistance(carPreviousT);
 
       const pathAtT = Vector3.normalize(bezier.getVelocity(carT));
       const forceAlongPath = Vector3.project(g, pathAtT);
-      const acceleration = Vector3.scale(forceAlongPath, deltaT * deltaT * 0.5);
-      const accelerationMagnitude = Vector3.mag(acceleration);
+      const forceMagnitude = Vector3.mag(forceAlongPath);
+
+      const accelerationOverall = (forceMagnitude * deltaT * (deltaT + carPreviousDT)) / 2;
       let newDistance;
       if (pathAtT[2] < 0) {
         // if track is descending
-        newDistance = 2 * distance - previousDistance + accelerationMagnitude;
+        newDistance =
+          distance + (distance - previousDistance) / (deltaT / carPreviousDT) + accelerationOverall;
       } else {
-        newDistance = 2 * distance - previousDistance - accelerationMagnitude;
+        newDistance =
+          distance + (distance - previousDistance) / (deltaT / carPreviousDT) - accelerationOverall;
       }
 
       carPreviousT = carT;
+      carPreviousDT = deltaT;
       carT = bezier.getT(newDistance);
 
       if (carT >= 1.0) {
