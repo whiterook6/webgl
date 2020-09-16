@@ -19,21 +19,17 @@ function main() {
   if (!canvas) {
     return;
   }
+
+  // disable right-click menu
   canvas.addEventListener("contextmenu", (event) => {
     event.stopPropagation();
     event.preventDefault();
   });
 
-  // disable right-click menu
-  canvas.oncontextmenu = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-
   let width = window.innerWidth;
   let height = window.innerHeight;
-  canvas.setAttribute("width", `${width}px`);
-  canvas.setAttribute("height", `${height}px`);
+  canvas.setAttribute("width", `${width * devicePixelRatio}px`);
+  canvas.setAttribute("height", `${height * devicePixelRatio}px`);
   const gl = canvas.getContext("webgl2", {antialias: false}) as WebGL2RenderingContext;
 
   // If we don't have a GL context, give up now
@@ -142,15 +138,15 @@ function main() {
 
     if (mustResize) {
       mustResize = false;
-      canvas.setAttribute("width", `${newWidth}px`);
-      canvas.setAttribute("height", `${newHeight}px`);
+      canvas.setAttribute("width", `${newWidth * devicePixelRatio}px`);
+      canvas.setAttribute("height", `${newHeight * devicePixelRatio}px`);
       width = newWidth;
       height = newHeight;
     }
 
     // normal time
     lens.aspect = width / height;
-    gl.viewport(0, 0, width, height);
+    gl.viewport(0, 0, width * devicePixelRatio, height * devicePixelRatio);
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
     gl.clearDepth(1.0); // Clear everything
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -175,7 +171,12 @@ function main() {
     mat4.multiply(carMatrix, projectionMatrix, carMatrix);
     carRenderer.render(carVertices, carColors, carIndices, carMatrix, gl.POINTS);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.viewport(width - 200, 0, 200, 200);
+    gl.viewport(
+      width * devicePixelRatio - 200 * devicePixelRatio,
+      0,
+      200 * devicePixelRatio,
+      200 * devicePixelRatio
+    );
     lens.aspect = 1;
     gizmoCamera.setPhi(sceneCamera.getPhi());
     gizmoCamera.setTheta(sceneCamera.getTheta());
