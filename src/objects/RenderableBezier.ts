@@ -34,22 +34,23 @@ export class RenderableBezier {
       const t = bezier.getT(i * segmentLength);
       const index = i * 6;
       const matrix = this.bezier.getMatrix(t);
+      console.log(matrix);
       const origin = Vector3.multiply([0, 0, 0], matrix);
 
       // tangent
-      const forward = Vector3.multiply([1, 0, 0], matrix);
+      const forward = Vector3.multiply([0, 0, 1], matrix);
       positions.push(origin, forward);
       colors.push(red, red);
       indices.push(index, index + 1);
 
       // tangent
-      const right = Vector3.multiply([0, 1, 0], matrix);
+      const right = Vector3.multiply([1, 0, 0], matrix);
       positions.push(origin, right);
       colors.push(green, green);
       indices.push(index + 2, index + 3);
 
       // up
-      const up = Vector3.multiply([0, 0, 1], matrix);
+      const up = Vector3.multiply([0, 1, 0], matrix);
       positions.push(origin, up);
       colors.push(blue, blue);
       indices.push(index + 4, index + 5);

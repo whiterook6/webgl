@@ -23,7 +23,7 @@ export class Vector3Bezier {
    * quaternions rotation by T. Uses rotation minimizing frames
    * @see getFrame(t: number)
    */
-  private frames!: quat[];
+  private frames!: mat4[];
 
   constructor(a: vector3, b: vector3, c: vector3, d: vector3) {
     this.xCurve = new Bezier([a[0], b[0], c[0], d[0]]);
@@ -45,6 +45,10 @@ export class Vector3Bezier {
     ];
   }
 
+  public getTangent(t: number): vector3 {
+    return Vector3.normalize(this.getVelocity(t));
+  }
+
   public getAcceleration(t: number): vector3 {
     return [
       this.xCurve.getSecondDerivative(t),
@@ -58,6 +62,20 @@ export class Vector3Bezier {
       return this.centilengths[this.centilengths.length - 1];
     } else {
       return 0;
+    }
+  }
+
+  public getDistance(t: number): number {
+    if (t <= 0) {
+      return 0;
+    } else if (t >= 1) {
+      return this.getLength();
+    } else {
+      const left = Math.min(this.centilengths.length - 2, Math.floor(this.centilengths.length * t));
+      const right = left + 1;
+      const mix = t * this.centilengths.length - left;
+
+      return this.centilengths[left] * (1 - mix) + this.centilengths[right] * mix;
     }
   }
 
@@ -96,11 +114,11 @@ export class Vector3Bezier {
   }
 
   public getFrenetFrame(t: number): frenetFrame {
-    const forward = Vector3.normalize(this.getVelocity(t));
+    const forward = this.getTangent(t);
     const acc = this.getAcceleration(t);
     let up;
     let right;
-    if (Vector3.len(acc) > epsilon) {
+    if (Vector3.mag(acc) > epsilon) {
       const b = Vector3.add(forward, acc);
       const r = Vector3.normalize(Vector3.cross(b, forward));
       up = Vector3.normalize(Vector3.cross(r, forward));
@@ -111,13 +129,6 @@ export class Vector3Bezier {
       up = Vector3.normalize(Vector3.cross(right, forward));
     }
 
-    console.log(`Angle between forward and right: ${Vector3.angleBetween(forward, right)}`);
-    console.log(`Angle between forward and up: ${Vector3.angleBetween(forward, up)}`);
-    console.log(`Angle between up and right: ${Vector3.angleBetween(up, right)}`);
-    console.log(`forward: ${forward}`);
-    console.log(`right: ${right}`);
-    console.log(`up: ${up}`);
-
     return {
       forward,
       right,
@@ -126,23 +137,13 @@ export class Vector3Bezier {
   }
 
   public getMatrix(t: number): mat4 {
-    let quaternion: quat;
     if (t <= 0) {
-      quaternion = this.frames[0];
+      return this.frames[0];
     } else if (t >= 1) {
-      quaternion = this.frames[this.frames.length - 1];
+      return this.frames[this.frames.length - 1];
     } else {
-      const left = Math.min(this.frames.length - 2, Math.floor(this.frames.length * t));
-      const right = left + 1;
-      const mix = t * this.frames.length - left;
-      quaternion = quat.create();
-      quat.slerp(quaternion, this.frames[left], this.frames[right], mix);
+      return this.frames[Math.floor(this.frames.length * t)];
     }
-
-    const matrix = mat4.create();
-    const position = this.getPosition(t);
-    mat4.fromRotationTranslation(matrix, quaternion, position);
-    return matrix;
   }
 
   private generateLookups() {
@@ -151,44 +152,31 @@ export class Vector3Bezier {
     this.centilengths = new Array<number>(101);
     this.centilengths[0] = 0;
 
-    this.frames = new Array<quat>(101);
+    this.frames = new Array<mat4>(101);
     const frame = this.getFrenetFrame(0);
-    let previousForward: vector3 = frame.forward;
-    let previousRight: vector3 = frame.right;
-    this.frames[0] = quat.create();
-    quat.setAxes(this.frames[0], frame.forward, frame.right, frame.up);
+    let previousUp: vector3 = frame.up;
+    this.frames[0] = mat4.create();
+    mat4.targetTo(
+      this.frames[0],
+      previousPosition,
+      Vector3.add(previousPosition, frame.forward),
+      previousUp
+    );
 
     for (let i = 1; i <= 100; i++) {
       const t = i / 100;
       const position = this.getPosition(t);
-      length += Vector3.len(Vector3.subtract(previousPosition, position));
+      length += Vector3.mag(Vector3.subtract(previousPosition, position));
       this.centilengths[i] = length;
 
-      // // https://pomax.github.io/bezierinfo/#pointvectors3d
-      const forward = Vector3.normalize(this.getVelocity(t));
-      const v1 = Vector3.minus(position, previousPosition);
-      const c1 = Vector3.dot(v1, v1);
-      const riL = Vector3.minus(
-        previousRight,
-        Vector3.scale(v1, 2 * c1 * Vector3.dot(v1, previousRight))
-      );
-      const tiL = Vector3.minus(
-        previousForward,
-        Vector3.scale(v1, 2 * c1 * Vector3.dot(v1, previousForward))
-      );
-
-      const v2 = Vector3.minus(forward, tiL);
-      const c2 = Vector3.dot(v2, v2);
-      const right = Vector3.minus(riL, Vector3.scale(v2, 2 * c2 * Vector3.dot(v2, riL)));
+      const forward = this.getTangent(t);
+      const right = Vector3.cross(forward, previousUp);
       const up = Vector3.cross(right, forward);
 
-      // const frame: frenetFrame = this.getFrenetFrame(t);
-
-      this.frames[i] = quat.create();
-      quat.setAxes(this.frames[i], forward, right, up);
+      this.frames[i] = mat4.create();
+      mat4.targetTo(this.frames[i], position, Vector3.add(position, forward), up);
+      previousUp = up;
       previousPosition = position;
-      previousForward = forward;
-      previousRight = right;
     }
   }
 

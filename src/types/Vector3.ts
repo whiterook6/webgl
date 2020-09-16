@@ -12,7 +12,7 @@ export class Vector3 {
    * Get the angle between two vectors in radians
    */
   public static angleBetween = (v1: vector3, v2: vector3): number => {
-    return Math.acos(Vector3.dot(v1, v2) / (Vector3.len(v1) * Vector3.len(v2)));
+    return Math.acos(Vector3.dot(v1, v2) / (Vector3.mag(v1) * Vector3.mag(v2)));
   };
 
   /**
@@ -66,7 +66,7 @@ export class Vector3 {
    * Returns the horizontal angle (eg around the up axis) for a vector.
    */
   public static getPhi = (v: vector3): number => {
-    return Math.asin(v[1] / Vector3.len(v));
+    return Math.asin(v[1] / Vector3.mag(v));
   };
 
   /**
@@ -79,12 +79,12 @@ export class Vector3 {
   /**
    * Returns the Euclidean distance from the origin to this point.
    */
-  public static len = (v: vector3): number => {
+  public static mag = (v: vector3): number => {
     return Math.sqrt(Vector3.dot(v, v));
   };
 
   /**
-   * Returns a new vector by subtracting v1 from v2 (v2 - v1)
+   * Returns a new vector by subtracting v2 from v1 (v1 - v2)
    */
   public static minus = (v1: vector3, v2: vector3): vector3 => {
     return [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]];
@@ -111,6 +111,16 @@ export class Vector3 {
   };
 
   /**
+   * Returns the projection of a onto b.
+   */
+  public static project = (a: vector3, b: vector3) => {
+    if (Vector3.mag(b) < epsilon) {
+      return Vector3.normalize(a);
+    }
+    return Vector3.scale(b, Vector3.dot(a, b) / Vector3.dot(a, b));
+  };
+
+  /**
    * Returns this vector's values scaled by scale: [x * scale, y * scale, z * scale]
    */
   public static scale = (v: vector3, scale: number): vector3 => {
@@ -118,7 +128,7 @@ export class Vector3 {
   };
 
   /**
-   * Returns a new vector by subtracting v1 from v2 (v2 - v1)
+   * Returns a new vector by subtracting v2 from v1 (v1 - v2)
    */
   public static subtract = Vector3.minus;
 
@@ -134,7 +144,7 @@ export class Vector3 {
    * Returns another vector with length 1 "pointing" in the same direction as this one.
    */
   public static unit = (v: vector3): vector3 => {
-    const length = Vector3.len(v);
+    const length = Vector3.mag(v);
     if (Math.abs(length) < epsilon) {
       return [1, 0, 0];
     } else {

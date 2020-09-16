@@ -10,7 +10,7 @@ import {Gizmo} from "./objects/Gizmo";
 import {RenderableBezier} from "./objects/RenderableBezier";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {VertexColorRenderer} from "./renderers/VertexColorRenderer";
-import {Color, Vector3} from "./types";
+import {Color, Vector3, vector3, epsilon} from "./types";
 
 // Start here
 //
@@ -19,21 +19,17 @@ function main() {
   if (!canvas) {
     return;
   }
+
+  // disable right-click menu
   canvas.addEventListener("contextmenu", (event) => {
     event.stopPropagation();
     event.preventDefault();
   });
 
-  // disable right-click menu
-  canvas.oncontextmenu = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-  };
-
   let width = window.innerWidth;
   let height = window.innerHeight;
-  canvas.setAttribute("width", `${width}px`);
-  canvas.setAttribute("height", `${height}px`);
+  canvas.setAttribute("width", `${width * devicePixelRatio}px`);
+  canvas.setAttribute("height", `${height * devicePixelRatio}px`);
   const gl = canvas.getContext("webgl2", {antialias: false}) as WebGL2RenderingContext;
 
   // If we don't have a GL context, give up now
@@ -88,7 +84,7 @@ function main() {
   const brPipe = pipe([loop(0, 5000), transform(0.0002), sin], brBezier.get);
 
   const sceneCamera = new OrbitCamera();
-  sceneCamera.setDistance(10);
+  sceneCamera.setDistance(20);
   sceneCamera.setTheta(-Math.PI / 12);
   sceneCamera.setTarget([0, 0, 5]);
   sceneCamera.setUp([0, 0, 1]);
@@ -100,46 +96,66 @@ function main() {
 
   const lens = new PerspectiveLens();
   const gizmo = new Gizmo(gl);
-  const bezier = new Vector3Bezier(
-    [6.0, 0.0, 0.0],
-    [6.0, 11.0, 0.0],
-    [3.0, 0.0, 3.0],
-    [0.0, 0.0, 10.0]
-  );
+  const bezier = new Vector3Bezier([0, 0, 9], [0, 10, 1], [3, -5, 1], [4, 7, 10]);
   const renderableBezier = new RenderableBezier(gl, bezier);
-  const bezierGizmo = new VertexColorRenderer(gl);
-  const bezierGizmoVertexBuffer = new Vector3Buffer(gl, [
-    [0, 0, 0],
-    [1, 0, 0],
-    [0, 0, 0],
-    [0, 1, 0],
-    [0, 0, 0],
-    [0, 0, 1],
-  ]);
-  const bezierGizmoColorBuffer = new Color4Buffer(gl, [
-    Color.fromHex("#FF0000"),
-    Color.fromHex("#FF0000"),
-    Color.fromHex("#00FF00"),
-    Color.fromHex("#00FF00"),
-    Color.fromHex("#0000FF"),
-    Color.fromHex("#0000FF"),
-  ]);
-  const bezierGizmoIndexBuffer = new IndexBuffer(gl, [0, 1, 2, 3, 4, 5]);
-  const bezierGizmoMatrix = mat4.create();
-  const bezierPipe = pipe([loop(0, 10000), transform(0.0001)], (t) => t);
   const grid = new ThreeDGrid(gl);
+
+  let carT: number = 0.0;
+  let carPreviousT: number = 0.0;
+  let carPreviousDT: undefined | number;
+  const g: vector3 = [0, 0, -9.8];
+  const carVertices = new Vector3Buffer(gl, [[0, 0, 0]]);
+  const carColors = new Color4Buffer(gl, [Color.fromHex("#FFFFFF")]);
+  const carIndices = new IndexBuffer(gl, [0]);
+  const carRenderer = new VertexColorRenderer(gl);
+  const carMatrix = mat4.create();
+
   function render(timestamp: ITimestamp) {
+    {
+      const deltaT = timestamp.deltaT / 1000;
+      if (carPreviousDT === undefined) {
+        carPreviousDT = deltaT;
+      }
+
+      const distance = bezier.getDistance(carT);
+      const previousDistance = bezier.getDistance(carPreviousT);
+
+      const pathAtT = Vector3.normalize(bezier.getVelocity(carT));
+      const forceAlongPath = Vector3.project(g, pathAtT);
+      const forceMagnitude = Vector3.mag(forceAlongPath);
+
+      const accelerationOverall = (forceMagnitude * deltaT * (deltaT + carPreviousDT)) / 2;
+      let newDistance;
+      if (pathAtT[2] < 0) {
+        // if track is descending
+        newDistance =
+          distance + (distance - previousDistance) / (deltaT / carPreviousDT) + accelerationOverall;
+      } else {
+        newDistance =
+          distance + (distance - previousDistance) / (deltaT / carPreviousDT) - accelerationOverall;
+      }
+
+      carPreviousT = carT;
+      carPreviousDT = deltaT;
+      carT = bezier.getT(newDistance);
+
+      if (carT >= 1.0) {
+        carT = 0;
+        carPreviousT = 0;
+      }
+    }
+
     if (mustResize) {
       mustResize = false;
-      canvas.setAttribute("width", `${newWidth}px`);
-      canvas.setAttribute("height", `${newHeight}px`);
+      canvas.setAttribute("width", `${newWidth * devicePixelRatio}px`);
+      canvas.setAttribute("height", `${newHeight * devicePixelRatio}px`);
       width = newWidth;
       height = newHeight;
     }
 
     // normal time
     lens.aspect = width / height;
-    gl.viewport(0, 0, width, height);
+    gl.viewport(0, 0, width * devicePixelRatio, height * devicePixelRatio);
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
     gl.clearDepth(1.0); // Clear everything
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -158,21 +174,18 @@ function main() {
     const projectionMatrix = lens.getProjection();
     grid.render(viewMatrix, projectionMatrix);
     renderableBezier.render(viewMatrix, projectionMatrix);
-    const t = bezierPipe(timestamp.age);
-    sceneCamera.setTarget(bezier.getPosition(t));
-    const frame = bezier.getMatrix(t);
-    mat4.multiply(bezierGizmoMatrix, viewMatrix, frame);
-    mat4.multiply(bezierGizmoMatrix, projectionMatrix, bezierGizmoMatrix);
-    bezierGizmo.render(
-      bezierGizmoVertexBuffer,
-      bezierGizmoColorBuffer,
-      bezierGizmoIndexBuffer,
-      bezierGizmoMatrix,
-      gl.LINES
-    );
-
+    const carPosition = bezier.getPosition(carT);
+    mat4.fromTranslation(carMatrix, carPosition);
+    mat4.multiply(carMatrix, viewMatrix, carMatrix);
+    mat4.multiply(carMatrix, projectionMatrix, carMatrix);
+    carRenderer.render(carVertices, carColors, carIndices, carMatrix, gl.POINTS);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.viewport(width - 200, 0, 200, 200);
+    gl.viewport(
+      width * devicePixelRatio - 200 * devicePixelRatio,
+      0,
+      200 * devicePixelRatio,
+      200 * devicePixelRatio
+    );
     lens.aspect = 1;
     gizmoCamera.setPhi(sceneCamera.getPhi());
     gizmoCamera.setTheta(sceneCamera.getTheta());

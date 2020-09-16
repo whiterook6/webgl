@@ -32,6 +32,7 @@ varying vec4 vColor;
 void main(void) {
     vColor = vertexColor;
     gl_Position = matrix * vertexPosition;
+    gl_PointSize = 4.0;
 }`
       )
       .addFragmentSource(
