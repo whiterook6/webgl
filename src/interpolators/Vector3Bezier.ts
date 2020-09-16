@@ -33,18 +33,6 @@ export class Vector3Bezier {
     this.generateLookups();
   }
 
-  public getNodes(): [vector3, vector3, vector3, vector3] {
-    const xNodes = this.xCurve.getNodes();
-    const yNodes = this.yCurve.getNodes();
-    const zNodes = this.zCurve.getNodes();
-    return [
-      [xNodes[0], yNodes[0], zNodes[0]],
-      [xNodes[1], yNodes[1], zNodes[1]],
-      [xNodes[2], yNodes[2], zNodes[2]],
-      [xNodes[3], yNodes[3], zNodes[3]],
-    ];
-  }
-
   public getPosition(t: number): vector3 {
     return [this.xCurve.get(t), this.yCurve.get(t), this.zCurve.get(t)];
   }

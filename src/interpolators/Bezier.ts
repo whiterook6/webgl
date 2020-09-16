@@ -14,10 +14,6 @@ export class Bezier {
     }
   }
 
-  public getNodes = (): [number, number, number, number] => {
-    return [...this.nodes] as [number, number, number, number];
-  };
-
   public static continue = (previous: Bezier, c: number, d: number): Bezier => {
     const [, , previousC, previousD] = previous.nodes;
     return new Bezier(previousD, previousD - previousC, c, d);
