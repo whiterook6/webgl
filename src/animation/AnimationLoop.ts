@@ -7,21 +7,22 @@ export interface ITimestamp {
 type RenderCallback = (timestamp: ITimestamp) => void;
 
 export class AnimationLoop {
-  private start: number;
   private renderCallback: RenderCallback;
-  private previous: number;
-  private isPaused: boolean;
-  private previousAge: number;
+  private pausedAt: number | undefined;
+  private startTime: number;
+  private previousTime: number;
 
   constructor(callback: RenderCallback) {
     this.renderCallback = callback;
-    this.start = this.previous = performance.now();
-    this.isPaused = true;
-    this.previousAge = 0;
+
+    const now = performance.now();
+    this.pausedAt = now;
+    this.startTime = now;
+    this.previousTime = now - 16.7; // initial frame length: 1/60th of a second
   }
 
   public resume = (renderCallback?: RenderCallback) => {
-    if (!this.isPaused) {
+    if (this.pausedAt === undefined) {
       return;
     }
 
@@ -29,21 +30,24 @@ export class AnimationLoop {
       this.renderCallback = renderCallback;
     }
 
-    this.start = performance.now() - this.previousAge;
-    this.isPaused = false;
+    const now = performance.now();
+    const pauseDelay = now - this.pausedAt;
+    this.startTime += pauseDelay;
+    this.previousTime += pauseDelay;
+    this.pausedAt = undefined;
     requestAnimationFrame(this.render);
   };
 
   public render = () => {
-    if (this.isPaused) {
+    if (this.pausedAt !== undefined) {
       return;
     }
 
     const now = performance.now();
-    const deltaT = now - this.previous;
-    const age = now - this.start;
+    const age = now - this.startTime;
+    const deltaT = now - this.previousTime;
+    this.previousTime = now;
 
-    this.previous = now;
     const timestamp = {
       now,
       age,
@@ -55,17 +59,16 @@ export class AnimationLoop {
   };
 
   public pause = () => {
-    this.isPaused = true;
-    this.previousAge = performance.now() - this.start;
+    this.pausedAt = performance.now();
   };
 
   public toggle = () => {
-    if (this.isPaused) {
+    if (this.pausedAt !== undefined) {
       this.resume();
     } else {
       this.pause();
     }
   };
 
-  public getIsPaused = () => this.isPaused;
+  public getIsPaused = () => this.pausedAt !== undefined;
 }

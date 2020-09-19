@@ -11,7 +11,7 @@ import {RenderableBezier} from "./objects/RenderableBezier";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {BezierPhysicsVerlet} from "./physics/BezierPhysicsVerlet";
 import {VertexColorRenderer} from "./renderers/VertexColorRenderer";
-import {Color, Vector3, vector3, epsilon} from "./types";
+import {Color, Vector3, vector3} from "./types";
 
 // Start here
 //
