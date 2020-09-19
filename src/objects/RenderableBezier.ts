@@ -34,7 +34,6 @@ export class RenderableBezier {
       const t = bezier.getT(i * segmentLength);
       const index = i * 6;
       const matrix = this.bezier.getMatrix(t);
-      console.log(matrix);
       const origin = Vector3.multiply([0, 0, 0], matrix);
 
       // tangent

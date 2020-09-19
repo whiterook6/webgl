@@ -9,8 +9,9 @@ import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
 import {RenderableBezier} from "./objects/RenderableBezier";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
+import {BezierPhysicsVerlet} from "./physics/BezierPhysicsVerlet";
 import {VertexColorRenderer} from "./renderers/VertexColorRenderer";
-import {Color, Vector3, vector3, epsilon} from "./types";
+import {Color, Vector3, vector3} from "./types";
 
 // Start here
 //
@@ -100,10 +101,7 @@ function main() {
   const renderableBezier = new RenderableBezier(gl, bezier);
   const grid = new ThreeDGrid(gl);
 
-  let carT: number = 0.0;
-  let carPreviousT: number = 0.0;
-  let carPreviousDT: undefined | number;
-  const g: vector3 = [0, 0, -9.8];
+  const carPhysics = new BezierPhysicsVerlet(bezier);
   const carVertices = new Vector3Buffer(gl, [[0, 0, 0]]);
   const carColors = new Color4Buffer(gl, [Color.fromHex("#FFFFFF")]);
   const carIndices = new IndexBuffer(gl, [0]);
@@ -111,39 +109,7 @@ function main() {
   const carMatrix = mat4.create();
 
   function render(timestamp: ITimestamp) {
-    {
-      const deltaT = timestamp.deltaT / 1000;
-      if (carPreviousDT === undefined) {
-        carPreviousDT = deltaT;
-      }
-
-      const distance = bezier.getDistance(carT);
-      const previousDistance = bezier.getDistance(carPreviousT);
-
-      const pathAtT = Vector3.normalize(bezier.getVelocity(carT));
-      const forceAlongPath = Vector3.project(g, pathAtT);
-      const forceMagnitude = Vector3.mag(forceAlongPath);
-
-      const accelerationOverall = (forceMagnitude * deltaT * (deltaT + carPreviousDT)) / 2;
-      let newDistance;
-      if (pathAtT[2] < 0) {
-        // if track is descending
-        newDistance =
-          distance + (distance - previousDistance) / (deltaT / carPreviousDT) + accelerationOverall;
-      } else {
-        newDistance =
-          distance + (distance - previousDistance) / (deltaT / carPreviousDT) - accelerationOverall;
-      }
-
-      carPreviousT = carT;
-      carPreviousDT = deltaT;
-      carT = bezier.getT(newDistance);
-
-      if (carT >= 1.0) {
-        carT = 0;
-        carPreviousT = 0;
-      }
-    }
+    carPhysics.update(timestamp.deltaT / 1000);
 
     if (mustResize) {
       mustResize = false;
@@ -174,7 +140,7 @@ function main() {
     const projectionMatrix = lens.getProjection();
     grid.render(viewMatrix, projectionMatrix);
     renderableBezier.render(viewMatrix, projectionMatrix);
-    const carPosition = bezier.getPosition(carT);
+    const carPosition = carPhysics.getPosition();
     mat4.fromTranslation(carMatrix, carPosition);
     mat4.multiply(carMatrix, viewMatrix, carMatrix);
     mat4.multiply(carMatrix, projectionMatrix, carMatrix);
