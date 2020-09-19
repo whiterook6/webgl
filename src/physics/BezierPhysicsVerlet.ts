@@ -1,7 +1,7 @@
 import {Vector3Bezier} from "../interpolators";
 import {vector3, Vector3} from "../types";
 
-const G: vector3 = [0, -9.8, 0];
+const G: vector3 = [0, 0, -9.8];
 
 export class BezierPhysicsVerlet {
   private readonly bezier: Vector3Bezier;
