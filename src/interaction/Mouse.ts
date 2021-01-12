@@ -14,6 +14,9 @@ export interface IMouseDrag {
   yStart: number;
   deltaX: number;
   deltaY: number;
+  ctrl?: boolean;
+  shift?: boolean;
+  alt?: boolean;
 }
 type DragCallback = (event: IMouseDrag) => void;
 
@@ -76,6 +79,9 @@ export class Mouse {
           yEnd: this.mousePosition[1],
           deltaX: this.mousePosition[0] - previousPosition[0],
           deltaY: this.mousePosition[1] - previousPosition[1],
+          ctrl: event.ctrlKey,
+          shift: event.shiftKey,
+          alt: event.altKey,
         });
       }
     }

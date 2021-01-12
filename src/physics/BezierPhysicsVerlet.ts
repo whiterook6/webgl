@@ -1,18 +1,19 @@
 import {Vector3Bezier} from "../interpolators";
+import {Vector3Path} from "../interpolators/Vector3Path";
 import {vector3, Vector3} from "../types";
 
-const G: vector3 = [0, -9.8, 0];
+const G: vector3 = [0, 0, -9.8];
 
 export class BezierPhysicsVerlet {
-  private readonly bezier: Vector3Bezier;
+  private readonly path: Vector3Path;
   private t: number;
   private distance: number;
   private previousT: number;
   private previousDistance: number;
   private previousDTSeconds: number;
 
-  constructor(bezier: Vector3Bezier) {
-    this.bezier = bezier;
+  constructor(path: Vector3Path) {
+    this.path = path;
     this.distance = 0;
     this.previousDistance = 0;
     this.previousDTSeconds = 0.016;
@@ -21,10 +22,10 @@ export class BezierPhysicsVerlet {
   }
 
   public update = (dtSeconds: number) => {
-    const {bezier, distance, previousDistance, previousDTSeconds, t} = this;
+    const {path, distance, previousDistance, previousDTSeconds, t} = this;
 
-    const pathAtT = Vector3.normalize(bezier.getVelocity(t));
-    const forceAlongPath = Vector3.project(G, pathAtT);
+    const pathAtT = Vector3.normalize(path.getVelocity(t));
+    const forceAlongPath = Vector3.project(pathAtT, G);
     const forceMagnitude = Vector3.mag(forceAlongPath);
     const acceleration = forceMagnitude * dtSeconds * ((dtSeconds + previousDTSeconds) / 2);
 
@@ -39,9 +40,9 @@ export class BezierPhysicsVerlet {
         distance + (distance - previousDistance) * (dtSeconds / previousDTSeconds) - acceleration;
     }
 
-    const newT = bezier.getT(newDistance);
+    const newT = path.getT(newDistance);
 
-    if (newT >= 1.0) {
+    if (newT >= path.getMaxT()) {
       this.distance = 0;
       this.previousDistance = 0;
       this.t = 0;
@@ -56,16 +57,16 @@ export class BezierPhysicsVerlet {
   };
 
   public getPosition = (): vector3 => {
-    const {bezier, t} = this;
+    const {path, t} = this;
 
-    return bezier.getPosition(t);
+    return path.getPosition(t);
   };
 
   public getVelocity = (): vector3 => {
-    const {bezier, t, previousDTSeconds, previousT} = this;
+    const {path, t, previousDTSeconds, previousT} = this;
 
     return Vector3.scale(
-      Vector3.subtract(bezier.getPosition(t), bezier.getPosition(previousT)),
+      Vector3.subtract(path.getPosition(t), path.getPosition(previousT)),
       previousDTSeconds
     );
   };

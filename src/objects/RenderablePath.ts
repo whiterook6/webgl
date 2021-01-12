@@ -1,24 +1,24 @@
-import {Vector3Bezier} from "../interpolators";
-import {mat4, vec3} from "gl-matrix";
+import {mat4} from "gl-matrix";
+import {Color4Buffer, IndexBuffer, Vector3Buffer} from "../buffers";
+import {Vector3Path} from "../interpolators/Vector3Path";
 import {VertexColorRenderer} from "../renderers/VertexColorRenderer";
-import {Vector3Buffer, Color4Buffer, IndexBuffer} from "../buffers";
-import {vector3, color4, Vector3, Color} from "../types";
+import {Color, color4, vector3, Vector3} from "../types";
 
-export class RenderableBezier {
+export class RenderablePath {
   private readonly gl: WebGL2RenderingContext;
-  private readonly bezier: Vector3Bezier;
+  private readonly path: Vector3Path;
   private readonly renderer: VertexColorRenderer;
 
   private readonly vertices: Vector3Buffer;
   private readonly colors: Color4Buffer;
   private readonly indices: IndexBuffer;
 
-  constructor(gl: WebGL2RenderingContext, bezier: Vector3Bezier) {
+  constructor(gl: WebGL2RenderingContext, path: Vector3Path) {
     this.gl = gl;
-    this.bezier = bezier;
+    this.path = path;
     this.renderer = new VertexColorRenderer(gl);
 
-    const length = bezier.getLength();
+    const length = path.getLength();
     let segmentLength = 0.33;
     const segments = Math.ceil(length / segmentLength);
     segmentLength = length / segments;
@@ -31,9 +31,9 @@ export class RenderableBezier {
     const blue = Color.fromHex("#0000FF");
 
     for (let i = 0; i <= segments; i++) {
-      const t = bezier.getT(i * segmentLength);
+      const t = path.getT(i * segmentLength);
       const index = i * 6;
-      const matrix = this.bezier.getMatrix(t);
+      const matrix = this.path.getMatrix(t);
       const origin = Vector3.multiply([0, 0, 0], matrix);
 
       // tangent

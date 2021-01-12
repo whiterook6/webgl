@@ -5,13 +5,14 @@ import {PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
 import {IMouseDrag, Mouse} from "./interaction/Mouse";
 import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier} from "./interpolators";
+import {Vector3Path} from "./interpolators/Vector3Path";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
-import {RenderableBezier} from "./objects/RenderableBezier";
+import {RenderablePath} from "./objects/RenderablePath";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {BezierPhysicsVerlet} from "./physics/BezierPhysicsVerlet";
 import {VertexColorRenderer} from "./renderers/VertexColorRenderer";
-import {Color, Vector3, vector3} from "./types";
+import {Color} from "./types";
 
 // Start here
 //
@@ -87,7 +88,7 @@ function main() {
   const sceneCamera = new OrbitCamera();
   sceneCamera.setDistance(20);
   sceneCamera.setTheta(-Math.PI / 12);
-  sceneCamera.setTarget([0, 0, 5]);
+  sceneCamera.setTarget([15, 10, -20]);
   sceneCamera.setUp([0, 0, 1]);
   const gizmoCamera = new OrbitCamera();
   gizmoCamera.setDistance(3);
@@ -97,11 +98,15 @@ function main() {
 
   const lens = new PerspectiveLens();
   const gizmo = new Gizmo(gl);
-  const bezier = new Vector3Bezier([0, 0, 9], [0, 10, 1], [3, -5, 1], [4, 7, 10]);
-  const renderableBezier = new RenderableBezier(gl, bezier);
+  const path = new Vector3Path([
+    new Vector3Bezier([6.5, 0, -14.7], [6.5, 1, -18.8], [8.6, 2, -30.3], [19.1, 3, -30.7]),
+    new Vector3Bezier([19.1, 3, -30.7], [29.6, 4, -31.1], [29.5, 5, -22.2], [25.9, 6, -21.8]),
+    new Vector3Bezier([25.9, 6, -21.8], [22.3, 7, -21.4], [23.4, 8, -31.6], [32.4, 9, -31.8]),
+  ]);
+  const renderablePath = new RenderablePath(gl, path);
   const grid = new ThreeDGrid(gl);
 
-  const carPhysics = new BezierPhysicsVerlet(bezier);
+  const carPhysics = new BezierPhysicsVerlet(path);
   const carVertices = new Vector3Buffer(gl, [[0, 0, 0]]);
   const carColors = new Color4Buffer(gl, [Color.fromHex("#FFFFFF")]);
   const carIndices = new IndexBuffer(gl, [0]);
@@ -139,7 +144,7 @@ function main() {
     const viewMatrix = sceneCamera.getViewMatrix();
     const projectionMatrix = lens.getProjection();
     grid.render(viewMatrix, projectionMatrix);
-    renderableBezier.render(viewMatrix, projectionMatrix);
+    renderablePath.render(viewMatrix, projectionMatrix);
     const carPosition = carPhysics.getPosition();
     mat4.fromTranslation(carMatrix, carPosition);
     mat4.multiply(carMatrix, viewMatrix, carMatrix);
