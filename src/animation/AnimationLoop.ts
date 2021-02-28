@@ -1,6 +1,9 @@
 export interface ITimestamp {
+  /** in milliseconds */
   age: number;
+  /** in milliseconds */
   now: number;
+  /** in milliseconds */
   deltaT: number;
 }
 

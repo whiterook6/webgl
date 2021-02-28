@@ -80,22 +80,22 @@ void main(void) {
   }
 
   public setTlColor(color: color4) {
-    this.gl.useProgram(this.shader.getProgram());
+    this.shader.useProgram();
     this.gl.uniform4fv(this.tlColorUniform, color);
   }
 
   public setTrColor(color: color4) {
-    this.gl.useProgram(this.shader.getProgram());
+    this.shader.useProgram();
     this.gl.uniform4fv(this.trColorUniform, color);
   }
 
   public setBlColor(color: color4) {
-    this.gl.useProgram(this.shader.getProgram());
+    this.shader.useProgram();
     this.gl.uniform4fv(this.blColorUniform, color);
   }
 
   public setBrColor(color: color4) {
-    this.gl.useProgram(this.shader.getProgram());
+    this.shader.useProgram();
     this.gl.uniform4fv(this.brColorUniform, color);
   }
 

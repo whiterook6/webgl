@@ -9,6 +9,7 @@ import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
 import {RenderableBezier} from "./objects/RenderableBezier";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
+import {ParticleSystem} from "./particles/ParticleSystem";
 import {BezierPhysicsVerlet} from "./physics/BezierPhysicsVerlet";
 import {VertexColorRenderer} from "./renderers/VertexColorRenderer";
 import {Color, Vector3, vector3} from "./types";
@@ -22,10 +23,10 @@ function main() {
   }
 
   // disable right-click menu
-  canvas.addEventListener("contextmenu", (event) => {
-    event.stopPropagation();
-    event.preventDefault();
-  });
+  // canvas.addEventListener("contextmenu", (event) => {
+  //   event.stopPropagation();
+  //   event.preventDefault();
+  // });
 
   let width = window.innerWidth;
   let height = window.innerHeight;
@@ -97,20 +98,10 @@ function main() {
 
   const lens = new PerspectiveLens();
   const gizmo = new Gizmo(gl);
-  const bezier = new Vector3Bezier([0, 0, 9], [0, 10, 1], [3, -5, 1], [4, 7, 10]);
-  const renderableBezier = new RenderableBezier(gl, bezier);
   const grid = new ThreeDGrid(gl);
-
-  const carPhysics = new BezierPhysicsVerlet(bezier);
-  const carVertices = new Vector3Buffer(gl, [[0, 0, 0]]);
-  const carColors = new Color4Buffer(gl, [Color.fromHex("#FFFFFF")]);
-  const carIndices = new IndexBuffer(gl, [0]);
-  const carRenderer = new VertexColorRenderer(gl);
-  const carMatrix = mat4.create();
+  const system = new ParticleSystem(gl, 100);
 
   function render(timestamp: ITimestamp) {
-    carPhysics.update(timestamp.deltaT / 1000);
-
     if (mustResize) {
       mustResize = false;
       canvas.setAttribute("width", `${newWidth * devicePixelRatio}px`);
@@ -139,12 +130,8 @@ function main() {
     const viewMatrix = sceneCamera.getViewMatrix();
     const projectionMatrix = lens.getProjection();
     grid.render(viewMatrix, projectionMatrix);
-    renderableBezier.render(viewMatrix, projectionMatrix);
-    const carPosition = carPhysics.getPosition();
-    mat4.fromTranslation(carMatrix, carPosition);
-    mat4.multiply(carMatrix, viewMatrix, carMatrix);
-    mat4.multiply(carMatrix, projectionMatrix, carMatrix);
-    carRenderer.render(carVertices, carColors, carIndices, carMatrix, gl.POINTS);
+    system.render(viewMatrix, projectionMatrix);
+
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(
       width * devicePixelRatio - 200 * devicePixelRatio,
