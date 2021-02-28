@@ -84,7 +84,7 @@ function main() {
   const sceneCamera = new OrbitCamera();
   sceneCamera.setDistance(20);
   sceneCamera.setTheta(-Math.PI / 12);
-  sceneCamera.setTarget([0, 0, 5]);
+  sceneCamera.setTarget([0, 0, 0]);
   sceneCamera.setUp([0, 0, 1]);
   const gizmoCamera = new OrbitCamera();
   gizmoCamera.setDistance(3);
@@ -95,7 +95,8 @@ function main() {
   const lens = new PerspectiveLens();
   const gizmo = new Gizmo(gl);
   const grid = new ThreeDGrid(gl);
-  const system = new ParticleSystem(gl, 100);
+  const bezier = new Vector3Bezier([0, 5, -1], [2, 0, -2.5], [0, -1, 3], [4, -3.5, -1]);
+  const system = new ParticleSystem(gl, 500, bezier);
 
   function render(timestamp: ITimestamp) {
     if (mustResize) {
@@ -105,6 +106,8 @@ function main() {
       width = newWidth;
       height = newHeight;
     }
+
+    system.update(timestamp);
 
     // normal time
     gl.viewport(0, 0, width * devicePixelRatio, height * devicePixelRatio);
