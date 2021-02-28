@@ -150,7 +150,7 @@ void main(void) {
     mat4.invert(normalMatrix, modelViewMatrix);
     mat4.transpose(normalMatrix, normalMatrix);
 
-    this.gl.useProgram(this.shader.getProgram());
+    this.shader.useProgram();
     this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
     this.gl.uniformMatrix4fv(this.modelViewMatrixUniform, false, modelViewMatrix);
     this.gl.uniformMatrix4fv(this.normalMatrixUniform, false, normalMatrix);

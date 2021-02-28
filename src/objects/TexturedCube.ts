@@ -188,7 +188,7 @@ void main() {
       20, 21, 22, 20, 22, 23,   // left
     ]);
 
-    this.gl.useProgram(this.shader.getProgram());
+    this.shader.useProgram();
     this.vertexPositionAttribute = this.shader.getAttributeLocation("a_position");
     this.vertexTextureAttribute = this.shader.getAttributeLocation("a_texcoord");
     this.vertexColorAttribute = this.shader.getAttributeLocation("a_color");

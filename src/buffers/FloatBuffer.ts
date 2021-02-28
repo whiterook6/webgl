@@ -8,7 +8,7 @@ export class FloatBuffer extends Buffer {
    */
   constructor(
     gl: WebGL2RenderingContext,
-    data: number[],
+    data: number[] | Float32Array,
     width: number,
     mode: number = gl.STATIC_DRAW
   ) {
@@ -42,7 +42,7 @@ export class FloatBuffer extends Buffer {
     return this.getBytes() / (this.width * 4);
   }
 
-  public update(data: number[], offset: number = 0) {
+  public update(data: number[] | Float32Array, offset: number = 0) {
     const gl = this.gl;
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
     gl.bufferSubData(gl.ARRAY_BUFFER, offset, new Float32Array(data));
