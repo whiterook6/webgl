@@ -20,6 +20,11 @@ export class Vector3Bezier {
   private centilengths!: number[];
 
   /**
+   * Lookup for positions along the line, from t = 0 to 100.
+   */
+  private centipositions!: vector3[];
+
+  /**
    * quaternions rotation by T. Uses rotation minimizing frames
    * @see getFrame(t: number)
    */
@@ -146,11 +151,32 @@ export class Vector3Bezier {
     }
   }
 
+  /**
+   * @param target A point near the bezier
+   * @returns [point on line: the cloest point; distance: how far from the curve it is]
+   */
+  public getClosestPoint(target: vector3): [vector3, number] {
+    let closestPosition: vector3;
+    let closestDistance = Number.MAX_VALUE;
+    for (const position of this.centipositions) {
+      const distance = Vector3.mag(Vector3.subtract(target, position));
+      if (distance < closestDistance) {
+        closestPosition = position;
+        closestDistance = distance;
+      }
+    }
+
+    return [closestPosition!, closestDistance];
+  }
+
   private generateLookups() {
     let length: number = 0;
     let previousPosition: vector3 = this.getPosition(0);
     this.centilengths = new Array<number>(101);
     this.centilengths[0] = 0;
+
+    this.centipositions = new Array<vector3>(101);
+    this.centipositions[0] = this.getPosition(0);
 
     this.frames = new Array<mat4>(101);
     const frame = this.getFrenetFrame(0);
@@ -166,6 +192,7 @@ export class Vector3Bezier {
     for (let i = 1; i <= 100; i++) {
       const t = i / 100;
       const position = this.getPosition(t);
+      this.centipositions[i] = position;
       length += Vector3.mag(Vector3.subtract(previousPosition, position));
       this.centilengths[i] = length;
 
