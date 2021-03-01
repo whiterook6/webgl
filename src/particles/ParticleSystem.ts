@@ -6,13 +6,13 @@ import {SolidColorRenderer} from "../renderers/SolidColorRenderer";
 import {Color, color4, Vector3, vector3} from "../types";
 
 const colorOptions: color4[] = [
-  Color.fromHex("#3498db"),
-  Color.fromHex("#9b59b6"),
-  Color.fromHex("#2ecc71"),
-  Color.fromHex("#1abc9c"),
-  Color.fromHex("#f1c40f"),
-  Color.fromHex("#e67e22"),
-  Color.fromHex("#e74c3c"),
+  Color.fromHex("#3498db99"),
+  Color.fromHex("#9b59b699"),
+  Color.fromHex("#2ecc7199"),
+  Color.fromHex("#1abc9c99"),
+  Color.fromHex("#f1c40f99"),
+  Color.fromHex("#e67e2299"),
+  Color.fromHex("#e74c3c99"),
 ];
 
 export class ParticleSystem {
@@ -55,7 +55,7 @@ export class ParticleSystem {
     const indices = new Array<number>(meshSize);
     for (let index = 0; index < meshSize; index++) {
       const angle = 2 * Math.PI * (index / meshSize);
-      vertices[index] = [Math.cos(angle), Math.sin(angle), 0];
+      vertices[index] = [Math.cos(angle) * 0.05, Math.sin(angle) * 0.05, 0];
       indices[index] = index;
     }
     this.mesh = new Vector3Buffer(gl, vertices, gl.STATIC_READ);
@@ -73,23 +73,28 @@ export class ParticleSystem {
       const [closestPoint, distanceToCurve] = this.bezier.getClosestPoint(position);
       const force = Vector3.scale(
         Vector3.subtract(closestPoint, position),
-        Math.min(2, 1 / distanceToCurve) * deltaTInSeconds
+        Math.min(3, 2 / distanceToCurve) * deltaTInSeconds
       );
 
-      vec3.add(
+      vec3.add(this.velocities[index], this.velocities[index], force);
+
+      vec3.scale(
         this.velocities[index],
         this.velocities[index],
-        vec3.fromValues(force[0], force[1], force[2])
+        0.2 / vec3.len(this.velocities[index])
       );
     }
   };
 
-  public render = (viewMatrix: mat4, projectionMatrix: mat4) => {
+  public render = (eye: vector3, up: vector3, viewmatrix: mat4, projectionMatrix: mat4) => {
     const matrix = mat4.create();
+    this.gl.enable(this.gl.BLEND);
+    this.gl.disable(this.gl.DEPTH_TEST); // Enable depth testing
+    this.gl.blendEquation(this.gl.FUNC_ADD);
+    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.DST_ALPHA);
     for (let index = 0; index < this.particleCount; index++) {
-      mat4.fromTranslation(matrix, this.positions[index]);
-      mat4.scale(matrix, matrix, [0.2, 0.2, 0.2]);
-      mat4.multiply(matrix, viewMatrix, matrix);
+      mat4.targetTo(matrix, this.positions[index], eye, up);
+      mat4.multiply(matrix, viewmatrix, matrix);
       mat4.multiply(matrix, projectionMatrix, matrix);
       this.renderer.render(
         this.mesh,
@@ -99,5 +104,7 @@ export class ParticleSystem {
         this.gl.TRIANGLE_FAN
       );
     }
+    this.gl.disable(this.gl.BLEND);
+    this.gl.enable(this.gl.DEPTH_TEST); // Enable depth testing
   };
 }

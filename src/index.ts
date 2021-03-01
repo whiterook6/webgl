@@ -120,11 +120,11 @@ function main() {
     gl.clearDepth(1.0); // Clear everything
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.disable(gl.DEPTH_TEST); // Enable depth testing
-    background.setTlColor(tlPipe(timestamp.age));
-    background.setTrColor(trPipe(timestamp.age));
-    background.setBlColor(blPipe(timestamp.age));
-    background.setBrColor(brPipe(timestamp.age));
-    background.render();
+    // background.setTlColor(tlPipe(timestamp.age));
+    // background.setTrColor(trPipe(timestamp.age));
+    // background.setBlColor(blPipe(timestamp.age));
+    // background.setBrColor(brPipe(timestamp.age));
+    // background.render();
 
     gl.clearDepth(1.0); // Clear everything
     gl.enable(gl.DEPTH_TEST); // Enable depth testing
@@ -132,8 +132,8 @@ function main() {
 
     const viewMatrix = sceneCamera.getViewMatrix();
     const projectionMatrix = lens.getProjection();
-    grid.render(viewMatrix, projectionMatrix);
-    system.render(viewMatrix, projectionMatrix);
+    // grid.render(viewMatrix, projectionMatrix);
+    system.render(sceneCamera.getPosition(), sceneCamera.getUp(), viewMatrix, projectionMatrix);
 
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(
