@@ -131,7 +131,6 @@ function main() {
     // grid.render(viewMatrix, projectionMatrix);
     system.render(sceneCamera.getPosition(), sceneCamera.getUp(), viewMatrix, projectionMatrix);
 
-
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(
       width * devicePixelRatio - 200 * devicePixelRatio,

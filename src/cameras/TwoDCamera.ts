@@ -27,7 +27,9 @@ export class TwoDCamera extends Camera {
     return this.matrix;
   }
   public getFacingMatrix(target: vector3): mat4 {
-    throw new Error("Method not implemented.");
+    const matrix = mat4.create();
+    mat4.fromTranslation(matrix, [-target[0], -target[1], -target[2]]);
+    return matrix;
   }
   public getPosition(): vector3 {
     return this.position;
