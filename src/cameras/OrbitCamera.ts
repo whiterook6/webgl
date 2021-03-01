@@ -40,11 +40,19 @@ export class OrbitCamera extends Camera {
 
   public getViewMatrix(): mat4 {
     const {target, up} = this;
-
     const position = this.getPosition();
 
     const viewMatrix = mat4.create();
     return mat4.lookAt(viewMatrix, position, target, up);
+  }
+
+  public getFacingMatrix(target: vector3) {
+    const {up} = this;
+    const position = this.getPosition();
+
+    const matrix = mat4.create();
+    mat4.targetTo(matrix, target, position, up);
+    return matrix;
   }
 
   /**

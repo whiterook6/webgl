@@ -26,6 +26,9 @@ export class TwoDCamera extends Camera {
   public getViewMatrix(): mat4 {
     return this.matrix;
   }
+  public getFacingMatrix(target: vector3): mat4 {
+    throw new Error("Method not implemented.");
+  }
   public getPosition(): vector3 {
     return this.position;
   }

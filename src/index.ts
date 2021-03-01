@@ -3,7 +3,7 @@ import { PerspectiveLens } from "./cameras";
 import { OrbitCamera } from "./cameras/OrbitCamera";
 import { OrthoLens } from "./cameras/OrthoLens";
 import { IMouseDrag, Mouse } from "./interaction/Mouse";
-import { Color4Bezier, loop, pipe, sin, transform } from "./interpolators";
+import { Color4Bezier, loop, pipe, sin, transform, Vector3Bezier } from "./interpolators";
 import { FullscreenQuad } from "./objects/FullscreenQuad";
 import { Gizmo } from "./objects/Gizmo";
 import { ThreeDGrid } from "./objects/ThreeDGrid";
@@ -128,8 +128,8 @@ function main() {
 
     const viewMatrix = sceneCamera.getViewMatrix();
     const projectionMatrix = lens.getProjection();
-    grid.render(viewMatrix, projectionMatrix);
-    system.render(viewMatrix, projectionMatrix);
+    // grid.render(viewMatrix, projectionMatrix);
+    system.render(sceneCamera.getPosition(), sceneCamera.getUp(), viewMatrix, projectionMatrix);
 
 
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);

@@ -11,6 +11,6 @@ export class Color4Buffer extends FloatBuffer {
   }
 
   public updateColors(colors: color4[], offset: number = 0) {
-    return this.update(colors.flat(1));
+    return this.update(colors.flat(1), offset);
   }
 }
