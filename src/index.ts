@@ -10,6 +10,7 @@ import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
 import {RenderableBezier} from "./objects/RenderableBezier";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
+import {Triangle} from "./objects/Triangle";
 import {BezierPhysicsVerlet} from "./physics/BezierPhysicsVerlet";
 import {VertexColorRenderer} from "./renderers/VertexColorRenderer";
 import {Color, Vector3, vector3} from "./types";
@@ -94,8 +95,7 @@ function main() {
   const gizmo = new Gizmo(gl);
   const grid = new ThreeDGrid(gl);
 
-  const cube = new Cube(gl);
-  const cubeModelMatrix = mat4.create();
+  const triangle = new Triangle(gl);
 
   function render(timestamp: ITimestamp) {
     if (mustResize) {
@@ -107,7 +107,6 @@ function main() {
     }
 
     // normal time
-    lens.aspect = width / height;
     gl.viewport(0, 0, width * devicePixelRatio, height * devicePixelRatio);
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
     gl.clearDepth(1.0); // Clear everything
@@ -127,9 +126,9 @@ function main() {
     const viewMatrix = sceneCamera.getViewMatrix();
     const projectionMatrix = lens.getProjection();
     grid.render(viewMatrix, projectionMatrix);
-
-    mat4.fromZRotation(cubeModelMatrix, timestamp.age * 0.001);
-    cube.render(cubeModelMatrix, viewMatrix, projectionMatrix);
+    const identity = mat4.create();
+    mat4.identity(identity);
+    triangle.render(identity, identity, identity);
 
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(
@@ -156,27 +155,6 @@ function main() {
     }
   });
   looper.resume();
-
-  const mouse = new Mouse();
-  const moveCamera = (event: IMouseDrag) => {
-    if (looper.getIsPaused()) {
-      return;
-    }
-
-    const {deltaX, deltaY} = event;
-    sceneCamera.movePhi(deltaX * -0.01);
-    sceneCamera.moveTheta(deltaY * 0.01);
-  };
-  const zoomCamera = (delta: number) => {
-    if (looper.getIsPaused()) {
-      return;
-    }
-
-    sceneCamera.setDistance(sceneCamera.getDistance() + delta);
-  };
-  mouse.addDragCallback(moveCamera);
-  mouse.addWheelCallback(zoomCamera);
-  mouse.register();
 }
 
 main();
