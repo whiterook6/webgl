@@ -54,7 +54,7 @@ function main() {
   const lengthOscillator = buildOscilator(100, 150, 2.1);
   const rotationOscillation = buildOscilator(0, Math.PI / 4, 5.1);
   const camera = new TwoDCamera([0, 0, -1]);
-  const lens = new OrthoLens(width, height, -100, 100);
+  let lens = new OrthoLens(width, height, -100, 100);
 
   function render(timestamp: ITimestamp) {
     if (mustResize) {
@@ -63,6 +63,7 @@ function main() {
       canvas.setAttribute("height", `${newHeight * devicePixelRatio}px`);
       width = newWidth;
       height = newHeight;
+      lens = new OrthoLens(width, height, -100, 100);
     }
 
     // normal time
