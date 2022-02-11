@@ -17,6 +17,25 @@ export const pipe = <T>(
 };
 
 /**
+ * Oscilates between min and max over a period with an offset
+ * @param min the minimum output value
+ * @param max the maximum output value
+ * @param period how long between peaks
+ * @param offset shift the output forward or backward
+ * returns a function that oscillates over those values given an input in seconds
+ */
+export const buildOscilator = (min: number, max: number, period: number, shift: number = 0) => {
+  const halfAmplitude = (max - min) / 2;
+  const verticalShift = (max + min) / 2;
+  const twoPIOverPeriod = (2 * Math.PI) / period;
+
+  return (age: number) => {
+    const result = Math.sin((age - shift) * twoPIOverPeriod) * halfAmplitude + verticalShift;
+    return result;
+  };
+};
+
+/**
  * Locks the output to between min and max
  */
 export const clamp = (min: number, max: number): Interpolator<number> => {

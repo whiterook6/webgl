@@ -1,16 +1,11 @@
-import {mat4} from "gl-matrix";
-import {AnimationLoop, ITimestamp} from "./animation";
-import {Color4Buffer, IndexBuffer, Vector3Buffer} from "./buffers";
-import {PerspectiveLens} from "./cameras";
-import {OrbitCamera} from "./cameras/OrbitCamera";
-import {IMouseDrag, Mouse} from "./interaction/Mouse";
-import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier} from "./interpolators";
-import {Cube} from "./objects/Cube";
-import {OrthoLens} from "./cameras/OrthoLens";
-import {TwoDCamera} from "./cameras/TwoDCamera";
-import {FullscreenQuad} from "./objects/FullscreenQuad";
-import {ThickLine} from "./objects/ThickLine";
-import {Color, vector3} from "./types";
+import { mat4 } from "gl-matrix";
+import { AnimationLoop, ITimestamp } from "./animation";
+import { OrthoLens } from "./cameras/OrthoLens";
+import { TwoDCamera } from "./cameras/TwoDCamera";
+import { buildOscilator, Color4Bezier, loop, pipe, sin, transform } from "./interpolators";
+import { FullscreenQuad } from "./objects/FullscreenQuad";
+import { ThickLine } from "./objects/ThickLine";
+import { Color, vector3 } from "./types";
 
 // Start here
 //
@@ -80,14 +75,10 @@ function main() {
   const identity = mat4.create();
   mat4.identity(identity);
   const thickLine = new ThickLine(gl);
+  const lengthOscillator = buildOscilator(100, 150, 2.1);
+  const rotationOscillation = buildOscilator(0, Math.PI / 4, 5.1);
   const camera = new TwoDCamera([0, 0, -1]);
   const lens = new OrthoLens(width, height, -100, 100);
-
-  const lengthPipe = pipe([loop(0, 5000), transform(0.0002), sin], (t: number) => t * 300 + 100);
-  const rotationPipe = pipe(
-    [loop(0, 4000), transform(0.00025), sin],
-    (t: number) => (t * Math.PI) / 2
-  );
 
   function render(timestamp: ITimestamp) {
     if (mustResize) {
@@ -121,8 +112,8 @@ function main() {
       viewMatrix,
       projectionMatrix,
       [0, 0, 0] as vector3,
-      rotationPipe(timestamp.age),
-      lengthPipe(timestamp.age),
+      rotationOscillation(timestamp.age / 1000),
+      lengthOscillator(timestamp.age / 1000),
       3,
       Color.fromHex("#FFFFFF"),
       Color.fromHex("#27ae60")
