@@ -1,18 +1,12 @@
 import {mat4} from "gl-matrix";
 import {AnimationLoop, ITimestamp} from "./animation";
-import {Color4Buffer, IndexBuffer, Vector3Buffer} from "./buffers";
-import {PerspectiveLens} from "./cameras";
-import {OrbitCamera} from "./cameras/OrbitCamera";
-import {IMouseDrag, Mouse} from "./interaction/Mouse";
-import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier} from "./interpolators";
+import {OrthoLens} from "./cameras/OrthoLens";
+import {TwoDCamera} from "./cameras/TwoDCamera";
+import {Color4Bezier, loop, pipe, sin, transform} from "./interpolators";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
-import {Gizmo} from "./objects/Gizmo";
-import {RenderableBezier} from "./objects/RenderableBezier";
-import {ThreeDGrid} from "./objects/ThreeDGrid";
+import {ThickLine} from "./objects/ThickLine";
 import {Triangle} from "./objects/Triangle";
-import {BezierPhysicsVerlet} from "./physics/BezierPhysicsVerlet";
-import {VertexColorRenderer} from "./renderers/VertexColorRenderer";
-import {Color, Vector3, vector3} from "./types";
+import {Color, vector3} from "./types";
 
 // Start here
 //
@@ -85,7 +79,12 @@ function main() {
   const blPipe = pipe([loop(0, 5000), transform(0.0002), sin], blBezier.get);
   const brPipe = pipe([loop(0, 5000), transform(0.0002), sin], brBezier.get);
 
+  const identity = mat4.create();
+  mat4.identity(identity);
+  const thickLine = new ThickLine(gl);
   const triangle = new Triangle(gl);
+  const camera = new TwoDCamera([0, 0, -1]);
+  const lens = new OrthoLens(width, height, -100, 100);
 
   function render(timestamp: ITimestamp) {
     if (mustResize) {
@@ -101,20 +100,29 @@ function main() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
     gl.clearDepth(1.0); // Clear everything
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.disable(gl.DEPTH_TEST); // Enable depth testing
-    background.setTlColor(tlPipe(timestamp.age));
-    background.setTrColor(trPipe(timestamp.age));
-    background.setBlColor(blPipe(timestamp.age));
-    background.setBrColor(brPipe(timestamp.age));
-    background.render();
+    // gl.disable(gl.DEPTH_TEST); // Enable depth testing
+    // background.setTlColor(tlPipe(timestamp.age));
+    // background.setTrColor(trPipe(timestamp.age));
+    // background.setBlColor(blPipe(timestamp.age));
+    // background.setBrColor(brPipe(timestamp.age));
+    // background.render();
 
     gl.clearDepth(1.0); // Clear everything
     gl.enable(gl.DEPTH_TEST); // Enable depth testing
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
-    const identity = mat4.create();
-    mat4.identity(identity);
-    triangle.render(identity, identity, identity);
+    const viewMatrix = camera.getViewMatrix();
+    const projectionMatrix = lens.getProjection();
+    thickLine.render(
+      viewMatrix,
+      projectionMatrix,
+      [0, 0, 0] as vector3,
+      Math.PI / 4,
+      300,
+      3,
+      Color.fromHex("#FFFFFF"),
+      Color.fromHex("#27ae60")
+    );
   }
 
   const looper = new AnimationLoop(render);
