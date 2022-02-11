@@ -15,12 +15,12 @@ export class TwoDCamera extends Camera {
     super();
     this.position = position;
     this.matrix = mat4.create();
-    mat4.identity(this.matrix);
+    mat4.fromTranslation(this.matrix, [-position[0], -position[1], -position[2]]);
   }
 
   public setPosition(position: vector3): void {
     this.position = position;
-    mat4.fromTranslation(this.matrix, position);
+    mat4.fromTranslation(this.matrix, [-position[0], -position[1], -position[2]]);
   }
 
   public getViewMatrix(): mat4 {
