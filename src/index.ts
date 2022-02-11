@@ -2,10 +2,8 @@ import {mat4} from "gl-matrix";
 import {AnimationLoop, ITimestamp} from "./animation";
 import {OrthoLens} from "./cameras/OrthoLens";
 import {TwoDCamera} from "./cameras/TwoDCamera";
-import {Color4Bezier, loop, pipe, sin, transform} from "./interpolators";
-import {FullscreenQuad} from "./objects/FullscreenQuad";
+import {loop, pipe, sin, transform} from "./interpolators";
 import {ThickLine} from "./objects/ThickLine";
-import {Triangle} from "./objects/Triangle";
 import {Color, vector3} from "./types";
 
 // Start here
@@ -49,42 +47,18 @@ function main() {
     }
   });
 
-  const background = new FullscreenQuad(gl);
-  const tlBezier = new Color4Bezier(
-    Color.fromHex("#0182B2"),
-    Color.fromHex("#0182B2"),
-    Color.fromHex("#EC4980"),
-    Color.fromHex("#EC4980")
-  );
-  const trBezier = new Color4Bezier(
-    Color.fromHex("#EC4980"),
-    Color.fromHex("#EC4980"),
-    Color.fromHex("#FFDA8A"),
-    Color.fromHex("#FFDA8A")
-  );
-  const blBezier = new Color4Bezier(
-    Color.fromHex("#FFDA8A"),
-    Color.fromHex("#FFDA8A"),
-    Color.fromHex("#50377E"),
-    Color.fromHex("#50377E")
-  );
-  const brBezier = new Color4Bezier(
-    Color.fromHex("#50377E"),
-    Color.fromHex("#50377E"),
-    Color.fromHex("#0182B2"),
-    Color.fromHex("#0182B2")
-  );
-  const tlPipe = pipe([loop(0, 5000), transform(0.0002), sin], tlBezier.get);
-  const trPipe = pipe([loop(0, 5000), transform(0.0002), sin], trBezier.get);
-  const blPipe = pipe([loop(0, 5000), transform(0.0002), sin], blBezier.get);
-  const brPipe = pipe([loop(0, 5000), transform(0.0002), sin], brBezier.get);
-
+  // const trPipe = pipe([loop(0, 5000), transform(0.0002), sin], trBezier.get);
   const identity = mat4.create();
   mat4.identity(identity);
   const thickLine = new ThickLine(gl);
-  const triangle = new Triangle(gl);
   const camera = new TwoDCamera([0, 0, -1]);
   const lens = new OrthoLens(width, height, -100, 100);
+
+  const lengthPipe = pipe([loop(0, 5000), transform(0.0002), sin], (t: number) => t * 300 + 100);
+  const rotationPipe = pipe(
+    [loop(0, 4000), transform(0.00025), sin],
+    (t: number) => (t * Math.PI) / 2
+  );
 
   function render(timestamp: ITimestamp) {
     if (mustResize) {
@@ -117,8 +91,8 @@ function main() {
       viewMatrix,
       projectionMatrix,
       [0, 0, 0] as vector3,
-      Math.PI / 4,
-      300,
+      rotationPipe(timestamp.age),
+      lengthPipe(timestamp.age),
       3,
       Color.fromHex("#FFFFFF"),
       Color.fromHex("#27ae60")
