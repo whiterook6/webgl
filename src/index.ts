@@ -6,14 +6,12 @@ import {OrbitCamera} from "./cameras/OrbitCamera";
 import {IMouseDrag, Mouse} from "./interaction/Mouse";
 import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier} from "./interpolators";
 import {Cube} from "./objects/Cube";
+import {OrthoLens} from "./cameras/OrthoLens";
+import {TwoDCamera} from "./cameras/TwoDCamera";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
-import {Gizmo} from "./objects/Gizmo";
-import {RenderableBezier} from "./objects/RenderableBezier";
-import {ThreeDGrid} from "./objects/ThreeDGrid";
+import {ThickLine} from "./objects/ThickLine";
 import {Triangle} from "./objects/Triangle";
-import {BezierPhysicsVerlet} from "./physics/BezierPhysicsVerlet";
-import {VertexColorRenderer} from "./renderers/VertexColorRenderer";
-import {Color, Vector3, vector3} from "./types";
+import {Color, vector3} from "./types";
 
 // Start here
 //
@@ -80,22 +78,12 @@ function main() {
   const blPipe = pipe([loop(0, 5000), transform(0.0002), sin], blBezier.get);
   const brPipe = pipe([loop(0, 5000), transform(0.0002), sin], brBezier.get);
 
-  const sceneCamera = new OrbitCamera();
-  sceneCamera.setDistance(20);
-  sceneCamera.setTheta(-Math.PI / 12);
-  sceneCamera.setTarget([0, 0, 0]);
-  sceneCamera.setUp([0, 0, 1]);
-  const gizmoCamera = new OrbitCamera();
-  gizmoCamera.setDistance(3);
-  gizmoCamera.setTheta(-Math.PI / 12);
-  gizmoCamera.setTarget([0, 0, 0]);
-  gizmoCamera.setUp([0, 0, 1]);
-
-  const lens = new PerspectiveLens();
-  const gizmo = new Gizmo(gl);
-  const grid = new ThreeDGrid(gl);
-
+  const identity = mat4.create();
+  mat4.identity(identity);
+  const thickLine = new ThickLine(gl);
   const triangle = new Triangle(gl);
+  const camera = new TwoDCamera([0, 0, -1]);
+  const lens = new OrthoLens(width, height, -100, 100);
 
   function render(timestamp: ITimestamp) {
     if (mustResize) {
@@ -123,26 +111,18 @@ function main() {
     gl.enable(gl.DEPTH_TEST); // Enable depth testing
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
-    const viewMatrix = sceneCamera.getViewMatrix();
+    const viewMatrix = camera.getViewMatrix();
     const projectionMatrix = lens.getProjection();
-    grid.render(viewMatrix, projectionMatrix);
-    const identity = mat4.create();
-    mat4.identity(identity);
-    triangle.render(identity, identity, identity);
-
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.viewport(
-      width * devicePixelRatio - 200 * devicePixelRatio,
-      0,
-      200 * devicePixelRatio,
-      200 * devicePixelRatio
+    thickLine.render(
+      viewMatrix,
+      projectionMatrix,
+      [0, 0, 0] as vector3,
+      Math.PI / 4,
+      300,
+      3,
+      Color.fromHex("#FFFFFF"),
+      Color.fromHex("#27ae60")
     );
-    lens.aspect = 1;
-    gizmoCamera.setPhi(sceneCamera.getPhi());
-    gizmoCamera.setTheta(sceneCamera.getTheta());
-    gizmo.render(gizmoCamera.getViewMatrix(), lens.getProjection());
-    lens.aspect = width / height;
-    gl.viewport(0, 0, width, height);
   }
 
   const looper = new AnimationLoop(render);

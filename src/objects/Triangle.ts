@@ -34,9 +34,9 @@ void main() {
       .link();
 
     this.positionBuffer = new Vector3Buffer(gl, [
-      [1.0, 1.0, 0],
-      [-1.0, 1.0, 0],
-      [-1.0, -1.0, 0],
+      [0, 0, 0],
+      [300, 0, 0],
+      [300, 100, 0],
     ]);
     this.indexBuffer = new IndexBuffer(gl, [0, 1, 2]);
     this.modelViewMatrixUniform = this.shader.getUniformLocation(
