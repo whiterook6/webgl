@@ -1,4 +1,5 @@
 import {FloatBuffer, IndexBuffer} from "../buffers";
+import {Color4Bezier} from "../interpolators";
 import {Shader} from "../Shader";
 import {color4, Color} from "../types";
 
@@ -71,36 +72,14 @@ void main(void) {
     this.trColorUniform = this.shader.getUniformLocation("trColor") as WebGLUniformLocation;
     this.blColorUniform = this.shader.getUniformLocation("blColor") as WebGLUniformLocation;
     this.brColorUniform = this.shader.getUniformLocation("brColor") as WebGLUniformLocation;
-
-    // defaults
-    this.setTlColor(Color.fromHex("#0182B2"));
-    this.setTrColor(Color.fromHex("#EC4980"));
-    this.setBlColor(Color.fromHex("#FFDA8A"));
-    this.setBrColor(Color.fromHex("#50377E"));
   }
 
-  public setTlColor(color: color4) {
+  public render(tlColor: color4, trColor: color4, blColor: color4, brColor: color4) {
     this.gl.useProgram(this.shader.getProgram());
-    this.gl.uniform4fv(this.tlColorUniform, color);
-  }
-
-  public setTrColor(color: color4) {
-    this.gl.useProgram(this.shader.getProgram());
-    this.gl.uniform4fv(this.trColorUniform, color);
-  }
-
-  public setBlColor(color: color4) {
-    this.gl.useProgram(this.shader.getProgram());
-    this.gl.uniform4fv(this.blColorUniform, color);
-  }
-
-  public setBrColor(color: color4) {
-    this.gl.useProgram(this.shader.getProgram());
-    this.gl.uniform4fv(this.brColorUniform, color);
-  }
-
-  public render() {
-    this.gl.useProgram(this.shader.getProgram());
+    this.gl.uniform4fv(this.tlColorUniform, tlColor);
+    this.gl.uniform4fv(this.trColorUniform, trColor);
+    this.gl.uniform4fv(this.blColorUniform, blColor);
+    this.gl.uniform4fv(this.brColorUniform, brColor);
     this.positionBuffer.bindToAttribute(this.vertexPositionAttribute);
     this.indexBuffer.bindToAttribute();
     this.gl.drawElements(this.gl.TRIANGLE_STRIP, 4, this.gl.UNSIGNED_SHORT, 0);

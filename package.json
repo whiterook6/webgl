@@ -8,7 +8,7 @@
   "scripts": {
     "build": "webpack --mode production",
     "watch": "webpack --watch --mode development",
-    "format": "prettier src/**/*.ts --write",
+    "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint --project tsconfig.json --fix",
     "typecheck": "tsc --noEmit"
   },

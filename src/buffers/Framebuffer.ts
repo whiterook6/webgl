@@ -1,4 +1,4 @@
-import {Texture} from "./Texture";
+import {Texture} from "../Texture";
 
 export class Framebuffer {
   private readonly gl: WebGL2RenderingContext;
