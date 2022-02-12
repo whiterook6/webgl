@@ -56,6 +56,12 @@ export class LookAtCamera extends Camera {
     return lookAt;
   }
 
+  public getFacingMatrix(target: vector3): mat4 {
+    const matrix = mat4.create();
+    mat4.targetTo(matrix, target, this.getPosition(), this.getUp());
+    return matrix;
+  }
+
   public toString() {
     return `Pos: ${this.position}  Fwd: ${this.forward} Up: ${this.up}`;
   }

@@ -191,7 +191,7 @@ void main(void) {
       20, 21, 22,  20, 22, 23,   // left
     ]);
 
-    this.gl.useProgram(this.shader.getProgram());
+    this.shader.useProgram();
     this.vertexPositionAttribute = this.shader.getAttributeLocation("vertexPosition");
     this.vertexNormalAttribute = this.shader.getAttributeLocation("vertexNormal");
     this.vertexColorAttribute = this.shader.getAttributeLocation("vertexColor");
@@ -219,7 +219,7 @@ void main(void) {
     mat4.invert(normalMatrix, modelViewMatrix);
     mat4.transpose(normalMatrix, normalMatrix);
 
-    this.gl.useProgram(this.shader.getProgram());
+    this.shader.useProgram();
     this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
     this.gl.uniformMatrix4fv(this.modelViewMatrixUniform, false, modelViewMatrix);
     this.gl.uniformMatrix4fv(this.normalMatrixUniform, false, normalMatrix);

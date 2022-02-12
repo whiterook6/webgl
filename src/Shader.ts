@@ -128,6 +128,13 @@ export class Shader {
     return this.program as WebGLProgram;
   }
 
+  public useProgram() {
+    if (!this.program) {
+      throw new Error("Program not linked.");
+    }
+    this.gl.useProgram(this.program);
+  }
+
   /**
    * Gets the webgl location of an attribute in this shader program. This function caches
    * the location as that value will not change.

@@ -1,10 +1,13 @@
-import { mat4 } from "gl-matrix";
 import { AnimationLoop, ITimestamp } from "./animation";
+import { PerspectiveLens } from "./cameras";
+import { OrbitCamera } from "./cameras/OrbitCamera";
 import { OrthoLens } from "./cameras/OrthoLens";
-import { TwoDCamera } from "./cameras/TwoDCamera";
-import { buildOscilator, Color4Bezier, loop, pipe, sin, transform } from "./interpolators";
+import { IMouseDrag, Mouse } from "./interaction/Mouse";
+import { Color4Bezier, loop, pipe, sin, transform, Vector3Bezier } from "./interpolators";
 import { FullscreenQuad } from "./objects/FullscreenQuad";
-import { ThickLine } from "./objects/ThickLine";
+import { Gizmo } from "./objects/Gizmo";
+import { ThreeDGrid } from "./objects/ThreeDGrid";
+import { ParticleSystem } from "./particles/ParticleSystem";
 import { Color, vector3 } from "./types";
 
 // Start here
@@ -14,6 +17,12 @@ function main() {
   if (!canvas) {
     return;
   }
+
+  // disable right-click menu
+  // canvas.addEventListener("contextmenu", (event) => {
+  //   event.stopPropagation();
+  //   event.preventDefault();
+  // });
 
   let width = window.innerWidth;
   let height = window.innerHeight;
@@ -72,13 +81,22 @@ function main() {
   const blPipe = pipe([loop(0, 5000), transform(0.0002), sin], blBezier.get);
   const brPipe = pipe([loop(0, 5000), transform(0.0002), sin], brBezier.get);
 
-  const identity = mat4.create();
-  mat4.identity(identity);
-  const thickLine = new ThickLine(gl);
-  const lengthOscillator = buildOscilator(100, 150, 2.1);
-  const rotationOscillation = buildOscilator(0, Math.PI / 4, 5.1);
-  const camera = new TwoDCamera([0, 0, -1]);
-  let lens = new OrthoLens(width, height, -100, 100);
+  const sceneCamera = new OrbitCamera();
+  sceneCamera.setDistance(20);
+  sceneCamera.setTheta(-Math.PI / 12);
+  sceneCamera.setTarget([0, 0, 0]);
+  sceneCamera.setUp([0, 0, 1]);
+  const gizmoCamera = new OrbitCamera();
+  gizmoCamera.setDistance(3);
+  gizmoCamera.setTheta(-Math.PI / 12);
+  gizmoCamera.setTarget([0, 0, 0]);
+  gizmoCamera.setUp([0, 0, 1]);
+
+  const lens = new PerspectiveLens();
+  const gizmo = new Gizmo(gl);
+  const grid = new ThreeDGrid(gl);
+  const bezier = new Vector3Bezier([0, 5, -1], [2, 0, -2.5], [0, -1, 3], [4, -3.5, -1]);
+  const system = new ParticleSystem(gl, 500, bezier);
 
   function render(timestamp: ITimestamp) {
     if (mustResize) {
@@ -87,8 +105,9 @@ function main() {
       canvas.setAttribute("height", `${newHeight * devicePixelRatio}px`);
       width = newWidth;
       height = newHeight;
-      lens = new OrthoLens(width, height, -100, 100);
     }
+
+    system.update(timestamp);
 
     // normal time
     gl.viewport(0, 0, width * devicePixelRatio, height * devicePixelRatio);
@@ -107,18 +126,24 @@ function main() {
     gl.enable(gl.DEPTH_TEST); // Enable depth testing
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
-    const viewMatrix = camera.getViewMatrix();
+    const viewMatrix = sceneCamera.getViewMatrix();
     const projectionMatrix = lens.getProjection();
-    thickLine.render(
-      viewMatrix,
-      projectionMatrix,
-      [0, 0, 0] as vector3,
-      rotationOscillation(timestamp.age / 1000),
-      lengthOscillator(timestamp.age / 1000),
-      3,
-      Color.fromHex("#FFFFFF"),
-      Color.fromHex("#27ae60")
+    // grid.render(viewMatrix, projectionMatrix);
+    system.render(sceneCamera.getPosition(), sceneCamera.getUp(), viewMatrix, projectionMatrix);
+
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.viewport(
+      width * devicePixelRatio - 200 * devicePixelRatio,
+      0,
+      200 * devicePixelRatio,
+      200 * devicePixelRatio
     );
+    lens.aspect = 1;
+    gizmoCamera.setPhi(sceneCamera.getPhi());
+    gizmoCamera.setTheta(sceneCamera.getTheta());
+    gizmo.render(gizmoCamera.getViewMatrix(), lens.getProjection());
+    lens.aspect = width / height;
+    gl.viewport(0, 0, width, height);
   }
 
   const looper = new AnimationLoop(render);
@@ -131,6 +156,27 @@ function main() {
     }
   });
   looper.resume();
+
+  const mouse = new Mouse();
+  const moveCamera = (event: IMouseDrag) => {
+    if (looper.getIsPaused()) {
+      return;
+    }
+
+    const { deltaX, deltaY } = event;
+    sceneCamera.movePhi(deltaX * -0.01);
+    sceneCamera.moveTheta(deltaY * 0.01);
+  };
+  const zoomCamera = (delta: number) => {
+    if (looper.getIsPaused()) {
+      return;
+    }
+
+    sceneCamera.setDistance(sceneCamera.getDistance() + delta);
+  };
+  mouse.addDragCallback(moveCamera);
+  mouse.addWheelCallback(zoomCamera);
+  mouse.register();
 }
 
 main();

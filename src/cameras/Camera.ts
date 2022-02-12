@@ -2,10 +2,11 @@ import {mat4} from "gl-matrix";
 import {vector3, ray} from "../types";
 
 export abstract class Camera {
-  public abstract getViewMatrix(): mat4;
+  public abstract getFacingMatrix(target: vector3): mat4;
+  public abstract getForward(): vector3;
   public abstract getPosition(): vector3;
   public abstract getUp(): vector3;
-  public abstract getForward(): vector3;
+  public abstract getViewMatrix(): mat4;
 
   public static unproject(
     projected: vector3,

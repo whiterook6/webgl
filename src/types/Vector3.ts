@@ -4,6 +4,10 @@ import {vec3, mat4} from "gl-matrix";
 export type vector3 = [number, number, number];
 
 export class Vector3 {
+  public static fromVec3 = (v: vec3): vector3 => {
+    return [v[0], v[1], v[2]];
+  };
+
   public static add = (v1: vector3, v2: vector3): vector3 => {
     return [v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2]];
   };
