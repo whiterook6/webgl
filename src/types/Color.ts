@@ -36,4 +36,8 @@ export class Color {
       ];
     }
   };
+
+  public static random = (): color4 => {
+    return [Math.random(), Math.random(), Math.random(), 1];
+  };
 }
