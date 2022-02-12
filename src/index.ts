@@ -1,6 +1,7 @@
 import {mat4} from "gl-matrix";
 import {AnimationLoop, ITimestamp} from "./animation";
 import {Color4Buffer, Vector3Buffer} from "./buffers";
+import {MatrixBuffer} from "./buffers/MatrixBuffer";
 import {OrthoLens} from "./cameras/OrthoLens";
 import {TwoDCamera} from "./cameras/TwoDCamera";
 import {buildOscilator} from "./interpolators";
@@ -103,18 +104,8 @@ void main() {
   // setup matrixes, one per instance
   const numInstances = 500;
   // make a typed array with one view per matrix
-  const matrixData = new Float32Array(numInstances * 16);
-  const matrices: Float32Array[] = [];
-  for (let i = 0; i < numInstances; ++i) {
-    const byteOffsetToMatrix = i * 16 * 4;
-    const numFloatsForView = 16;
-    matrices.push(new Float32Array(matrixData.buffer, byteOffsetToMatrix, numFloatsForView));
-  }
-
-  const matrixBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, matrixBuffer);
-  // just allocate the buffer
-  gl.bufferData(gl.ARRAY_BUFFER, matrixData.byteLength, gl.DYNAMIC_DRAW);
+  const matrixBuffer = new MatrixBuffer(gl, numInstances, gl.DYNAMIC_DRAW);
+  const matrices = matrixBuffer.getMatrices();
 
   // set all 4 attributes for matrix
   const bytesPerMatrix = 4 * 16;
@@ -170,8 +161,7 @@ void main() {
     });
 
     // upload the new matrix data
-    gl.bindBuffer(gl.ARRAY_BUFFER, matrixBuffer);
-    gl.bufferSubData(gl.ARRAY_BUFFER, 0, matrixData);
+    matrixBuffer.update();
 
     gl.drawArraysInstanced(
       gl.TRIANGLES,
