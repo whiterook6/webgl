@@ -5,6 +5,7 @@ import {PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
 import {IMouseDrag, Mouse} from "./interaction/Mouse";
 import {Color4Bezier, loop, pipe, sin, transform, Vector3Bezier} from "./interpolators";
+import {Cube} from "./objects/Cube";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
 import {RenderableBezier} from "./objects/RenderableBezier";
@@ -20,12 +21,6 @@ function main() {
   if (!canvas) {
     return;
   }
-
-  // disable right-click menu
-  canvas.addEventListener("contextmenu", (event) => {
-    event.stopPropagation();
-    event.preventDefault();
-  });
 
   let width = window.innerWidth;
   let height = window.innerHeight;
@@ -87,7 +82,7 @@ function main() {
   const sceneCamera = new OrbitCamera();
   sceneCamera.setDistance(20);
   sceneCamera.setTheta(-Math.PI / 12);
-  sceneCamera.setTarget([0, 0, 5]);
+  sceneCamera.setTarget([0, 0, 0]);
   sceneCamera.setUp([0, 0, 1]);
   const gizmoCamera = new OrbitCamera();
   gizmoCamera.setDistance(3);
@@ -97,20 +92,12 @@ function main() {
 
   const lens = new PerspectiveLens();
   const gizmo = new Gizmo(gl);
-  const bezier = new Vector3Bezier([0, 0, 9], [0, 10, 1], [3, -5, 1], [4, 7, 10]);
-  const renderableBezier = new RenderableBezier(gl, bezier);
   const grid = new ThreeDGrid(gl);
 
-  const carPhysics = new BezierPhysicsVerlet(bezier);
-  const carVertices = new Vector3Buffer(gl, [[0, 0, 0]]);
-  const carColors = new Color4Buffer(gl, [Color.fromHex("#FFFFFF")]);
-  const carIndices = new IndexBuffer(gl, [0]);
-  const carRenderer = new VertexColorRenderer(gl);
-  const carMatrix = mat4.create();
+  const cube = new Cube(gl);
+  const cubeModelMatrix = mat4.create();
 
   function render(timestamp: ITimestamp) {
-    carPhysics.update(timestamp.deltaT / 1000);
-
     if (mustResize) {
       mustResize = false;
       canvas.setAttribute("width", `${newWidth * devicePixelRatio}px`);
@@ -126,11 +113,12 @@ function main() {
     gl.clearDepth(1.0); // Clear everything
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.disable(gl.DEPTH_TEST); // Enable depth testing
-    background.setTlColor(tlPipe(timestamp.age));
-    background.setTrColor(trPipe(timestamp.age));
-    background.setBlColor(blPipe(timestamp.age));
-    background.setBrColor(brPipe(timestamp.age));
-    background.render();
+    background.render(
+      tlPipe(timestamp.age),
+      trPipe(timestamp.age),
+      blPipe(timestamp.age),
+      brPipe(timestamp.age)
+    );
 
     gl.clearDepth(1.0); // Clear everything
     gl.enable(gl.DEPTH_TEST); // Enable depth testing
@@ -139,12 +127,10 @@ function main() {
     const viewMatrix = sceneCamera.getViewMatrix();
     const projectionMatrix = lens.getProjection();
     grid.render(viewMatrix, projectionMatrix);
-    renderableBezier.render(viewMatrix, projectionMatrix);
-    const carPosition = carPhysics.getPosition();
-    mat4.fromTranslation(carMatrix, carPosition);
-    mat4.multiply(carMatrix, viewMatrix, carMatrix);
-    mat4.multiply(carMatrix, projectionMatrix, carMatrix);
-    carRenderer.render(carVertices, carColors, carIndices, carMatrix, gl.POINTS);
+
+    mat4.fromZRotation(cubeModelMatrix, timestamp.age * 0.001);
+    cube.render(cubeModelMatrix, viewMatrix, projectionMatrix);
+
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.viewport(
       width * devicePixelRatio - 200 * devicePixelRatio,
