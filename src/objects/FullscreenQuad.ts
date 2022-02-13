@@ -1,6 +1,6 @@
-import { FloatBuffer, IndexBuffer } from "../buffers";
-import { Shader } from "../Shader";
-import { color4 } from "../types";
+import {FloatBuffer, IndexBuffer} from "../buffers";
+import {Shader} from "../Shader";
+import {color4} from "../types";
 
 export class FullscreenQuad {
   private readonly gl: WebGL2RenderingContext;

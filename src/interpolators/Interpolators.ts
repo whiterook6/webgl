@@ -24,7 +24,7 @@ export const pipe = <T>(
  * @param offset shift the output forward or backward
  * returns a function that oscillates over those values given an input in seconds
  */
-export const buildOscilator = (min: number, max: number, period: number, shift: number = 0) => {
+export const buildOscillator = (min: number, max: number, period: number, shift: number = 0) => {
   const halfAmplitude = (max - min) / 2;
   const verticalShift = (max + min) / 2;
   const twoPIOverPeriod = (2 * Math.PI) / period;
