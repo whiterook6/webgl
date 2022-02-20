@@ -7,6 +7,7 @@ import {Color4Bezier, loop, pipe, sin, transform} from "./interpolators";
 import {Cube} from "./objects/Cube";
 import {FullscreenQuad} from "./objects/FullscreenQuad";
 import {Gizmo} from "./objects/Gizmo";
+import {PerlinQuad} from "./objects/PerlinQuad";
 import {ThreeDGrid} from "./objects/ThreeDGrid";
 import {Color} from "./types";
 
@@ -53,6 +54,7 @@ function main() {
   }
   const gl = createGLContext(canvas);
 
+  const perlinQuad = new PerlinQuad(gl);
   const cube = new Cube(gl);
   const cubeMatrix = mat4.create();
 
@@ -77,6 +79,7 @@ function main() {
     gl.viewport(0, 0, width * devicePixelRatio, height * devicePixelRatio);
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
     gl.clearDepth(1.0); // Clear everything
+    perlinQuad.render(timestamp.age / 2000);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST); // Enable depth testing
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
