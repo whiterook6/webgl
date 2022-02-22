@@ -2,7 +2,8 @@ import {mat4} from "gl-matrix";
 import {IndexBuffer, Vector3Buffer} from "../buffers";
 import {Vector2Buffer} from "../buffers/Vector2Buffer";
 import {Shader} from "../Shader";
-import {perlin} from "../shaders/perlin";
+import perlin from "../shaders/perlin";
+import hsvrgb from "../shaders/hsvrgb";
 
 export class Hairs {
   private readonly gl: WebGL2RenderingContext;
@@ -16,14 +17,23 @@ export class Hairs {
   private readonly vertexPositionAttribute: number;
   private readonly indexBuffer: IndexBuffer;
 
-  constructor(gl: WebGL2RenderingContext, columns: number, rows: number) {
+  constructor(
+    gl: WebGL2RenderingContext,
+    columns: number,
+    rows: number,
+    width: number,
+    height: number
+  ) {
     this.gl = gl;
     this.hairCount = columns * rows;
 
     const hairPositions: [number, number][] = [];
     for (let i = 0; i < columns; i++) {
       for (let j = 0; j < rows; j++) {
-        hairPositions.push([i / columns, j / rows]);
+        hairPositions.push([
+          (i * width) / columns + Math.random() * 3,
+          (j * height) / rows + Math.random() * 3,
+        ]);
       }
     }
     this.hairPositions = new Vector2Buffer(gl, hairPositions);
@@ -32,9 +42,9 @@ export class Hairs {
       gl,
       [
         [0, 0, 0],
-        [1, 0, 0.5],
-        [1, 0.01, 0.5],
-        [0, 0.01, 0],
+        [1, 0, 1],
+        [1, 1, 1],
+        [0, 1, 0],
       ],
       gl.STATIC_DRAW
     );
@@ -43,39 +53,46 @@ export class Hairs {
       .addVertexSource(
         `
 ${perlin}
+${hsvrgb}
 attribute vec2 hairColRow;
 attribute vec4 vertexPosition;
-varying vec2 uv;
-varying vec4 color;
+varying vec3 color;
 uniform float time;
 uniform mat4 viewProjection;
 
 void main(void) {
-  float rotation = perlin(vec3(hairColRow.x, hairColRow.y, time + 2.0)); // from 0 to 1
+  float rotation = perlin(vec3(hairColRow.x / ${(-width / 2).toFixed(1)}, hairColRow.y / ${(
+          -height / 2
+        ).toFixed(1)}, time + 2.0)); // from 0 to 1
   float xRotation = cos(rotation * 2.0 * 3.14159265359);
   float yRotation = sin(rotation * 2.0 * 3.14159265359);
-  float length = perlin(vec3(hairColRow.x, hairColRow.y, time + 2.0)); // from 0 to 1
+  float length = abs(perlin(vec3(hairColRow.x / ${(width / 2).toFixed(1)}, hairColRow.y / ${(
+          height / 2
+        ).toFixed(1)}, time + 100.0))) * 100.0; // from 0 to 100
   vec4 position = vec4(
-    (vertexPosition.x * yRotation * length - vertexPosition.y * xRotation) + hairColRow.x - 0.5,
-    (vertexPosition.y * yRotation + vertexPosition.x * xRotation * length) + hairColRow.y - 0.5,
+    (vertexPosition.x * yRotation * length - vertexPosition.y * xRotation * 5.0) + hairColRow.x,
+    (vertexPosition.y * yRotation * 5.0 + vertexPosition.x * xRotation * length) + hairColRow.y,
     vertexPosition.z,
     1.0
   );
-
   gl_Position = viewProjection * position;
-  uv = hairColRow;
-  color = vec4(length, length, 0.0, 1.0);
+  
+  float hue = perlin(vec3(hairColRow.x / ${(width / 2).toFixed(1)}, hairColRow.y / ${(
+          height / 2
+        ).toFixed(1)}, time + 400.0)) / 3.0 + 0.667; // from 0.667 to 1
+  float saturation = mix(0.75, 1.0, vertexPosition.x);
+  float value = mix(0.0, 1.0, vertexPosition.x);
+  color = hsv2rgb(vec3(hue, saturation, value));
 }
             `
       )
       .addFragmentSource(
         `
 precision mediump float;
-varying vec2 uv;
-varying vec4 color;
+varying vec3 color;
 
 void main(void) {
-  gl_FragColor = color;
+  gl_FragColor = vec4(color, 1.0);
 }
             `
       )

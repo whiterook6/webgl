@@ -49,10 +49,10 @@ function main() {
   }
   const gl = createGLContext(canvas);
 
-  const hairs = new Hairs(gl, 100, 50);
+  const hairs = new Hairs(gl, 100, 50, width, height);
 
-  const camera = new TwoDCamera([0, 0, 0]);
-  const lens = new OrthoLens(-1, 1, -10, 10);
+  const camera = new TwoDCamera([width / 2, height / 2, 0]);
+  const lens = new OrthoLens(width, height, -10, 10);
   const viewProjectionMatrix = mat4.create();
 
   function render(timestamp: ITimestamp) {
@@ -62,6 +62,7 @@ function main() {
       canvas.setAttribute("height", `${newHeight * devicePixelRatio}px`);
       width = newWidth;
       height = newHeight;
+      lens.update(width, height, -10, 10);
     }
     gl.viewport(0, 0, width * devicePixelRatio, height * devicePixelRatio);
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque

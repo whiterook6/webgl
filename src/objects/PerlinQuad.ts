@@ -1,6 +1,6 @@
 import {FloatBuffer, IndexBuffer} from "../buffers";
 import {Shader} from "../Shader";
-import {perlin} from "../shaders/perlin";
+import perlin from "../shaders/perlin";
 
 export class PerlinQuad {
   private readonly gl: WebGL2RenderingContext;
