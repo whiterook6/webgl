@@ -1,15 +1,10 @@
 import {mat4} from "gl-matrix";
 import {AnimationLoop, ITimestamp} from "./animation";
-import {LookAtCamera, PerspectiveLens} from "./cameras";
+import {PerspectiveLens} from "./cameras";
 import {OrbitCamera} from "./cameras/OrbitCamera";
-import {IMouseDrag, Mouse} from "./interaction/Mouse";
-import {Color4Bezier, loop, pipe, sin, transform} from "./interpolators";
-import {Cube} from "./objects/Cube";
-import {FullscreenQuad} from "./objects/FullscreenQuad";
-import {Gizmo} from "./objects/Gizmo";
-import {PerlinQuad} from "./objects/PerlinQuad";
-import {ThreeDGrid} from "./objects/ThreeDGrid";
-import {Color} from "./types";
+import {OrthoLens} from "./cameras/OrthoLens";
+import {TwoDCamera} from "./cameras/TwoDCamera";
+import {Hairs} from "./objects/Hairs";
 
 let mustResize = false;
 let width = window.innerWidth;
@@ -54,18 +49,11 @@ function main() {
   }
   const gl = createGLContext(canvas);
 
-  const perlinQuad = new PerlinQuad(gl);
-  const cube = new Cube(gl);
-  const cubeMatrix = mat4.create();
+  const hairs = new Hairs(gl, 100, 50);
 
-  const camera = new OrbitCamera();
-  camera.setDistance(10);
-  camera.setTarget([0, 0, 0]);
-  camera.setPhi(Math.PI / 4);
-  camera.setTheta(Math.PI / 4);
-
-  const lens = new PerspectiveLens();
-  lens.aspect = width / height;
+  const camera = new TwoDCamera([0, 0, 0]);
+  const lens = new OrthoLens(-1, 1, -10, 10);
+  const viewProjectionMatrix = mat4.create();
 
   function render(timestamp: ITimestamp) {
     if (mustResize) {
@@ -74,22 +62,18 @@ function main() {
       canvas.setAttribute("height", `${newHeight * devicePixelRatio}px`);
       width = newWidth;
       height = newHeight;
-      lens.aspect = width / height;
     }
     gl.viewport(0, 0, width * devicePixelRatio, height * devicePixelRatio);
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
     gl.clearDepth(1.0); // Clear everything
-    perlinQuad.render(timestamp.age / 2000);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.disable(gl.DEPTH_TEST); // Enable depth testing
+
+    mat4.multiply(viewProjectionMatrix, lens.getProjection(), camera.getViewMatrix());
+    hairs.render(viewProjectionMatrix, timestamp.age / 8000);
+
+    gl.clearDepth(1.0); // Clear everything
     gl.enable(gl.DEPTH_TEST); // Enable depth testing
-    gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-
-    // render
-    mat4.fromZRotation(cubeMatrix, timestamp.age / 1000);
-    const projectionMatrix = lens.getProjection();
-    const viewMatrix = camera.getViewMatrix();
-
-    cube.render(cubeMatrix, viewMatrix, projectionMatrix);
   }
 
   const looper = new AnimationLoop(render);
