@@ -4,6 +4,10 @@ import {color4} from "../types";
 
 export class FullscreenQuad {
   private readonly gl: WebGL2RenderingContext;
+  private readonly tlColor: color4;
+  private readonly trColor: color4;
+  private readonly blColor: color4;
+  private readonly brColor: color4;
   private readonly positionBuffer: FloatBuffer;
   private readonly indexBuffer: IndexBuffer;
   private readonly shader: Shader;
@@ -13,8 +17,12 @@ export class FullscreenQuad {
   private readonly blColorUniform: WebGLUniformLocation;
   private readonly brColorUniform: WebGLUniformLocation;
 
-  constructor(gl: WebGL2RenderingContext) {
+  constructor(gl: WebGL2RenderingContext, tlColor: color4, trColor: color4, blColor: color4, brColor: color4) {
     this.gl = gl;
+    this.tlColor = tlColor;
+    this.trColor = trColor;
+    this.blColor = blColor;
+    this.brColor = brColor;
 
     // prettier-ignore
     this.positionBuffer = new FloatBuffer(gl, [
@@ -73,12 +81,12 @@ void main(void) {
     this.brColorUniform = this.shader.getUniformLocation("brColor") as WebGLUniformLocation;
   }
 
-  public render(tlColor: color4, trColor: color4, blColor: color4, brColor: color4) {
+  public render() {
     this.gl.useProgram(this.shader.getProgram());
-    this.gl.uniform4fv(this.tlColorUniform, tlColor);
-    this.gl.uniform4fv(this.trColorUniform, trColor);
-    this.gl.uniform4fv(this.blColorUniform, blColor);
-    this.gl.uniform4fv(this.brColorUniform, brColor);
+    this.gl.uniform4fv(this.tlColorUniform, this.tlColor);
+    this.gl.uniform4fv(this.trColorUniform, this.trColor);
+    this.gl.uniform4fv(this.blColorUniform, this.blColor);
+    this.gl.uniform4fv(this.brColorUniform, this.brColor);
     this.positionBuffer.bindToAttribute(this.vertexPositionAttribute);
     this.indexBuffer.bindToAttribute();
     this.gl.drawElements(this.gl.TRIANGLE_STRIP, 4, this.gl.UNSIGNED_SHORT, 0);

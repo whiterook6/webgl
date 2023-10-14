@@ -11,6 +11,10 @@ export class OrthoLens extends Lens {
   }
 
   public getProjection(): mat4 {
-    return this.matrix;
+    return mat4.clone(this.matrix);
+  }
+
+  public update(width: number, height: number, near: number, far: number): void {
+    mat4.ortho(this.matrix, -width / 2, width / 2, -height / 2, height / 2, near, far);
   }
 }

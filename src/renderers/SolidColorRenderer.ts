@@ -67,4 +67,10 @@ void main(void) {
     const offset = 0;
     this.gl.drawElements(mode, vertexCount, type, offset);
   }
+
+  destroy(){
+    if (SolidColorRenderer.shader) {
+      SolidColorRenderer.shader.destroy();
+    }
+  }
 }
