@@ -60,10 +60,12 @@ function main() {
     Color.fromHex("#FFBFC4"),
     Color.fromHex("#7D4B93")
   );
-  const fluid = new Fluid(gl, width, height, 1000);
+  const fluid = new Fluid(gl, width, height, 100000);
+  const fluidColor = Color.fromHex("#A0D6F3");
   const viewProjectionMatrix = mat4.create();
 
   function render(timestamp: ITimestamp) {
+    console.log(`FPS: ${Math.floor(1000 / timestamp.deltaT)}   DeltaT: ${Math.floor(timestamp.deltaT)}`);
     if (mustResize) {
       mustResize = false;
       canvas.setAttribute("width", `${newWidth * devicePixelRatio}px`);
@@ -84,7 +86,7 @@ function main() {
     background.render();
     gl.enable(gl.DEPTH_TEST); // Enable depth testing
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-    fluid.render(viewProjectionMatrix);
+    fluid.render(fluidColor, viewProjectionMatrix);
   }
 
   const looper = new AnimationLoop(render);
