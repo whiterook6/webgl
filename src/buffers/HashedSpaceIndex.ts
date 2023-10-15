@@ -9,7 +9,12 @@ export class HashedSpaceIndex<T> {
   }
   
   public hash(x: number, y: number){
-    return (Math.floor(x) * 6079 + Math.floor(y)) % this.buckets.length;
+    const hash = (Math.floor(x) * 6079 + Math.floor(y)) % this.buckets.length;
+    if (hash < 0){
+      return hash + this.buckets.length;
+    } else {
+      return hash;
+    }
   }
 
   public insert(value: T, x: number, y: number){
@@ -19,8 +24,12 @@ export class HashedSpaceIndex<T> {
   public getNearest(x: number, y: number, radius: number){
     const result: T[] = [];
     const bucketRadius = Math.ceil(radius);
-    for (let i = -bucketRadius; i <= bucketRadius; i++){
-      for (let j = -bucketRadius; j <= bucketRadius; j++){
+    const hBucketCount = Math.ceil(this.buckets.length / bucketRadius) / 2;
+    const vBucketCount = Math.ceil(this.buckets.length / bucketRadius) / 2;
+    
+    for (let i = -hBucketCount; i <= hBucketCount; i++){
+      for (let j = -vBucketCount; j <= vBucketCount; j++){
+        const hash = this.hash(x + i, y + j);
         const bucket = this.buckets[this.hash(x + i, y + j)];
         
         // add all from bucket into result:

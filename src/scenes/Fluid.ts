@@ -1,7 +1,7 @@
 import { mat4, vec2 } from "gl-matrix";
 import { ITimestamp } from "../animation";
 import { Circles } from "../objects/Circles";
-import { Color, color4, vector3 } from "../types";
+import { Color, Vector3, color4, vector3 } from "../types";
 import { InstancedSolidColorRenderer } from "../renderers/InstancedSolidColorRenderer";
 import { IndexBuffer, Vector3Buffer } from "../buffers";
 import { HashedSpaceIndex } from "../buffers/HashedSpaceIndex";
@@ -85,6 +85,45 @@ export class Fluid {
       }
 
       this.hashedIndices.move(i, oldPosition[0], oldPosition[1], this.positions[i][0], this.positions[i][1]);
+    }
+
+    const influenceRadius = 100;
+    let force: vector3 = [0, 0, 0];
+    for (let i = 0; i < this.particleCount; i++) {
+      const nearbyParticles = this.hashedIndices.getNearest(this.positions[i][0], this.positions[i][1], influenceRadius);
+      if (nearbyParticles.length === 0) {
+        continue;
+      }
+
+      force = [0, 0, 0];
+      for (const nearbyParticle of nearbyParticles) {
+        if (nearbyParticle === i) {
+          continue;
+        }
+        const distanceSquared = (this.positions[i][0] - this.positions[nearbyParticle][0]) ** 2 + (this.positions[i][1] - this.positions[nearbyParticle][1]) ** 2;
+        if (distanceSquared > influenceRadius * influenceRadius) {
+          continue;
+        }
+        
+        // calculate force repelling from other particles
+        const distance = Math.sqrt(distanceSquared);
+        if (distance < 0.0001) {
+          continue;
+        }
+
+        const direction: vector3 = [
+          (this.positions[nearbyParticle][0] - this.positions[i][0]) / distance,
+          (this.positions[nearbyParticle][1] - this.positions[i][1]) / distance,
+          0
+        ];
+        const magnitude = 100 / distanceSquared;
+        force[0] -= direction[0] * magnitude;
+        force[1] -= direction[1] * magnitude;
+      }
+
+      // apply force to velocity
+      this.velocities[i][0] += force[0] * (timestamp.deltaT / 1000);
+      this.velocities[i][1] += force[1] * (timestamp.deltaT / 1000);
     }
   }
 
