@@ -4,6 +4,7 @@ import { Circles } from "../objects/Circles";
 import { Color, color4, vector3 } from "../types";
 import { InstancedSolidColorRenderer } from "../renderers/InstancedSolidColorRenderer";
 import { IndexBuffer, Vector3Buffer } from "../buffers";
+import { HashedSpaceIndex } from "../buffers/HashedSpaceIndex";
 
 const bounce = 0.9;
 
@@ -18,12 +19,16 @@ export class Fluid {
 
   positions: vector3[];
   velocities: vector3[];
+  hashedIndices: HashedSpaceIndex<number>;
 
   constructor(gl: WebGL2RenderingContext, width: number, height: number, particleCount: number) {
     this.gl = gl;
     this.width = width;
     this.height = height;
     this.particleCount = particleCount;
+
+    const hashWidth = Math.floor(Math.sqrt(particleCount));
+    this.hashedIndices = new HashedSpaceIndex<number>(hashWidth, this.width / 100, this.height / 100);
 
     const sides = 8;
     const radius = 2;
@@ -51,13 +56,16 @@ export class Fluid {
     this.positions = [];
     this.velocities = [];
     for (let i = 0; i < this.particleCount; i++) {
-      this.positions.push([Math.random() * this.width, Math.random() * this.height, 0]);
+      const position = [Math.random() * this.width, Math.random() * this.height, 0] as vector3;
+      this.positions.push(position);
+      this.hashedIndices.insert(i, position[0], position[1]);
       this.velocities.push([Math.random() * 100 - 50, Math.random() * 100 - 50, 0]);
     }
   }
 
   public update = (timestamp: ITimestamp) => {
     for (let i = 0; i < this.particleCount; i++) {
+      const oldPosition = [...this.positions[i]] as vector3;
       this.positions[i][0] += this.velocities[i][0] * (timestamp.deltaT / 1000);
       this.positions[i][1] += this.velocities[i][1] * (timestamp.deltaT / 1000);
 
@@ -75,6 +83,8 @@ export class Fluid {
         this.positions[i][1] *= -1;
         this.velocities[i][1] *= -bounce;
       }
+
+      this.hashedIndices.move(i, oldPosition[0], oldPosition[1], this.positions[i][0], this.positions[i][1]);
     }
   }
 

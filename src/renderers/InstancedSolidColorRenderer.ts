@@ -1,5 +1,5 @@
 import {Shader} from "../Shader";
-import {IndexBuffer, VertexArray} from "../buffers";
+import {IndexBuffer, Vector3Buffer, VertexArray} from "../buffers";
 import {mat4} from "gl-matrix";
 import {color4, vector3} from "../types";
 
@@ -8,7 +8,7 @@ export class InstancedSolidColorRenderer {
 
   private readonly shader: Shader;
   
-  private readonly vertices: VertexArray;
+  private readonly vertices: Vector3Buffer;
   private readonly vertexPositionAttribute: number;
   
   private readonly matrixAttribute: number;
@@ -22,7 +22,7 @@ export class InstancedSolidColorRenderer {
 
   private readonly gl: WebGL2RenderingContext;
 
-  constructor(gl: WebGL2RenderingContext, count: number, vertices: VertexArray, indices: IndexBuffer, mode: number) {
+  constructor(gl: WebGL2RenderingContext, count: number, vertices: Vector3Buffer, indices: IndexBuffer, mode: number) {
     this.gl = gl;
     this.count = count;
     this.vertices = vertices;
@@ -60,6 +60,7 @@ void main() {
     this.matrixBuffer = this.gl.createBuffer() as WebGLBuffer;
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.matrixBuffer);
     this.gl.bufferData(this.gl.ARRAY_BUFFER, this.matrixData.byteLength, this.gl.DYNAMIC_DRAW);
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
   }
 
   public render(positions: vector3[], color: color4, viewProjectionMatrix: mat4){
@@ -96,7 +97,6 @@ void main() {
     }
 
     this.vertices.bindToAttribute(this.vertexPositionAttribute);
-
     this.gl.drawArraysInstanced(
       this.mode,                 // GL Fan, strip, etc.
       0,                         // offset

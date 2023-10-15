@@ -8,6 +8,8 @@ import { Circles } from "./objects/Circles";
 import { FullscreenQuad } from "./objects/FullscreenQuad";
 import { Color } from "./types";
 import { Fluid } from "./scenes/Fluid";
+import { HashedSpaceIndex } from "./buffers/HashedSpaceIndex";
+
 
 
 let mustResize = false;
@@ -60,7 +62,7 @@ function main() {
     Color.fromHex("#FFBFC4"),
     Color.fromHex("#7D4B93")
   );
-  const fluid = new Fluid(gl, width, height, 100000);
+  const fluid = new Fluid(gl, width, height, 1000);
   const fluidColor = Color.fromHex("#A0D6F3");
   const viewProjectionMatrix = mat4.create();
 
