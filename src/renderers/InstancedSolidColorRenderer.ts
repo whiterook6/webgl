@@ -1,5 +1,5 @@
 import {Shader} from "../Shader";
-import {IndexBuffer, Vector3Buffer, VertexArray} from "../buffers";
+import {IndexBuffer, Vector3Buffer} from "../buffers";
 import {mat4} from "gl-matrix";
 import {color4, vector3} from "../types";
 
@@ -103,7 +103,11 @@ void main() {
       this.vertices.getLength(), // num vertices per instance
       this.count,                // num instances
     );
-    this.gl.disableVertexAttribArray(this.vertexPositionAttribute);
+    this.indices.unbindFromAttribute();
+    this.vertices.unbindFromAttribute(this.vertexPositionAttribute);
+    for (let i = 0; i < 4; ++i) {
+      this.gl.vertexAttribDivisor(this.matrixAttribute + i, 0);
+    }
   }
 
   public destroy(){

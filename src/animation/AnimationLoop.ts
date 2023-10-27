@@ -66,5 +66,21 @@ export class AnimationLoop {
     }
   };
 
+  public step = () => {
+    if (this.getIsPaused()){
+      const now = performance.now();
+      const age = 16;
+      const deltaT = 16;
+
+      const timestamp = {
+        now,
+        age,
+        deltaT,
+      };
+  
+      this.renderCallback(timestamp);
+    }
+  }
+
   public getIsPaused = () => this.pausedAt !== undefined;
 }

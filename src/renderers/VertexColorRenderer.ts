@@ -1,7 +1,6 @@
 import {Shader} from "../Shader";
 import {Vector3Buffer, IndexBuffer, Color4Buffer} from "../buffers";
 import {mat4} from "gl-matrix";
-import {color4} from "../types";
 
 export class VertexColorRenderer {
   private static shader: Shader;

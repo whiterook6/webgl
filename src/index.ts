@@ -4,13 +4,10 @@ import {
   TwoDCamera,
   OrthoLens
 } from "./cameras";
-import { Circles } from "./objects/Circles";
 import { FullscreenQuad } from "./objects/FullscreenQuad";
-import { Color } from "./types";
+import { Color, Gradient } from "./types";
 import { Fluid } from "./scenes/Fluid";
-import { HashedSpaceIndex } from "./buffers/HashedSpaceIndex";
-
-
+import { Delauney } from "./scenes/Delauney";
 
 let mustResize = false;
 let width = window.innerWidth;
@@ -55,19 +52,16 @@ function main() {
   const gl = createGLContext(canvas);
   const camera = new TwoDCamera([width/2, height / 2, 0]);
   const lens = new OrthoLens(width, height, 0, 1000);
-  const background = new FullscreenQuad(
-    gl,
+  const colorGradient: Gradient = Color.createGradient([
     Color.fromHex("#FFE7C6"),
-    Color.fromHex("#F47AAB"),
-    Color.fromHex("#FFBFC4"),
-    Color.fromHex("#7D4B93")
-  );
-  const fluid = new Fluid(gl, width, height, 1000);
-  const fluidColor = Color.fromHex("#A0D6F3");
+    Color.fromHex("#F47AAB")
+  ])
+
+  const delauney = new Delauney(gl, width, height, 1000);
   const viewProjectionMatrix = mat4.create();
+  mat4.multiply(viewProjectionMatrix, lens.getProjection(), camera.getViewMatrix());
 
   function render(timestamp: ITimestamp) {
-    console.log(`FPS: ${Math.floor(1000 / timestamp.deltaT)}   DeltaT: ${Math.floor(timestamp.deltaT)}`);
     if (mustResize) {
       mustResize = false;
       canvas.setAttribute("width", `${newWidth * devicePixelRatio}px`);
@@ -77,18 +71,15 @@ function main() {
       lens.update(newWidth, newHeight, 0, 1000);
     }
 
-    fluid.update(timestamp);
+    delauney.update(timestamp);
 
-    mat4.multiply(viewProjectionMatrix, lens.getProjection(), camera.getViewMatrix());
     gl.viewport(0, 0, width * devicePixelRatio, height * devicePixelRatio);
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
     gl.clearDepth(1.0); // Clear everything
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.disable(gl.DEPTH_TEST); // Disable depth testing
-    background.render();
-    gl.enable(gl.DEPTH_TEST); // Enable depth testing
-    gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-    fluid.render(fluidColor, viewProjectionMatrix);
+    delauney.render(viewProjectionMatrix, colorGradient);
+
   }
 
   const looper = new AnimationLoop(render);
@@ -98,7 +89,13 @@ function main() {
     }
     if (event.key == " ") {
       looper.toggle();
-      console.log(looper.getIsPaused() ? "Paused" : "Playing");
+      return;
+    }
+    if (event.key === "]"){
+      if (looper.getIsPaused()) {
+        looper.step();
+      }
+      return;
     }
   });
   looper.resume();

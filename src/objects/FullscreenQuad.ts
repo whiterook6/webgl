@@ -90,6 +90,8 @@ void main(void) {
     this.positionBuffer.bindToAttribute(this.vertexPositionAttribute);
     this.indexBuffer.bindToAttribute();
     this.gl.drawElements(this.gl.TRIANGLE_STRIP, 4, this.gl.UNSIGNED_SHORT, 0);
+    this.positionBuffer.unbindFromAttribute(this.vertexPositionAttribute);
+    this.indexBuffer.unbindFromAttribute();
   }
 
   public destroy() {

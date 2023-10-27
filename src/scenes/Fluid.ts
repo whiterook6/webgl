@@ -1,7 +1,6 @@
-import { mat4, vec2 } from "gl-matrix";
+import { mat4 } from "gl-matrix";
 import { ITimestamp } from "../animation";
-import { Circles } from "../objects/Circles";
-import { Color, Vector3, color4, vector3 } from "../types";
+import { Vector3, color4, vector3 } from "../types";
 import { InstancedSolidColorRenderer } from "../renderers/InstancedSolidColorRenderer";
 import { IndexBuffer, Vector3Buffer } from "../buffers";
 import { HashedSpaceIndex } from "../buffers/HashedSpaceIndex";
@@ -69,8 +68,6 @@ export class Fluid {
       this.positions[i][0] += this.velocities[i][0] * (timestamp.deltaT / 1000);
       this.positions[i][1] += this.velocities[i][1] * (timestamp.deltaT / 1000);
 
-      this.velocities[i][1] -= 9.8 * (timestamp.deltaT / 1000);
-
       if (this.positions[i][0] > this.width){
         this.positions[i][0] = this.width - (this.positions[i][0] - this.width);
         this.velocities[i][0] *= -bounce;
@@ -82,20 +79,23 @@ export class Fluid {
       if (this.positions[i][1] < 0) {
         this.positions[i][1] *= -1;
         this.velocities[i][1] *= -bounce;
+      } else if (this.positions[i][1] > this.height) {
+        this.positions[i][1] = this.height - (this.positions[i][1] - this.height);
+        this.velocities[i][1] *= -bounce;
       }
 
       this.hashedIndices.move(i, oldPosition[0], oldPosition[1], this.positions[i][0], this.positions[i][1]);
     }
 
-    const influenceRadius = 100;
-    let force: vector3 = [0, 0, 0];
+    const influenceRadius = 50;
     for (let i = 0; i < this.particleCount; i++) {
+      let nearbyParticleCount = 0;
+      const center: vector3 = [0, 0, 0];
       const nearbyParticles = this.hashedIndices.getNearest(this.positions[i][0], this.positions[i][1], influenceRadius);
       if (nearbyParticles.length === 0) {
         continue;
       }
 
-      force = [0, 0, 0];
       for (const nearbyParticle of nearbyParticles) {
         if (nearbyParticle === i) {
           continue;
@@ -105,25 +105,24 @@ export class Fluid {
           continue;
         }
         
-        // calculate force repelling from other particles
-        const distance = Math.sqrt(distanceSquared);
-        if (distance < 0.0001) {
-          continue;
-        }
-
-        const direction: vector3 = [
-          (this.positions[nearbyParticle][0] - this.positions[i][0]) / distance,
-          (this.positions[nearbyParticle][1] - this.positions[i][1]) / distance,
-          0
-        ];
-        const magnitude = 100 / distanceSquared;
-        force[0] -= direction[0] * magnitude;
-        force[1] -= direction[1] * magnitude;
+        nearbyParticleCount++;
+        center[0] += this.positions[nearbyParticle][0];
+        center[1] += this.positions[nearbyParticle][1];
       }
 
+      if (nearbyParticleCount === 0) {
+        continue;
+      }
+
+      // move particle away from center of nearby particles
+      center[0] /= nearbyParticleCount;
+      center[1] /= nearbyParticleCount;
+      let force = Vector3.normalize(Vector3.subtract(this.positions[i], center));
+      force = Vector3.scale(force, 125 / nearbyParticleCount);
+
       // apply force to velocity
-      this.velocities[i][0] += force[0] * (timestamp.deltaT / 1000);
-      this.velocities[i][1] += force[1] * (timestamp.deltaT / 1000);
+      this.velocities[i][0] += force[0] * (timestamp.deltaT / 1000) * 0.66;
+      this.velocities[i][1] += force[1] * (timestamp.deltaT / 1000) * 0.66;
     }
   }
 
