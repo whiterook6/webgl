@@ -41,7 +41,7 @@ export class Color {
     return (t: number): color4 => {
       if (colors.length === 1 || t <= 0){
         return colors[0];
-      } else if (t > 1){
+      } else if (t >= 1){
         return colors[colors.length - 1];
       }
 
@@ -54,9 +54,9 @@ export class Color {
   };
 
   public static interpolate = (color1: color4, color2: color4, t: number): color4 => {
-    if (t < 0){
+    if (t <= 0){
       return color1;
-    } else if (t > 1){
+    } else if (t >= 1){
       return color2;
     }
 

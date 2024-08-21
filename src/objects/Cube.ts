@@ -1,4 +1,4 @@
-import {Shader} from "../Shader";
+import {Shader} from "../gl/Shader";
 import {Vector3Buffer, Color4Buffer, IndexBuffer} from "../buffers";
 import {Color} from "../types";
 import {mat4} from "gl-matrix";

@@ -1,7 +1,6 @@
 import { ITimestamp } from ".";
 
 type RenderCallback = (timestamp: ITimestamp) => void;
-
 export class AnimationLoop {
   private renderCallback: RenderCallback;
   private pausedAt: number | undefined;
@@ -80,6 +79,24 @@ export class AnimationLoop {
   
       this.renderCallback(timestamp);
     }
+  }
+
+  public attachSpacebarToggle = () => {
+    document.addEventListener("keypress", (event) => {
+      if (event.repeat) {
+        return;
+      }
+      if (event.key == " ") {
+        this.toggle();
+        return;
+      }
+      if (event.key === "]"){
+        if (this.getIsPaused()) {
+          this.step();
+        }
+        return;
+      }
+    });
   }
 
   public getIsPaused = () => this.pausedAt !== undefined;

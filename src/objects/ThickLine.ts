@@ -1,6 +1,6 @@
 import {mat4, vec3} from "gl-matrix";
 import {IndexBuffer, Vector3Buffer} from "../buffers";
-import {Shader} from "../Shader";
+import {Shader} from "../gl/Shader";
 import {color4, vector3} from "../types";
 
 export class ThickLine {

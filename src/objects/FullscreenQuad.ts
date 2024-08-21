@@ -1,5 +1,5 @@
 import {FloatBuffer, IndexBuffer} from "../buffers";
-import {Shader} from "../Shader";
+import {Shader} from "../gl/Shader";
 import {color4} from "../types";
 
 export class FullscreenQuad {

@@ -2,18 +2,18 @@ import Delaunator from "delaunator";
 import { mat4 } from "gl-matrix";
 import { ITimestamp } from "../animation";
 import { Color4Buffer, IndexBuffer, Vector3Buffer } from "../buffers";
-import { VertexColorRenderer } from "../renderers";
+import { SolidColorRenderer, VertexColorRenderer } from "../renderers";
 import { Gradient, color4 } from "../types";
 
 export class Delauney {
   private readonly gl: WebGL2RenderingContext;
   private readonly width: number;
   private readonly height: number;
-  private readonly renderer: VertexColorRenderer;
+  private readonly renderer: SolidColorRenderer;
   private readonly vertexPositions: Float32Array; // [x0, y0, x1, y1, x2, y2, ...]
   private readonly vertexVelocities: Float32Array; // [vx0, vy0, vx1, vy1, vx2, vy2, ...]
   private readonly vertexBuffer: Vector3Buffer;
-  private readonly colorBuffer: Color4Buffer;
+  // private readonly colorBuffer: Color4Buffer;
   private readonly indexBuffer: IndexBuffer;
   private delaunator: Delaunator<number>;
 
@@ -21,25 +21,49 @@ export class Delauney {
     this.gl = gl;
     this.width = width;
     this.height = height;
+    const maxTriangles = 2 * count - 5;
 
     this.vertexPositions = new Float32Array(count * 2);
     this.vertexVelocities = new Float32Array(count * 2);
-    for (let index = 0; index < this.vertexPositions.length; index += 2) {
+    
+    // add border vertices
+    this.vertexPositions[0] = 0;
+    this.vertexPositions[1] = 0;
+    this.vertexPositions[2] = width;
+    this.vertexPositions[3] = 0;
+    this.vertexPositions[4] = width;
+    this.vertexPositions[5] = height;
+    this.vertexPositions[6] = 0;
+    this.vertexPositions[7] = height;
+    this.vertexVelocities[0] = 0;
+    this.vertexVelocities[1] = 0;
+    this.vertexVelocities[2] = 0;
+    this.vertexVelocities[3] = 0;
+    this.vertexVelocities[4] = 0;
+    this.vertexVelocities[5] = 0;
+    this.vertexVelocities[6] = 0;
+    this.vertexVelocities[7] = 0;
+
+    for (let index = 8; index < this.vertexPositions.length; index += 2) {
       this.vertexPositions[index] = Math.random() * width;
       this.vertexPositions[index + 1] = Math.random() * height;
-      this.vertexVelocities[index] = (Math.random() - 0.5) * 2;
-      this.vertexVelocities[index + 1] = (Math.random() - 0.5) * 2;
+      
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 0.05;
+      this.vertexVelocities[index] = Math.cos(angle) * speed;
+      this.vertexVelocities[index + 1] = Math.sin(angle) * speed;
     }
 
-    this.vertexBuffer = new Vector3Buffer(gl, new Float32Array(count * 3), gl.STATIC_DRAW);
-    this.colorBuffer = new Color4Buffer(gl, new Float32Array(count * 4), gl.STATIC_DRAW);
+    this.vertexBuffer = new Vector3Buffer(gl, new Float32Array(count * 3), gl.DYNAMIC_COPY);
+    // this.colorBuffer = new Color4Buffer(gl, new Float32Array(maxTriangles * 4), gl.DYNAMIC_COPY);
     this.delaunator = new Delaunator(this.vertexPositions);
-    this.indexBuffer = new IndexBuffer(gl, new Uint16Array(this.delaunator.triangles.map(index => index)));
-    this.renderer = new VertexColorRenderer(gl);
+    this.indexBuffer = new IndexBuffer(gl, new Uint16Array(maxTriangles * 3));
+    this.renderer = new SolidColorRenderer(gl);
   }
 
   public update = (timestamp: ITimestamp) => {
-    for (let index = 0; index < this.vertexPositions.length; index += 2) {
+    // skip the first four vertices (8 coordinates, x and y for each) because they're fixed at the corners
+    for (let index = 8; index < this.vertexPositions.length; index += 2) {
       const newX = this.vertexPositions[index] + this.vertexVelocities[index] * timestamp.deltaT;
       const newY = this.vertexPositions[index + 1] + this.vertexVelocities[index + 1] * timestamp.deltaT;
 
@@ -65,18 +89,18 @@ export class Delauney {
 
   public render = (viewProjectionMatrix: mat4, colorGradient: Gradient) => {
     const triangleIndices: Uint32Array = this.delaunator.triangles;
-    const colors: color4[] = [];
-    for (let i = 0; i < triangleIndices.length; i += 3) {
-      const centerY = (
-        this.vertexPositions[triangleIndices[i] * 2 + 1] +
-        this.vertexPositions[triangleIndices[i + 1] * 2 + 1] +
-        this.vertexPositions[triangleIndices[i + 2] * 2 + 1]
-      ) / (3 * this.height);
-      const color = colorGradient(centerY);
+    // const colors: color4[] = [];
+    // for (let i = 0; i < triangleIndices.length; i += 3) {
+    //   const centerY = (
+    //     this.vertexPositions[triangleIndices[i] * 2 + 1] +
+    //     this.vertexPositions[triangleIndices[i + 1] * 2 + 1] +
+    //     this.vertexPositions[triangleIndices[i + 2] * 2 + 1]
+    //   ) / (3 * this.height);
+    //   const color = colorGradient(centerY);
 
-      colors.push(color, color, color);
-    }
-    this.colorBuffer.updateColors(colors);
+    //   colors.push(color, color, color);
+    // }
+    // this.colorBuffer.updateColors(colors);
 
     const vertex3s: [number, number, number][] = [];
     for (let i = 0; i < this.vertexPositions.length; i += 2) {
@@ -92,10 +116,10 @@ export class Delauney {
 
     this.renderer.render(
       this.vertexBuffer,
-      this.colorBuffer,
       this.indexBuffer,
+      colorGradient(1),
       viewProjectionMatrix,
       this.gl.TRIANGLES
-    )
+    );
   }
 }
