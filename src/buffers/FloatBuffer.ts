@@ -30,6 +30,10 @@ export class FloatBuffer extends Buffer {
     this.gl.enableVertexAttribArray(attributeLocation);
   }
 
+  public unbindFromAttribute(attributeLocation: number) {
+    this.gl.disableVertexAttribArray(attributeLocation);
+  }
+
   public getWidth() {
     return this.width;
   }

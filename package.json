@@ -1,31 +1,20 @@
 {
-  "name": "webgl-components",
+  "name": "webgl",
   "version": "1.0.0",
   "main": "index.js",
   "author": "whiterook6 <whiterook6@gmail.com>",
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "build": "webpack --mode production",
-    "watch": "webpack --watch --mode development",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "lint": "tslint --project tsconfig.json --fix",
-    "typecheck": "tsc --noEmit"
+    "watch": "esbuild --watch --bundle --sourcemap --target=es6 --platform=browser src/index.ts --outfile=dist/index.js",
+    "build": "esbuild --bundle --sourcemap --target=es6 --platform=browser src/index.ts --outfile=dist/index.js"
   },
   "dependencies": {
     "gl-matrix": "^3.1.0"
   },
   "devDependencies": {
     "@types/gl-matrix": "^2.4.5",
-    "husky": "^4.2.3",
-    "lint-staged": "^10.0.7",
-    "prettier": "^1.19.1",
-    "ts-loader": "^6.2.1",
-    "tslint": "^6.0.0",
-    "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.7.5",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10",
-    "webpack-sources": "^1.4.3"
+    "esbuild": "^0.19.4",
+    "typescript": "^3.7.5"
   }
 }
