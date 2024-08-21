@@ -1,16 +1,6 @@
-export interface ITimestamp {
-  /** Age in milliseconds */
-  age: number;
-
-  /** Time in milliseconds */
-  now: number;
-
-  /** time since previous frame in milliseconds */
-  deltaT: number;
-}
+import { ITimestamp } from ".";
 
 type RenderCallback = (timestamp: ITimestamp) => void;
-
 export class AnimationLoop {
   private renderCallback: RenderCallback;
   private pausedAt: number | undefined;
@@ -23,7 +13,7 @@ export class AnimationLoop {
     const now = performance.now();
     this.pausedAt = now;
     this.startTime = now;
-    this.previousTime = now - 16.7; // initial frame length: 1/60th of a second
+    this.previousTime = now - (1000 / 60); // initial frame length: 1/60th of a second
   }
 
   public resume = (renderCallback?: RenderCallback) => {
@@ -74,6 +64,40 @@ export class AnimationLoop {
       this.pause();
     }
   };
+
+  public step = () => {
+    if (this.getIsPaused()){
+      const now = performance.now();
+      const age = 16;
+      const deltaT = 16;
+
+      const timestamp = {
+        now,
+        age,
+        deltaT,
+      };
+  
+      this.renderCallback(timestamp);
+    }
+  }
+
+  public attachSpacebarToggle = () => {
+    document.addEventListener("keypress", (event) => {
+      if (event.repeat) {
+        return;
+      }
+      if (event.key == " ") {
+        this.toggle();
+        return;
+      }
+      if (event.key === "]"){
+        if (this.getIsPaused()) {
+          this.step();
+        }
+        return;
+      }
+    });
+  }
 
   public getIsPaused = () => this.pausedAt !== undefined;
 }

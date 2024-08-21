@@ -26,17 +26,25 @@ export class TwoDCamera extends Camera {
   public getViewMatrix(): mat4 {
     return this.matrix;
   }
+  
   public getFacingMatrix(target: vector3): mat4 {
     const matrix = mat4.create();
     mat4.fromTranslation(matrix, [-target[0], -target[1], -target[2]]);
     return matrix;
   }
+
   public getPosition(): vector3 {
     return this.position;
   }
+
+  public getLeft(): vector3 {
+    return [-1, 0, 0];
+  }
+  
   public getUp(): vector3 {
     return [0, 1, 0];
   }
+  
   public getForward(): vector3 {
     return [0, 0, -1];
   }

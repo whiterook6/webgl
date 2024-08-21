@@ -1,4 +1,4 @@
-import {Shader} from "../Shader";
+import {Shader} from "../gl/Shader";
 import {Vector3Buffer, IndexBuffer} from "../buffers";
 import {mat4} from "gl-matrix";
 import {color4} from "../types";
@@ -66,5 +66,11 @@ void main(void) {
     const type = this.gl.UNSIGNED_SHORT;
     const offset = 0;
     this.gl.drawElements(mode, vertexCount, type, offset);
+  }
+
+  destroy(){
+    if (SolidColorRenderer.shader) {
+      SolidColorRenderer.shader.destroy();
+    }
   }
 }

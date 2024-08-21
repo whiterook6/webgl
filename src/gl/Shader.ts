@@ -171,13 +171,13 @@ export class Shader {
     }
 
     if (!this.uniformLocations.hasOwnProperty(uniform)) {
-      const uni = this.gl.getUniformLocation(this.program, uniform);
+      const uniformLocation = this.gl.getUniformLocation(this.program, uniform);
 
-      if (uni === null) {
+      if (uniformLocation === null) {
         throw new Error(`Cannot get uniform location for "${uniform}". Check spelling.`);
       }
 
-      this.uniformLocations[uniform] = uni;
+      this.uniformLocations[uniform] = uniformLocation;
     }
 
     return this.uniformLocations[uniform];
