@@ -18,6 +18,10 @@ export class LookAtCamera extends Camera {
     this.position = position;
   }
 
+  public translate(translation: vector3) {
+    this.position = Vector3.add(this.position, translation);
+  }
+
   public getPosition(): vector3 {
     return Vector3.clone(this.position);
   }
@@ -46,20 +50,26 @@ export class LookAtCamera extends Camera {
     return Vector3.clone(this.up);
   }
 
-  public getViewMatrix() {
+  public getViewMatrix(destination?: mat4): mat4 {
     const {position, forward} = this;
     const right = Vector3.normalize(Vector3.cross(forward, this.up));
     const up = Vector3.normalize(Vector3.cross(forward, right));
 
-    const lookAt = mat4.create();
-    mat4.lookAt(lookAt, position, forward, up);
-    return lookAt;
+    if (destination) {
+      return mat4.lookAt(destination, position, forward, up);
+    } else {
+      const lookAt = mat4.create();
+      return mat4.lookAt(lookAt, position, forward, up);
+    }
   }
 
-  public getFacingMatrix(target: vector3): mat4 {
-    const matrix = mat4.create();
-    mat4.targetTo(matrix, target, this.getPosition(), this.getUp());
-    return matrix;
+  public getFacingMatrix(target: vector3, destination?: mat4): mat4 {
+    if (destination){
+      return mat4.targetTo(destination, target, this.getPosition(), this.getUp());
+    } else {
+      const matrix = mat4.create();
+      return mat4.targetTo(matrix, target, this.getPosition(), this.getUp());
+    }
   }
 
   public toString() {

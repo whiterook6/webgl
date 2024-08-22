@@ -3,6 +3,7 @@ import {Color4Buffer, IndexBuffer, Vector3Buffer} from "../buffers";
 import {VertexColorRenderer} from "../renderers/VertexColorRenderer";
 import {color4, vector3} from "../types";
 
+/** Draws a red right, green forward, and blue up line */
 export class Gizmo {
   private readonly gl: WebGL2RenderingContext;
   private readonly positionBuffer: Vector3Buffer;

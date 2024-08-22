@@ -1,5 +1,5 @@
 import {Vector3Bezier} from "../interpolators";
-import {mat4, vec3} from "gl-matrix";
+import {mat4} from "gl-matrix";
 import {VertexColorRenderer} from "../renderers/VertexColorRenderer";
 import {Vector3Buffer, Color4Buffer, IndexBuffer} from "../buffers";
 import {vector3, color4, Vector3, Color} from "../types";
