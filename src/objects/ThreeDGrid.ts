@@ -10,10 +10,10 @@ export class ThreeDGrid {
   private readonly positionBuffer: Vector3Buffer;
   private readonly indexBuffer: IndexBuffer;
 
-  constructor(gl: WebGL2RenderingContext) {
+  constructor(gl: WebGL2RenderingContext, color?: color4) {
     this.gl = gl;
     this.renderer = new SolidColorRenderer(gl);
-    this.color = Color.fromHex("#FFFFFF");
+    this.color = color ? color : Color.fromHex("#FFFFFF");
 
     const gridPositions: vector3[] = [];
     const indexPositions: number[] = [];
