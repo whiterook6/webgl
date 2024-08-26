@@ -66,6 +66,9 @@ void main(void) {
     const type = this.gl.UNSIGNED_SHORT;
     const offset = 0;
     this.gl.drawElements(mode, vertexCount, type, offset);
+    
+    indices.unbindFromAttribute();
+    vertices.unbindFromAttribute(SolidColorRenderer.vertexPositionAttribute);
   }
 
   destroy(){

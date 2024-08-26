@@ -4,14 +4,15 @@ export class GLContext {
   public height: number;
   public gl: WebGL2RenderingContext;
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, options?: WebGLContextAttributes) {
     this.canvas = canvas;
     this.width = window.innerWidth;
     this.height = window.innerHeight;
-    
     this.canvas.setAttribute("width", `${this.width * window.devicePixelRatio}px`);
     this.canvas.setAttribute("height", `${this.height * window.devicePixelRatio}px`);
-    this.gl = canvas.getContext("webgl2", { antialias: false }) as WebGL2RenderingContext;
+
+    const contextAttributes: WebGLContextAttributes = options || {antialias: false};
+    this.gl = canvas.getContext("webgl2", contextAttributes) as WebGL2RenderingContext;
     if (!this.gl) {
       throw new Error("Cannot create WebGL context");
     };

@@ -37,7 +37,7 @@ export class Vector3Bezier {
 
     this.generateLookups();
   }
-
+  
   public getPosition(t: number): vector3 {
     return [this.xCurve.get(t), this.yCurve.get(t), this.zCurve.get(t)];
   }

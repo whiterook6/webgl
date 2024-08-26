@@ -75,5 +75,8 @@ void main(void) {
     const type = this.gl.UNSIGNED_SHORT;
     const offset = 0;
     this.gl.drawElements(mode, vertexCount, type, offset);
+    vertices.unbindFromAttribute(VertexColorRenderer.vertexPositionAttribute);
+    vertexColors.unbindFromAttribute(VertexColorRenderer.vertexColorAttribute);
+    indices.unbindFromAttribute();
   }
 }

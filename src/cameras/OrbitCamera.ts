@@ -38,21 +38,28 @@ export class OrbitCamera extends Camera {
     return Vector3.clone(this.up);
   }
 
-  public getViewMatrix(): mat4 {
+  public getViewMatrix(destination?: mat4): mat4 {
     const {target, up} = this;
     const position = this.getPosition();
 
-    const viewMatrix = mat4.create();
-    return mat4.lookAt(viewMatrix, position, target, up);
+    if (destination) {
+      return mat4.lookAt(destination, position, target, up);
+    } else {
+      const viewMatrix = mat4.create();
+      return mat4.lookAt(viewMatrix, position, target, up);
+    }
   }
 
-  public getFacingMatrix(target: vector3) {
+  public getFacingMatrix(target: vector3, destination?: mat4): mat4 {
     const {up} = this;
     const position = this.getPosition();
 
-    const matrix = mat4.create();
-    mat4.targetTo(matrix, target, position, up);
-    return matrix;
+    if (destination) {
+      return mat4.lookAt(destination, position, target, up);
+    } else {
+      const matrix = mat4.create();
+      return mat4.targetTo(matrix, target, position, up);
+    }
   }
 
   /**
@@ -61,6 +68,20 @@ export class OrbitCamera extends Camera {
   public setTheta(theta: number) {
     const ninetyDeg = Math.PI / 2;
     this.theta = Math.max(Math.min(ninetyDeg, theta), -ninetyDeg);
+    // calculate the up vector
+    const forward = this.getForward();
+    const right = Vector3.normalize(
+      Vector3.cross(
+        forward,
+        this.up
+      )
+    );
+    this.up = Vector3.normalize(
+      Vector3.cross(
+        right,
+        forward
+      )
+    );
   }
 
   /**

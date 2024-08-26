@@ -6,7 +6,7 @@ export abstract class Camera {
   public abstract getForward(): vector3;
   public abstract getPosition(): vector3;
   public abstract getUp(): vector3;
-  public abstract getViewMatrix(): mat4;
+  public abstract getViewMatrix(destination?: mat4): mat4;
 
   public static unproject(
     projected: vector3,

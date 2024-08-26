@@ -1,14 +1,12 @@
-import { mat4 } from "gl-matrix";
-import {AnimationLoop, ITimestamp} from "./animation";
+import { AnimationLoop, ITimestamp } from "./animation";
 import {
-  PerspectiveLens,
-  OrbitCamera,
+  OrthoLens,
+  TwoDCamera
 } from "./cameras";
 import { GLContext } from "./gl/GLContext";
-import { Cube } from "./objects/Cube";
-import { ThreeDGrid } from "./objects/ThreeDGrid";
+import { Vector3Bezier } from "./interpolators";
+import { Polyline } from "./objects/Polyline";
 import { Color } from "./types";
-import { buildOscillator } from "./interpolators";
 
 // Start here
 function main() {
@@ -24,39 +22,38 @@ function main() {
     mustResize = true;
   });
 
-  const camera = new OrbitCamera();
-  camera.setDistance(5);
-  camera.setTheta(0.5);
-  camera.setTarget([0, 0, 0]);
-  camera.setUp([0, 0, 1]);
-
-  const oscillator = buildOscillator(-0.5, 0.5, 10);
-
-  const lens = new PerspectiveLens();
-  lens.aspect = glContext.width / glContext.height;
-
-  const threeDGrid = new ThreeDGrid(glContext.gl, Color.fromHex("#444444"));
-  const cube = new Cube(glContext.gl);
-  const modelMatrix = mat4.create();
+  const lens = new OrthoLens(glContext.width / 100, glContext.height / 100, 0.001, 100);
+  const camera = new TwoDCamera([0, 0, 1]);
+  
+  const polyline = new Polyline(glContext.gl);
+  const bezier = new Vector3Bezier([-2, 0, 0], [4, 4, 0], [-4, 4, 5], [2, 0, -5]);
+  const leftColor = Color.fromHex("#ec4067");
+  const rightColor = Color.fromHex("#311847");
+  for (let i = 0; i < 100; i++) {
+    const t = i / 100;
+    const p = bezier.getPosition(t);
+    polyline.addPoint(p, Color.interpolate(leftColor, rightColor, t), Math.sin(t * Math.PI) * 0.2 + 0.1);
+  }
 
   function render(timestamp: ITimestamp) {
     if (mustResize) {
       mustResize = false;
       glContext.resize(window.innerWidth, window.innerHeight);
-      lens.aspect = glContext.width / glContext.height;
+      lens.update(glContext.width / 100, glContext.height / 100, 0.001, 100);
     }
+   
 
-    camera.setPhi(timestamp.age / 1000);
-    camera.setTheta(oscillator(timestamp.age / 1000));
+    polyline.updateBuffers([0, 0, 1]);
+
 
     gl.viewport(0, 0, glContext.width * devicePixelRatio, glContext.height * devicePixelRatio);
-    gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
-    gl.clearDepth(1.0); // Clear everything
+    gl.clearColor(0.87,0.87,0.87,1.0); // Clear to black, fully opaque
+    gl.clearDepth(100); // Clear everything
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST); // Disable depth testing
+    gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
-    threeDGrid.render(camera.getViewMatrix(), lens.getProjection());
-    cube.render(modelMatrix, camera.getViewMatrix(), lens.getProjection());
+    polyline.render(camera.getViewMatrix(), lens.getProjection());
   }
 
   const looper = new AnimationLoop(render);
