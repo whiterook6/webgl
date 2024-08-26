@@ -72,7 +72,7 @@ export class Bezier {
   };
 
   /**
-   * Prints when using string interpolation: `Curve: ${bezier}`
+   * Prints when using string interpolation: `[0.12, 0.34, 0.56, 0.78]`
    */
   public toString = (t: number) => {
     const [a, b, c, d] = this.nodes;

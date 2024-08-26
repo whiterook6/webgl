@@ -42,12 +42,7 @@ export class Polyline {
     this.thicknesses[index] = thickness;
   }
 
-  /** Update data in buffers and render the line. */
-  public render(viewMatrix: mat4, projectionMatrix: mat4){
-    if (this.vertices.length < 2){
-      return;
-    } 
-
+  public updateBuffers(){
     // add a left and right vertex for each point
     // using the normal of the line to determine the direction
     const triangleStripVertices: vector3[] = Array(this.vertices.length * 2).fill([0, 0, 0]);
@@ -60,18 +55,22 @@ export class Polyline {
 
       let normal: vector3;
       if (i === 0){
-        normal = Vector3.scale(Vector3.normalize(Vector3.subtract(this.vertices[i+1], vertex)), thickness);
+        // get normal from next point
+        const next = this.vertices[i + 1];
+        normal = Vector3.scale(Vector3.normalize(Vector3.cross(Vector3.subtract(next, vertex), [0, 0, 1])), thickness);
       } else if (i === this.vertices.length - 1){
-        normal = Vector3.scale(Vector3.normalize(Vector3.subtract(vertex, this.vertices[i-1])), thickness);
+        const prev = this.vertices[i - 1];
+        normal = Vector3.scale(Vector3.normalize(Vector3.cross(Vector3.subtract(vertex, prev), [0, 0, 1])), thickness);
       } else {
-        normal = Vector3.scale(Vector3.normalize(Vector3.subtract(this.vertices[i+1], this.vertices[i-1])), thickness);
+        const next = this.vertices[i + 1];
+        const prev = this.vertices[i - 1];
+        normal = Vector3.scale(Vector3.normalize(Vector3.cross(Vector3.subtract(next, prev), [0, 0, 1])), thickness);
       }
 
       triangleStripVertices[i*2] = Vector3.add(vertex, normal);
       triangleStripVertices[i*2 + 1] = Vector3.subtract(vertex, normal);
       colors[i*2] = color;
       colors[i*2 + 1] = color;
-      debugger;
     }
 
     if (this.vertexBuffer.getLength() !== triangleStripVertices.length){
@@ -86,6 +85,13 @@ export class Polyline {
       this.colorBuffer.update(colors.flat());
       this.indexBuffer.update(indices);
     }
+  }
+
+  /** Update data in buffers and render the line. */
+  public render(viewMatrix: mat4, projectionMatrix: mat4){
+    if (this.vertices.length < 2){
+      return;
+    } 
 
     const matrix = mat4.create();
     mat4.multiply(matrix, projectionMatrix, viewMatrix);

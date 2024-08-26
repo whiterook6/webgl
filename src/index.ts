@@ -6,7 +6,7 @@ import {
 } from "./cameras";
 import { GLContext } from "./gl/GLContext";
 import { MouseScroller } from "./interaction/MouseScroller";
-import { buildOscillator } from "./interpolators";
+import { Bezier, buildOscillator, Vector3Bezier } from "./interpolators";
 import { Cube } from "./objects/Cube";
 import { ThreeDGrid } from "./objects/ThreeDGrid";
 import { Color } from "./types";
@@ -31,14 +31,18 @@ function main() {
   camera.setTheta(0.5);
   camera.setTarget([0, 0, 0]);
   camera.setUp([0, 0, 1]);
-
   const oscillator = buildOscillator(-0.5, 0.5, 10);
 
   const lens = new PerspectiveLens(window.innerWidth / window.innerHeight);
-
+  
   const threeDGrid = new ThreeDGrid(glContext.gl, Color.fromHex("#444444"));
-  const cube = new Cube(glContext.gl);
-  const cubeModelMatrix = mat4.create();
+  const polyline = new Polyline(glContext.gl);
+  const bezier = new Vector3Bezier([0, 0, 0], [3, 1, 0], [1, 2, 0], [4, 3, 0]);
+  for (let i = 0; i < 100; i++) {
+    const t = i / 100;
+    const p = bezier.getPosition(t);
+    polyline.addPoint(p, Color.fromHex("#FF0000"), 0.2);
+  }
   new MouseScroller((delta) => {
     camera.setDistance(camera.getDistance() + delta);
   }, 0.1);
@@ -53,6 +57,9 @@ function main() {
     camera.setPhi(timestamp.age / 1000);
     camera.setTheta(oscillator(timestamp.age / 1000));
 
+    polyline.updateBuffers();
+
+
     gl.viewport(0, 0, glContext.width * devicePixelRatio, glContext.height * devicePixelRatio);
     gl.clearColor(0.87,0.87,0.87,1.0); // Clear to black, fully opaque
     gl.clearDepth(1.0); // Clear everything
@@ -61,7 +68,7 @@ function main() {
     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
     threeDGrid.render(camera.getViewMatrix(), lens.getProjection());
-    cube.render(cubeModelMatrix, camera.getViewMatrix(), lens.getProjection());
+    polyline.render(camera.getViewMatrix(), lens.getProjection());
   }
 
   const looper = new AnimationLoop(render);
