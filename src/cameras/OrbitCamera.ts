@@ -68,6 +68,20 @@ export class OrbitCamera extends Camera {
   public setTheta(theta: number) {
     const ninetyDeg = Math.PI / 2;
     this.theta = Math.max(Math.min(ninetyDeg, theta), -ninetyDeg);
+    // calculate the up vector
+    const forward = this.getForward();
+    const right = Vector3.normalize(
+      Vector3.cross(
+        forward,
+        this.up
+      )
+    );
+    this.up = Vector3.normalize(
+      Vector3.cross(
+        right,
+        forward
+      )
+    );
   }
 
   /**

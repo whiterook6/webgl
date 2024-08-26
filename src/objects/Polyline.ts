@@ -42,7 +42,7 @@ export class Polyline {
     this.thicknesses[index] = thickness;
   }
 
-  public updateBuffers(){
+  public updateBuffers(up: vector3 = [0, 1, 0]){
     // add a left and right vertex for each point
     // using the normal of the line to determine the direction
     const triangleStripVertices: vector3[] = Array(this.vertices.length * 2).fill([0, 0, 0]);
@@ -57,14 +57,14 @@ export class Polyline {
       if (i === 0){
         // get normal from next point
         const next = this.vertices[i + 1];
-        normal = Vector3.scale(Vector3.normalize(Vector3.cross(Vector3.subtract(next, vertex), [0, 0, 1])), thickness);
+        normal = Vector3.scale(Vector3.normalize(Vector3.cross(Vector3.subtract(next, vertex), up)), thickness);
       } else if (i === this.vertices.length - 1){
         const prev = this.vertices[i - 1];
-        normal = Vector3.scale(Vector3.normalize(Vector3.cross(Vector3.subtract(vertex, prev), [0, 0, 1])), thickness);
+        normal = Vector3.scale(Vector3.normalize(Vector3.cross(Vector3.subtract(vertex, prev), up)), thickness);
       } else {
         const next = this.vertices[i + 1];
         const prev = this.vertices[i - 1];
-        normal = Vector3.scale(Vector3.normalize(Vector3.cross(Vector3.subtract(next, prev), [0, 0, 1])), thickness);
+        normal = Vector3.scale(Vector3.normalize(Vector3.cross(Vector3.subtract(next, prev), up)), thickness);
       }
 
       triangleStripVertices[i*2] = Vector3.add(vertex, normal);
