@@ -38,28 +38,21 @@ export class OrbitCamera extends Camera {
     return Vector3.clone(this.up);
   }
 
-  public getViewMatrix(destination?: mat4): mat4 {
+  public getViewMatrix(): mat4 {
     const {target, up} = this;
     const position = this.getPosition();
 
-    if (destination) {
-      return mat4.lookAt(destination, position, target, up);
-    } else {
-      const viewMatrix = mat4.create();
-      return mat4.lookAt(viewMatrix, position, target, up);
-    }
+    const viewMatrix = mat4.create();
+    return mat4.lookAt(viewMatrix, position, target, up);
   }
 
-  public getFacingMatrix(target: vector3, destination?: mat4): mat4 {
+  public getFacingMatrix(target: vector3) {
     const {up} = this;
     const position = this.getPosition();
 
-    if (destination) {
-      return mat4.lookAt(destination, position, target, up);
-    } else {
-      const matrix = mat4.create();
-      return mat4.targetTo(matrix, target, position, up);
-    }
+    const matrix = mat4.create();
+    mat4.targetTo(matrix, target, position, up);
+    return matrix;
   }
 
   /**

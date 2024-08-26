@@ -4,6 +4,10 @@ import {
   TwoDCamera
 } from "./cameras";
 import { GLContext } from "./gl/GLContext";
+<<<<<<< HEAD
+=======
+import { MouseScroller } from "./interaction/MouseScroller";
+>>>>>>> 511d660 (Got polyline rendering in 3d and 2d.)
 import { Vector3Bezier } from "./interpolators";
 import { Polyline } from "./objects/Polyline";
 import { Color } from "./types";
