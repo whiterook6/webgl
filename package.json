@@ -1,0 +1,24 @@
+{
+  "name": "webgl",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "author": "whiterook6 <whiterook6@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rm -rf dist/*",
+    "build": "rm -rf dist/* && tsc",
+    "watch": "tsc --watch"
+  },
+  "files": [
+    "dist"
+  ],
+  "peerDependencies": {
+    "gl-matrix": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/gl-matrix": "^2.4.5",
+    "typescript": "^5.9.3"
+  }
+}
