@@ -1,4 +1,4 @@
-import { ITimestamp } from ".";
+import { ITimestamp } from "./index";
 
 type RenderCallback = (timestamp: ITimestamp) => void;
 

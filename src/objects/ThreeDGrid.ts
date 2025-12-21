@@ -1,7 +1,7 @@
 import {mat4} from "gl-matrix";
-import {IndexBuffer, Vector3Buffer} from "../buffers";
+import {IndexBuffer, Vector3Buffer} from "../buffers/index";
 import {SolidColorRenderer} from "../renderers/SolidColorRenderer";
-import {Color, vector3, color4} from "../types";
+import {Color, vector3, color4} from "../types/index";
 
 export class ThreeDGrid {
   private readonly gl: WebGL2RenderingContext;

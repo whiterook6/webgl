@@ -1,5 +1,5 @@
 import {Shader} from "../Shader";
-import {Vector3Buffer, IndexBuffer, Color4Buffer} from "../buffers";
+import {Vector3Buffer, IndexBuffer, Color4Buffer} from "../buffers/index";
 import {mat4} from "gl-matrix";
 
 export class VertexColorRenderer {

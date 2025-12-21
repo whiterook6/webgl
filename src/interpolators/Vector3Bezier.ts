@@ -1,5 +1,5 @@
-import {Vector3, vector3, epsilon} from "../types";
-import {Bezier} from "./";
+import {Vector3, vector3, epsilon} from "../types/index";
+import {Bezier} from "./Bezier";
 import {mat4, quat, vec3} from "gl-matrix";
 
 export type frenetFrame = {

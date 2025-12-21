@@ -1,5 +1,5 @@
 import {mat4} from "gl-matrix";
-import {Vector3, vector3} from "../types";
+import {Vector3, vector3} from "../types/index";
 import {Camera} from "./Camera";
 
 export class OrbitCamera extends Camera {

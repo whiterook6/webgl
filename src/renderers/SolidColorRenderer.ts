@@ -1,7 +1,7 @@
 import {Shader} from "../Shader";
-import {Vector3Buffer, IndexBuffer} from "../buffers";
+import {Vector3Buffer, IndexBuffer} from "../buffers/index";
 import {mat4} from "gl-matrix";
-import {color4} from "../types";
+import {color4} from "../types/index";
 
 export class SolidColorRenderer {
   private static shader: Shader;

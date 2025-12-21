@@ -1,7 +1,7 @@
 import {mat4} from "gl-matrix";
-import {IndexBuffer, Vector3Buffer} from "../buffers";
+import {IndexBuffer, Vector3Buffer} from "../buffers/index";
 import {Shader} from "../Shader";
-import {Color, vector3} from "../types";
+import {Color, vector3} from "../types/index";
 
 export class Sphere {
   private readonly gl: WebGL2RenderingContext;

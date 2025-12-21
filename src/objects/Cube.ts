@@ -1,6 +1,6 @@
 import {Shader} from "../Shader";
-import {Vector3Buffer, Color4Buffer, IndexBuffer} from "../buffers";
-import {Color} from "../types";
+import {Vector3Buffer, Color4Buffer, IndexBuffer} from "../buffers/index";
+import {Color} from "../types/index";
 import {mat4} from "gl-matrix";
 
 export class Cube {

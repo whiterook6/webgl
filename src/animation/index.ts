@@ -1,3 +1,5 @@
+import { AnimationLoop } from "./AnimationLoop";
+
 export interface ITimestamp {
   /** Age in milliseconds */
   age: number;
@@ -9,4 +11,4 @@ export interface ITimestamp {
   deltaT: number;
 }
 
-export * from "./AnimationLoop";
+export { AnimationLoop } from "./AnimationLoop";

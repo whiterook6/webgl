@@ -1,6 +1,6 @@
 import {mat4} from "gl-matrix";
-import {Camera} from ".";
-import {vector3} from "../types";
+import {Camera} from "./Camera";
+import {vector3} from "../types/index";
 
 /**
  * +X Axis is to the right

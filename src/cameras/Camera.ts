@@ -1,5 +1,5 @@
 import {mat4} from "gl-matrix";
-import {vector3, ray} from "../types";
+import {vector3, ray} from "../types/index";
 
 export abstract class Camera {
   public abstract getFacingMatrix(target: vector3): mat4;

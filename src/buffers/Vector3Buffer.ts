@@ -1,4 +1,4 @@
-import {vector3} from "../types";
+import {vector3} from "../types/index";
 import {FloatBuffer} from "./FloatBuffer";
 
 export class Vector3Buffer extends FloatBuffer {

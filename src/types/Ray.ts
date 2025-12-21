@@ -1,4 +1,4 @@
-import {vector3, epsilon} from "./";
+import {vector3, epsilon} from "./index";
 import {Vector3} from "./Vector3";
 
 export type ray = {

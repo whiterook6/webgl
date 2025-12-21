@@ -1,8 +1,8 @@
-import {Vector3Bezier} from "../interpolators";
+import {Vector3Bezier} from "../interpolators/index";
 import {mat4, vec3} from "gl-matrix";
 import {VertexColorRenderer} from "../renderers/VertexColorRenderer";
-import {Vector3Buffer, Color4Buffer, IndexBuffer} from "../buffers";
-import {vector3, color4, Vector3, Color} from "../types";
+import {Vector3Buffer, Color4Buffer, IndexBuffer} from "../buffers/index";
+import {vector3, color4, Vector3, Color} from "../types/index";
 
 export class RenderableBezier {
   private readonly gl: WebGL2RenderingContext;

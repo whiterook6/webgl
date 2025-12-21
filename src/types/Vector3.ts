@@ -1,4 +1,4 @@
-import {epsilon} from ".";
+import {epsilon} from "./index";
 import {vec3, mat4} from "gl-matrix";
 
 export type vector3 = [number, number, number];

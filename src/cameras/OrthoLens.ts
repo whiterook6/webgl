@@ -1,5 +1,5 @@
 import {mat4} from "gl-matrix";
-import {Lens} from ".";
+import {Lens} from "./Lens";
 
 export class OrthoLens extends Lens {
   private readonly matrix: mat4;

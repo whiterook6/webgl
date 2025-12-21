@@ -1,7 +1,7 @@
 import {mat4, vec3} from "gl-matrix";
-import {IndexBuffer, Vector3Buffer} from "../buffers";
+import {IndexBuffer, Vector3Buffer} from "../buffers/index";
 import {Shader} from "../Shader";
-import {color4, vector3} from "../types";
+import {color4, vector3} from "../types/index";
 
 export class ThickLine {
   private static modelViewMatrix: mat4;

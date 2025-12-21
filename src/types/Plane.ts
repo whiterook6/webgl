@@ -1,4 +1,4 @@
-import {epsilon, ray, Ray, vector3, Vector3} from "./";
+import {epsilon, ray, Ray, vector3, Vector3} from "./index";
 
 export type plane = {
   origin: vector3;

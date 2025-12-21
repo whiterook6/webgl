@@ -1,7 +1,7 @@
 import {Shader} from "../Shader";
-import {IndexBuffer, Vector3Buffer} from "../buffers";
+import {IndexBuffer, Vector3Buffer} from "../buffers/index";
 import {mat4} from "gl-matrix";
-import {color4, vector3} from "../types";
+import {color4, vector3} from "../types/index";
 
 export class InstancedSolidColorRenderer {
   private count: number;
