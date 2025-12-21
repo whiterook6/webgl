@@ -1,3 +1,3 @@
-export * from "./VertexColorRenderer";
-export * from "./SolidColorRenderer";
-export * from "./InstancedSolidColorRenderer";
+export { VertexColorRenderer } from "./vertex-color-renderer";
+export { SolidColorRenderer } from "./solid-color-renderer";
+export { InstancedSolidColorRenderer } from "./instanced-solid-color-renderer";

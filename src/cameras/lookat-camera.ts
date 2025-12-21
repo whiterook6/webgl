@@ -1,6 +1,6 @@
 import {vector3, Vector3} from "../types/index";
 import {mat4} from "gl-matrix";
-import {Camera} from "./Camera";
+import {Camera} from "./camera";
 
 export class LookAtCamera extends Camera {
   private position: vector3;

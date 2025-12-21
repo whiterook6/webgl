@@ -1,4 +1,4 @@
-import {Bezier} from "./Bezier";
+import {Bezier} from "./bezier";
 
 type Interpolator<T> = (t: number) => T;
 

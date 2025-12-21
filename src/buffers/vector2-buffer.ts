@@ -1,4 +1,4 @@
-import {FloatBuffer} from "./FloatBuffer";
+import {FloatBuffer} from "./float-buffer";
 
 export class Vector2Buffer extends FloatBuffer {
   constructor(

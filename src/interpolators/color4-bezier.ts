@@ -1,5 +1,5 @@
 import {color4} from "../types/index";
-import {Bezier} from "./Bezier";
+import {Bezier} from "./bezier";
 
 export class Color4Bezier {
   private readonly rCurve: Bezier;

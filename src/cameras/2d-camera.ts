@@ -1,5 +1,5 @@
 import {mat4} from "gl-matrix";
-import {Camera} from "./Camera";
+import {Camera} from "./camera";
 import {vector3} from "../types/index";
 
 /**

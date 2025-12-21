@@ -1,6 +1,15 @@
-import { ITimestamp } from "./index";
+export type timestamp = {
+  /** Age in milliseconds */
+  age: number;
 
-type RenderCallback = (timestamp: ITimestamp) => void;
+  /** Time in milliseconds */
+  now: number;
+
+  /** time since previous frame in milliseconds */
+  deltaT: number;
+}
+
+type RenderCallback = (timestamp: timestamp) => void;
 
 export class AnimationLoop {
   private renderCallback: RenderCallback;

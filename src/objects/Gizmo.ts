@@ -1,6 +1,6 @@
 import {mat4} from "gl-matrix";
 import {Color4Buffer, IndexBuffer, Vector3Buffer} from "../buffers/index";
-import {VertexColorRenderer} from "../renderers/VertexColorRenderer";
+import {VertexColorRenderer} from "../renderers/vertex-color-renderer";
 import {color4, vector3} from "../types/index";
 
 export class Gizmo {

@@ -1,6 +1,6 @@
-export * from "./Camera";
-export * from "./Lens";
-export * from "./LookAtCamera";
-export * from "./PerspectiveLens";
-export * from "./TwoDCamera";
-export * from "./OrthoLens";
+export { Camera } from "./camera";
+export { Lens } from "./lens";
+export { LookAtCamera } from "./lookat-camera";
+export { PerspectiveLens } from "./perspective-lens";
+export { TwoDCamera } from "./2d-camera";
+export { OrthoLens } from "./ortho-lens";

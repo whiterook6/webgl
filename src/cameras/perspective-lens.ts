@@ -1,4 +1,4 @@
-import {Lens} from "./Lens";
+import {Lens} from "./lens";
 import {mat4} from "gl-matrix";
 
 export class PerspectiveLens extends Lens {

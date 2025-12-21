@@ -6,7 +6,7 @@ export type plane = {
 };
 
 export class Plane {
-  public static up = (origin: vector3 = [0, 0, 0]) => {
+  public static up = (origin: vector3 = [0, 0, 0]): plane => {
     return {
       origin,
       normal: [0, 0, 1],

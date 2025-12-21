@@ -1,4 +1,4 @@
-import {Buffer} from "./Buffer";
+import {Buffer} from "./buffer";
 
 export class IndexBuffer extends Buffer {
   constructor(gl: WebGL2RenderingContext, data: number[] | Uint16Array) {

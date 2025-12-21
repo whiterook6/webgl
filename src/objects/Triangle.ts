@@ -1,6 +1,6 @@
 import {mat4} from "gl-matrix";
 import {IndexBuffer, Vector3Buffer} from "../buffers/index";
-import {Shader} from "../Shader";
+import {Shader} from "../shaders/shader";
 
 export class Triangle {
   private readonly gl: WebGL2RenderingContext;

@@ -1,4 +1,4 @@
-import {Buffer} from "./Buffer";
+import {Buffer} from "./buffer";
 
 export class FloatBuffer extends Buffer {
   private readonly width: number;

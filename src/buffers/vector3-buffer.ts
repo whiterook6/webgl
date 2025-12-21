@@ -1,5 +1,5 @@
 import {vector3} from "../types/index";
-import {FloatBuffer} from "./FloatBuffer";
+import {FloatBuffer} from "./float-buffer";
 
 export class Vector3Buffer extends FloatBuffer {
   constructor(gl: WebGL2RenderingContext, vectors: vector3[] | Float32Array, mode: number = gl.STATIC_DRAW) {

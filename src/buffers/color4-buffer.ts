@@ -1,4 +1,4 @@
-import {FloatBuffer} from "./FloatBuffer";
+import {FloatBuffer} from "./float-buffer";
 import {color4} from "../types/index";
 
 export class Color4Buffer extends FloatBuffer {
