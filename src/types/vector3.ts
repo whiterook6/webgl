@@ -1,5 +1,5 @@
-import {epsilon} from "./index";
-import {vec3, mat4} from "gl-matrix";
+import { epsilon } from "./index";
+import { vec3, mat4 } from "gl-matrix";
 
 export type vector3 = [number, number, number];
 
@@ -160,7 +160,9 @@ export class Vector3 {
    * Returns an up vector from a forward vector and a right vector.
    */
   public static up = (forward: vector3, right: vector3): vector3 => {
-    return Vector3.normalize(Vector3.cross(Vector3.normalize(right), Vector3.normalize(forward)));
+    return Vector3.normalize(
+      Vector3.cross(Vector3.normalize(right), Vector3.normalize(forward)),
+    );
   };
 
   /**
@@ -170,7 +172,11 @@ export class Vector3 {
    *  1.0 => 100% right;
    *  0.5 => 50% left, 50% right
    */
-  public static lerp = (left: vector3, right: vector3, mix: number): vector3 => {
+  public static lerp = (
+    left: vector3,
+    right: vector3,
+    mix: number,
+  ): vector3 => {
     return [
       (1.0 - mix) * left[0] + mix * right[0],
       (1.0 - mix) * left[1] + mix * right[1],
@@ -199,7 +205,11 @@ export class Vector3 {
     return [0, 0, 1];
   };
 
-  public static fromPolar = (theta: number, phi: number, length: number = 1): vector3 => {
+  public static fromPolar = (
+    theta: number,
+    phi: number,
+    length: number = 1,
+  ): vector3 => {
     if (length < epsilon) {
       return [0, 0, 0];
     }

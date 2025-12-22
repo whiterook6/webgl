@@ -1,5 +1,5 @@
-import {mat4} from "gl-matrix";
-import {vector3, ray} from "../types/index";
+import { mat4 } from "gl-matrix";
+import { vector3, ray } from "../types/index";
 
 export abstract class Camera {
   public abstract getFacingMatrix(target: vector3): mat4;
@@ -11,7 +11,7 @@ export abstract class Camera {
   public static unproject(
     projected: vector3,
     viewport: [number, number, number, number],
-    projViewMatrix: mat4
+    projViewMatrix: mat4,
   ): vector3 {
     const [viewX, viewY, viewWidth, viewHeight] = viewport;
     let [x, y, z] = projected;
@@ -64,7 +64,7 @@ export abstract class Camera {
   public static unprojectRay(
     screenPosition: [number, number],
     viewport: [number, number, number, number],
-    projViewMatrix: mat4
+    projViewMatrix: mat4,
   ): ray {
     const [viewX, viewY, viewWidth, viewHeight] = viewport;
     let [x, y] = screenPosition;

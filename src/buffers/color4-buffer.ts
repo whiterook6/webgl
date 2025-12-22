@@ -1,8 +1,12 @@
-import {FloatBuffer} from "./float-buffer";
-import {color4} from "../types/index";
+import { FloatBuffer } from "./float-buffer";
+import { color4 } from "../types/index";
 
 export class Color4Buffer extends FloatBuffer {
-  constructor(gl: WebGL2RenderingContext, colors: color4[] | Float32Array, mode?: number) {
+  constructor(
+    gl: WebGL2RenderingContext,
+    colors: color4[] | Float32Array,
+    mode?: number,
+  ) {
     super(gl, Array.isArray(colors) ? colors.flat(1) : colors, 4, mode);
   }
 

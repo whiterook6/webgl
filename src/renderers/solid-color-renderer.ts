@@ -1,7 +1,7 @@
-import {Shader} from "../shaders/shader";
-import {Vector3Buffer, IndexBuffer} from "../buffers/index";
-import {mat4} from "gl-matrix";
-import {color4} from "../types/index";
+import { Shader } from "../shaders/shader";
+import { Vector3Buffer, IndexBuffer } from "../buffers/index";
+import { mat4 } from "gl-matrix";
+import { color4 } from "../types/index";
 
 export class SolidColorRenderer {
   private static shader: Shader;
@@ -30,7 +30,7 @@ uniform vec4 color;
 
 void main(void) {
   gl_Position = matrix * vertexPosition;
-}`
+}`,
       )
       .addFragmentSource(
         `
@@ -39,22 +39,29 @@ uniform vec4 color;
 
 void main(void) {
   gl_FragColor = color;
-}`
+}`,
       )
       .link();
 
-    SolidColorRenderer.vertexPositionAttribute = SolidColorRenderer.shader.getAttributeLocation(
-      "vertexPosition"
-    );
-    SolidColorRenderer.matrixUniform = SolidColorRenderer.shader.getUniformLocation(
-      "matrix"
-    ) as WebGLUniformLocation;
-    SolidColorRenderer.colorUniform = SolidColorRenderer.shader.getUniformLocation(
-      "color"
-    ) as WebGLUniformLocation;
+    SolidColorRenderer.vertexPositionAttribute =
+      SolidColorRenderer.shader.getAttributeLocation("vertexPosition");
+    SolidColorRenderer.matrixUniform =
+      SolidColorRenderer.shader.getUniformLocation(
+        "matrix",
+      ) as WebGLUniformLocation;
+    SolidColorRenderer.colorUniform =
+      SolidColorRenderer.shader.getUniformLocation(
+        "color",
+      ) as WebGLUniformLocation;
   }
 
-  render(vertices: Vector3Buffer, indices: IndexBuffer, color: color4, matrix: mat4, mode: number) {
+  render(
+    vertices: Vector3Buffer,
+    indices: IndexBuffer,
+    color: color4,
+    matrix: mat4,
+    mode: number,
+  ) {
     vertices.bindToAttribute(SolidColorRenderer.vertexPositionAttribute);
     indices.bindToAttribute();
 
@@ -68,7 +75,7 @@ void main(void) {
     this.gl.drawElements(mode, vertexCount, type, offset);
   }
 
-  destroy(){
+  destroy() {
     if (SolidColorRenderer.shader) {
       SolidColorRenderer.shader.destroy();
     }

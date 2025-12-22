@@ -1,7 +1,7 @@
-import {Shader} from "../shaders/shader";
-import {Vector3Buffer, Color4Buffer, IndexBuffer} from "../buffers/index";
-import {Color} from "../types/index";
-import {mat4} from "gl-matrix";
+import { Shader } from "../shaders/shader";
+import { Vector3Buffer, Color4Buffer, IndexBuffer } from "../buffers/index";
+import { Color } from "../types/index";
+import { mat4 } from "gl-matrix";
 
 export class Cube {
   private readonly gl: WebGL2RenderingContext;
@@ -52,7 +52,7 @@ void main(void) {
   highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
   vLighting = ambientLight + (directionalLightColor * directional);
   vColor = vertexColor;
-}`
+}`,
       )
       .addFragmentSource(
         `
@@ -63,7 +63,7 @@ varying lowp vec4 vColor;
 
 void main(void) {
   gl_FragColor = vec4(vColor.rgb * vLighting, 1.0);
-}`
+}`,
       )
       .link();
 
@@ -192,17 +192,19 @@ void main(void) {
     ]);
 
     this.shader.useProgram();
-    this.vertexPositionAttribute = this.shader.getAttributeLocation("vertexPosition");
-    this.vertexNormalAttribute = this.shader.getAttributeLocation("vertexNormal");
+    this.vertexPositionAttribute =
+      this.shader.getAttributeLocation("vertexPosition");
+    this.vertexNormalAttribute =
+      this.shader.getAttributeLocation("vertexNormal");
     this.vertexColorAttribute = this.shader.getAttributeLocation("vertexColor");
     this.normalMatrixUniform = this.shader.getUniformLocation(
-      "normalMatrix"
+      "normalMatrix",
     ) as WebGLUniformLocation;
     this.modelViewMatrixUniform = this.shader.getUniformLocation(
-      "modelViewMatrix"
+      "modelViewMatrix",
     ) as WebGLUniformLocation;
     this.projectionMatrixUniform = this.shader.getUniformLocation(
-      "projectionmatrix"
+      "projectionmatrix",
     ) as WebGLUniformLocation;
   }
 
@@ -220,8 +222,16 @@ void main(void) {
     mat4.transpose(normalMatrix, normalMatrix);
 
     this.shader.useProgram();
-    this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
-    this.gl.uniformMatrix4fv(this.modelViewMatrixUniform, false, modelViewMatrix);
+    this.gl.uniformMatrix4fv(
+      this.projectionMatrixUniform,
+      false,
+      projectionMatrix,
+    );
+    this.gl.uniformMatrix4fv(
+      this.modelViewMatrixUniform,
+      false,
+      modelViewMatrix,
+    );
     this.gl.uniformMatrix4fv(this.normalMatrixUniform, false, normalMatrix);
 
     const vertexCount = 36;

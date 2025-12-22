@@ -1,7 +1,12 @@
-import {Shader} from "../shaders/shader";
-import {Vector3Buffer, Color4Buffer, IndexBuffer, FloatBuffer} from "../buffers/index";
-import {Color} from "../types/index";
-import {mat4} from "gl-matrix";
+import { Shader } from "../shaders/shader";
+import {
+  Vector3Buffer,
+  Color4Buffer,
+  IndexBuffer,
+  FloatBuffer,
+} from "../buffers/index";
+import { Color } from "../types/index";
+import { mat4 } from "gl-matrix";
 
 export class TexturedCube {
   private readonly gl: WebGL2RenderingContext;
@@ -44,7 +49,7 @@ void main() {
   // Pass the texcoord to the fragment shader.
   v_texcoord = a_texcoord;
   v_color = a_color;
-}`
+}`,
       )
       .addFragmentSource(
         `
@@ -59,7 +64,7 @@ uniform sampler2D u_texture;
 
 void main() {
    gl_FragColor = mix(v_color, texture2D(u_texture, v_texcoord), 0.5);
-}`
+}`,
       )
       .link();
 
@@ -189,23 +194,27 @@ void main() {
     ]);
 
     this.shader.useProgram();
-    this.vertexPositionAttribute = this.shader.getAttributeLocation("a_position");
-    this.vertexTextureAttribute = this.shader.getAttributeLocation("a_texcoord");
+    this.vertexPositionAttribute =
+      this.shader.getAttributeLocation("a_position");
+    this.vertexTextureAttribute =
+      this.shader.getAttributeLocation("a_texcoord");
     this.vertexColorAttribute = this.shader.getAttributeLocation("a_color");
     this.modelViewMatrixUniform = this.shader.getUniformLocation(
-      "modelViewMatrix"
+      "modelViewMatrix",
     ) as WebGLUniformLocation;
     this.projectionMatrixUniform = this.shader.getUniformLocation(
-      "projectionmatrix"
+      "projectionmatrix",
     ) as WebGLUniformLocation;
-    this.textureLocation = this.shader.getUniformLocation("u_texture") as WebGLUniformLocation;
+    this.textureLocation = this.shader.getUniformLocation(
+      "u_texture",
+    ) as WebGLUniformLocation;
   }
 
   public render(
     modelMatrix: mat4,
     viewMatrix: mat4,
     projectionMatrix: mat4,
-    textureNumber: number
+    textureNumber: number,
   ) {
     this.positionBuffer.bindToAttribute(this.vertexPositionAttribute);
     this.textureBuffer.bindToAttribute(this.vertexTextureAttribute);
@@ -220,8 +229,16 @@ void main() {
     mat4.transpose(normalMatrix, normalMatrix);
 
     this.gl.useProgram(this.shader.getProgram());
-    this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
-    this.gl.uniformMatrix4fv(this.modelViewMatrixUniform, false, modelViewMatrix);
+    this.gl.uniformMatrix4fv(
+      this.projectionMatrixUniform,
+      false,
+      projectionMatrix,
+    );
+    this.gl.uniformMatrix4fv(
+      this.modelViewMatrixUniform,
+      false,
+      modelViewMatrix,
+    );
     this.gl.uniform1i(this.textureLocation, textureNumber);
 
     const vertexCount = 36;

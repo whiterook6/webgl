@@ -1,6 +1,6 @@
-import {mat4} from "gl-matrix";
-import {IndexBuffer, Vector3Buffer} from "../buffers/index";
-import {Shader} from "../shaders/shader";
+import { mat4 } from "gl-matrix";
+import { IndexBuffer, Vector3Buffer } from "../buffers/index";
+import { Shader } from "../shaders/shader";
 
 export class Triangle {
   private readonly gl: WebGL2RenderingContext;
@@ -23,13 +23,13 @@ uniform mat4 uProjectionMatrix;
 
 void main() {
     gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-}`
+}`,
       )
       .addFragmentSource(
         `
 void main() {
     gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-}`
+}`,
       )
       .link();
 
@@ -40,12 +40,13 @@ void main() {
     ]);
     this.indexBuffer = new IndexBuffer(gl, [0, 1, 2]);
     this.modelViewMatrixUniform = this.shader.getUniformLocation(
-      "uModelViewMatrix"
+      "uModelViewMatrix",
     ) as WebGLUniformLocation;
     this.projectionMatrixUniform = this.shader.getUniformLocation(
-      "uProjectionMatrix"
+      "uProjectionMatrix",
     ) as WebGLUniformLocation;
-    this.vertexPositionAttribute = this.shader.getAttributeLocation("aVertexPosition");
+    this.vertexPositionAttribute =
+      this.shader.getAttributeLocation("aVertexPosition");
   }
 
   public render(modelMatrix: mat4, viewMatrix: mat4, projectionMatrix: mat4) {
@@ -56,8 +57,16 @@ void main() {
     mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
 
     this.gl.useProgram(this.shader.getProgram());
-    this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
-    this.gl.uniformMatrix4fv(this.modelViewMatrixUniform, false, modelViewMatrix);
+    this.gl.uniformMatrix4fv(
+      this.projectionMatrixUniform,
+      false,
+      projectionMatrix,
+    );
+    this.gl.uniformMatrix4fv(
+      this.modelViewMatrixUniform,
+      false,
+      modelViewMatrix,
+    );
 
     const vertexCount = 3;
     const type = this.gl.UNSIGNED_SHORT;

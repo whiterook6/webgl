@@ -1,6 +1,6 @@
-import {Vector3, vector3, epsilon} from "../types/index";
-import {Bezier} from "./bezier";
-import {mat4, quat, vec3} from "gl-matrix";
+import { mat4 } from "gl-matrix";
+import { Vector3, epsilon, vector3 } from "../types/index";
+import { Bezier } from "./bezier";
 
 export type frenetFrame = {
   forward: vector3;
@@ -76,11 +76,16 @@ export class Vector3Bezier {
     } else if (t >= 1) {
       return this.getLength();
     } else {
-      const left = Math.min(this.centilengths.length - 2, Math.floor(this.centilengths.length * t));
+      const left = Math.min(
+        this.centilengths.length - 2,
+        Math.floor(this.centilengths.length * t),
+      );
       const right = left + 1;
       const mix = t * this.centilengths.length - left;
 
-      return this.centilengths[left] * (1 - mix) + this.centilengths[right] * mix;
+      return (
+        this.centilengths[left] * (1 - mix) + this.centilengths[right] * mix
+      );
     }
   }
 
@@ -113,7 +118,8 @@ export class Vector3Bezier {
     }
 
     const m =
-      (distance - this.centilengths[low]) / (this.centilengths[high] - this.centilengths[low]);
+      (distance - this.centilengths[low]) /
+      (this.centilengths[high] - this.centilengths[low]);
     const t = (low + m) / this.centilengths.length;
     return t;
   }
@@ -186,7 +192,7 @@ export class Vector3Bezier {
       this.frames[0],
       previousPosition,
       Vector3.add(previousPosition, frame.forward),
-      previousUp
+      previousUp,
     );
 
     for (let i = 1; i <= 100; i++) {
@@ -201,7 +207,12 @@ export class Vector3Bezier {
       const up = Vector3.cross(right, forward);
 
       this.frames[i] = mat4.create();
-      mat4.targetTo(this.frames[i], position, Vector3.add(position, forward), up);
+      mat4.targetTo(
+        this.frames[i],
+        position,
+        Vector3.add(position, forward),
+        up,
+      );
       previousUp = up;
       previousPosition = position;
     }

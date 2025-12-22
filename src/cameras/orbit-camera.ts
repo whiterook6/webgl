@@ -1,6 +1,6 @@
-import {mat4} from "gl-matrix";
-import {Vector3, vector3} from "../types/index";
-import {Camera} from "./camera";
+import { mat4 } from "gl-matrix";
+import { Vector3, vector3 } from "../types/index";
+import { Camera } from "./camera";
 
 export class OrbitCamera extends Camera {
   private theta: number; // angle between x-y plane and line
@@ -19,7 +19,7 @@ export class OrbitCamera extends Camera {
   }
 
   public getPosition(): vector3 {
-    const {theta, phi, distance, target} = this;
+    const { theta, phi, distance, target } = this;
 
     return [
       target[0] + distance * Math.cos(theta) * Math.cos(phi),
@@ -29,9 +29,13 @@ export class OrbitCamera extends Camera {
   }
 
   public getForward(): vector3 {
-    const {theta, phi} = this;
+    const { theta, phi } = this;
 
-    return [Math.cos(theta) * Math.cos(phi), Math.cos(theta) * Math.sin(phi), Math.sin(theta)];
+    return [
+      Math.cos(theta) * Math.cos(phi),
+      Math.cos(theta) * Math.sin(phi),
+      Math.sin(theta),
+    ];
   }
 
   public getUp(): vector3 {
@@ -39,7 +43,7 @@ export class OrbitCamera extends Camera {
   }
 
   public getViewMatrix(): mat4 {
-    const {target, up} = this;
+    const { target, up } = this;
     const position = this.getPosition();
 
     const viewMatrix = mat4.create();
@@ -47,7 +51,7 @@ export class OrbitCamera extends Camera {
   }
 
   public getFacingMatrix(target: vector3) {
-    const {up} = this;
+    const { up } = this;
     const position = this.getPosition();
 
     const matrix = mat4.create();

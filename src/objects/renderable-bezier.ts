@@ -1,8 +1,8 @@
-import {Vector3Bezier} from "../interpolators/index";
-import {mat4, vec3} from "gl-matrix";
-import {VertexColorRenderer} from "../renderers/vertex-color-renderer";
-import {Vector3Buffer, Color4Buffer, IndexBuffer} from "../buffers/index";
-import {vector3, color4, Vector3, Color} from "../types/index";
+import { mat4 } from "gl-matrix";
+import { Color4Buffer, IndexBuffer, Vector3Buffer } from "../buffers/index";
+import { Vector3Bezier } from "../interpolators/index";
+import { VertexColorRenderer } from "../renderers/vertex-color-renderer";
+import { Color, Vector3, color4, vector3 } from "../types/index";
 
 export class RenderableBezier {
   private readonly gl: WebGL2RenderingContext;
@@ -63,6 +63,12 @@ export class RenderableBezier {
   public render(viewMatrix: mat4, projectionMatrix: mat4) {
     const mat = mat4.create();
     mat4.multiply(mat, projectionMatrix, viewMatrix);
-    this.renderer.render(this.vertices, this.colors, this.indices, mat, this.gl.LINES);
+    this.renderer.render(
+      this.vertices,
+      this.colors,
+      this.indices,
+      mat,
+      this.gl.LINES,
+    );
   }
 }

@@ -1,7 +1,7 @@
-import {mat4} from "gl-matrix";
-import {Color4Buffer, IndexBuffer, Vector3Buffer} from "../buffers/index";
-import {VertexColorRenderer} from "../renderers/vertex-color-renderer";
-import {color4, vector3} from "../types/index";
+import { mat4 } from "gl-matrix";
+import { Color4Buffer, IndexBuffer, Vector3Buffer } from "../buffers/index";
+import { VertexColorRenderer } from "../renderers/vertex-color-renderer";
+import { color4, vector3 } from "../types/index";
 
 export class Gizmo {
   private readonly gl: WebGL2RenderingContext;
@@ -49,7 +49,7 @@ export class Gizmo {
       this.colorBuffer,
       this.indexBuffer,
       projectionViewMatric,
-      this.gl.LINES
+      this.gl.LINES,
     );
   }
 

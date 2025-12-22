@@ -1,5 +1,5 @@
-import {Lens} from "./lens";
-import {mat4} from "gl-matrix";
+import { Lens } from "./lens";
+import { mat4 } from "gl-matrix";
 
 export class PerspectiveLens extends Lens {
   public fieldOfView: number = (45 * Math.PI) / 180;
@@ -9,7 +9,13 @@ export class PerspectiveLens extends Lens {
 
   public getProjection() {
     const matrix = mat4.create();
-    mat4.perspective(matrix, this.fieldOfView, this.aspect, this.zNear, this.zFar);
+    mat4.perspective(
+      matrix,
+      this.fieldOfView,
+      this.aspect,
+      this.zNear,
+      this.zFar,
+    );
 
     return matrix;
   }

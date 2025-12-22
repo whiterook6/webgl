@@ -13,12 +13,23 @@
     "format": "prettier --write src",
     "lint:fix": "eslint src --ext .ts,.js --fix",
     "lint": "eslint src --ext .ts,.js",
+    "prepare": "husky",
     "typecheck": "tsc --noEmit --project tsconfig.json",
     "watch": "tsc --watch"
   },
   "files": [
     "dist"
   ],
+  "lint-staged": {
+    "src/**/*.ts": [
+      "eslint --fix",
+      "prettier --write --ignore-unknown"
+    ]
+  },
+  "prettier": {
+    "tabWidth": 2,
+    "useTabs": false
+  },
   "peerDependencies": {
     "gl-matrix": "^3.1.0"
   },
@@ -31,7 +42,9 @@
     "eslint-plugin-jest": "^29.2.1",
     "gl-matrix": "^3.1.0",
     "globals": "^16.3.0",
+    "husky": "^9.1.7",
     "lint-staged": "^16.1.5",
+    "prettier": "^3.6.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.39.1"
   },

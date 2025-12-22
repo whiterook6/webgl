@@ -1,10 +1,10 @@
-import {Bezier} from "./bezier";
+import { Bezier } from "./bezier";
 
 type Interpolator<T> = (t: number) => T;
 
 export const pipe = <T>(
   segments: Interpolator<number>[],
-  output: Interpolator<T>
+  output: Interpolator<T>,
 ): Interpolator<T> => {
   return (t: number): T => {
     let current = t;
@@ -24,13 +24,19 @@ export const pipe = <T>(
  * @param offset shift the output forward or backward
  * returns a function that oscillates over those values given an input in seconds
  */
-export const buildOscillator = (min: number, max: number, period: number, shift: number = 0) => {
+export const buildOscillator = (
+  min: number,
+  max: number,
+  period: number,
+  shift: number = 0,
+) => {
   const halfAmplitude = (max - min) / 2;
   const verticalShift = (max + min) / 2;
   const twoPIOverPeriod = (2 * Math.PI) / period;
 
   return (age: number) => {
-    const result = Math.sin((age - shift) * twoPIOverPeriod) * halfAmplitude + verticalShift;
+    const result =
+      Math.sin((age - shift) * twoPIOverPeriod) * halfAmplitude + verticalShift;
     return result;
   };
 };
@@ -53,7 +59,10 @@ export const loop = (min: number, max: number): Interpolator<number> => {
 /**
  * Scales and shifts the output.
  */
-export const transform = (scale: number, shift: number = 0): Interpolator<number> => {
+export const transform = (
+  scale: number,
+  shift: number = 0,
+): Interpolator<number> => {
   return (t: number) => t * scale + shift;
 };
 

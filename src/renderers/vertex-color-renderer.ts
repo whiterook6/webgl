@@ -1,6 +1,6 @@
-import {Shader} from "../shaders/shader";
-import {Vector3Buffer, IndexBuffer, Color4Buffer} from "../buffers/index";
-import {mat4} from "gl-matrix";
+import { Shader } from "../shaders/shader";
+import { Vector3Buffer, IndexBuffer, Color4Buffer } from "../buffers/index";
+import { mat4 } from "gl-matrix";
 
 export class VertexColorRenderer {
   private static shader: Shader;
@@ -32,7 +32,7 @@ void main(void) {
     vColor = vertexColor;
     gl_Position = matrix * vertexPosition;
     gl_PointSize = 4.0;
-}`
+}`,
       )
       .addFragmentSource(
         `
@@ -42,19 +42,18 @@ varying vec4 vColor;
 
 void main(void) {
   gl_FragColor = vColor;
-}`
+}`,
       )
       .link();
 
-    VertexColorRenderer.vertexPositionAttribute = VertexColorRenderer.shader.getAttributeLocation(
-      "vertexPosition"
-    );
-    VertexColorRenderer.vertexColorAttribute = VertexColorRenderer.shader.getAttributeLocation(
-      "vertexColor"
-    );
-    VertexColorRenderer.matrixUniform = VertexColorRenderer.shader.getUniformLocation(
-      "matrix"
-    ) as WebGLUniformLocation;
+    VertexColorRenderer.vertexPositionAttribute =
+      VertexColorRenderer.shader.getAttributeLocation("vertexPosition");
+    VertexColorRenderer.vertexColorAttribute =
+      VertexColorRenderer.shader.getAttributeLocation("vertexColor");
+    VertexColorRenderer.matrixUniform =
+      VertexColorRenderer.shader.getUniformLocation(
+        "matrix",
+      ) as WebGLUniformLocation;
   }
 
   render(
@@ -62,7 +61,7 @@ void main(void) {
     vertexColors: Color4Buffer,
     indices: IndexBuffer,
     matrix: mat4,
-    mode: number
+    mode: number,
   ) {
     vertices.bindToAttribute(VertexColorRenderer.vertexPositionAttribute);
     vertexColors.bindToAttribute(VertexColorRenderer.vertexColorAttribute);

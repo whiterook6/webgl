@@ -1,4 +1,4 @@
-import {Texture} from "../textures/texture";
+import { Texture } from "../textures/texture";
 
 export class Framebuffer {
   private readonly gl: WebGL2RenderingContext;
@@ -26,7 +26,7 @@ export class Framebuffer {
       gl.COLOR_ATTACHMENT0,
       gl.TEXTURE_2D,
       this.texture.getGLTexture(),
-      0
+      0,
     );
 
     // create a depth renderbuffer
@@ -41,8 +41,18 @@ export class Framebuffer {
     gl.bindRenderbuffer(gl.RENDERBUFFER, this.depthBuffer);
 
     // make a depth buffer and the same size as the targetTexture
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
-    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
+    gl.renderbufferStorage(
+      gl.RENDERBUFFER,
+      gl.DEPTH_COMPONENT16,
+      width,
+      height,
+    );
+    gl.framebufferRenderbuffer(
+      gl.FRAMEBUFFER,
+      gl.DEPTH_ATTACHMENT,
+      gl.RENDERBUFFER,
+      depthBuffer,
+    );
   }
 
   public getFramebuffer() {

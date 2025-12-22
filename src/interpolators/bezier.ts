@@ -5,7 +5,7 @@ export class Bezier {
     a: [number, number, number, number] | number = 0,
     b: number = 0,
     c: number = 0,
-    d: number = 0
+    d: number = 0,
   ) {
     if (Array.isArray(a)) {
       this.nodes = a;
@@ -74,7 +74,7 @@ export class Bezier {
   /**
    * Prints when using string interpolation: `Curve: ${bezier}`
    */
-  public toString = (t: number) => {
+  public toString = () => {
     const [a, b, c, d] = this.nodes;
     return `[${a.toFixed(3)}, ${b.toFixed(2)}, ${c.toFixed(2)}, ${d.toFixed(2)}]`;
   };

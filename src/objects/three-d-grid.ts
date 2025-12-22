@@ -1,7 +1,7 @@
-import {mat4} from "gl-matrix";
-import {IndexBuffer, Vector3Buffer} from "../buffers/index";
-import {SolidColorRenderer} from "../renderers/solid-color-renderer";
-import {Color, vector3, color4} from "../types/index";
+import { mat4 } from "gl-matrix";
+import { IndexBuffer, Vector3Buffer } from "../buffers/index";
+import { SolidColorRenderer } from "../renderers/solid-color-renderer";
+import { Color, vector3, color4 } from "../types/index";
 
 export class ThreeDGrid {
   private readonly gl: WebGL2RenderingContext;
@@ -52,7 +52,7 @@ export class ThreeDGrid {
       this.indexBuffer,
       this.color,
       projectionViewMatric,
-      this.gl.LINES
+      this.gl.LINES,
     );
   }
 

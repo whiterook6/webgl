@@ -1,6 +1,6 @@
-import {FloatBuffer, IndexBuffer} from "../buffers/index";
-import {Shader} from "../shaders/shader";
-import {color4} from "../types/index";
+import { FloatBuffer, IndexBuffer } from "../buffers/index";
+import { Shader } from "../shaders/shader";
+import { color4 } from "../types/index";
 
 export class FullscreenQuad {
   private readonly gl: WebGL2RenderingContext;
@@ -17,7 +17,13 @@ export class FullscreenQuad {
   private readonly blColorUniform: WebGLUniformLocation;
   private readonly brColorUniform: WebGLUniformLocation;
 
-  constructor(gl: WebGL2RenderingContext, tlColor: color4, trColor: color4, blColor: color4, brColor: color4) {
+  constructor(
+    gl: WebGL2RenderingContext,
+    tlColor: color4,
+    trColor: color4,
+    blColor: color4,
+    brColor: color4,
+  ) {
     this.gl = gl;
     this.tlColor = tlColor;
     this.trColor = trColor;
@@ -51,7 +57,7 @@ varying vec2 uv;
 void main(void) {
   gl_Position = vertexPosition;
   uv = vertexPosition.xy * 0.5 + vec2(0.5, 0.5);
-}`
+}`,
       )
       .addFragmentSource(
         `
@@ -70,15 +76,24 @@ void main(void) {
     + trColor * uv.x * uv.y
     + blColor * (1.0 - uv.x) * (1.0 - uv.y)
     + brColor * uv.x * (1.0 - uv.y);
-}`
+}`,
       )
       .link();
 
-    this.vertexPositionAttribute = this.shader.getAttributeLocation("vertexPosition");
-    this.tlColorUniform = this.shader.getUniformLocation("tlColor") as WebGLUniformLocation;
-    this.trColorUniform = this.shader.getUniformLocation("trColor") as WebGLUniformLocation;
-    this.blColorUniform = this.shader.getUniformLocation("blColor") as WebGLUniformLocation;
-    this.brColorUniform = this.shader.getUniformLocation("brColor") as WebGLUniformLocation;
+    this.vertexPositionAttribute =
+      this.shader.getAttributeLocation("vertexPosition");
+    this.tlColorUniform = this.shader.getUniformLocation(
+      "tlColor",
+    ) as WebGLUniformLocation;
+    this.trColorUniform = this.shader.getUniformLocation(
+      "trColor",
+    ) as WebGLUniformLocation;
+    this.blColorUniform = this.shader.getUniformLocation(
+      "blColor",
+    ) as WebGLUniformLocation;
+    this.brColorUniform = this.shader.getUniformLocation(
+      "brColor",
+    ) as WebGLUniformLocation;
   }
 
   public render() {

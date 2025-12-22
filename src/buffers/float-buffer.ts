@@ -1,4 +1,4 @@
-import {Buffer} from "./buffer";
+import { Buffer } from "./buffer";
 
 export class FloatBuffer extends Buffer {
   private readonly width: number;
@@ -10,7 +10,7 @@ export class FloatBuffer extends Buffer {
     gl: WebGL2RenderingContext,
     data: number[] | Float32Array,
     width: number,
-    mode: number = gl.STATIC_DRAW
+    mode: number = gl.STATIC_DRAW,
   ) {
     super(gl);
 
@@ -26,7 +26,14 @@ export class FloatBuffer extends Buffer {
     const stride = 0;
     const offset = 0;
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
-    this.gl.vertexAttribPointer(attributeLocation, this.width, type, normalize, stride, offset);
+    this.gl.vertexAttribPointer(
+      attributeLocation,
+      this.width,
+      type,
+      normalize,
+      stride,
+      offset,
+    );
     this.gl.enableVertexAttribArray(attributeLocation);
   }
 
@@ -39,7 +46,10 @@ export class FloatBuffer extends Buffer {
   }
 
   public getBytes() {
-    return this.gl.getBufferParameter(this.gl.ARRAY_BUFFER, this.gl.BUFFER_SIZE) as number;
+    return this.gl.getBufferParameter(
+      this.gl.ARRAY_BUFFER,
+      this.gl.BUFFER_SIZE,
+    ) as number;
   }
 
   public getLength() {

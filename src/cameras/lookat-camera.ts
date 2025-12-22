@@ -1,6 +1,6 @@
-import {vector3, Vector3} from "../types/index";
-import {mat4} from "gl-matrix";
-import {Camera} from "./camera";
+import { vector3, Vector3 } from "../types/index";
+import { mat4 } from "gl-matrix";
+import { Camera } from "./camera";
 
 export class LookAtCamera extends Camera {
   private position: vector3;
@@ -47,7 +47,7 @@ export class LookAtCamera extends Camera {
   }
 
   public getViewMatrix() {
-    const {position, forward} = this;
+    const { position, forward } = this;
     const right = Vector3.normalize(Vector3.cross(forward, this.up));
     const up = Vector3.normalize(Vector3.cross(forward, right));
 

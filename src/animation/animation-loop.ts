@@ -7,7 +7,7 @@ export type timestamp = {
 
   /** time since previous frame in milliseconds */
   deltaT: number;
-}
+};
 
 type RenderCallback = (timestamp: timestamp) => void;
 
@@ -76,7 +76,7 @@ export class AnimationLoop {
   };
 
   public step = () => {
-    if (this.getIsPaused()){
+    if (this.getIsPaused()) {
       const now = performance.now();
       const age = 16;
       const deltaT = 16;
@@ -86,10 +86,10 @@ export class AnimationLoop {
         age,
         deltaT,
       };
-  
+
       this.renderCallback(timestamp);
     }
-  }
+  };
 
   public getIsPaused = () => this.pausedAt !== undefined;
 }

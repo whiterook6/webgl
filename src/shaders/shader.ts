@@ -1,7 +1,9 @@
 export class Shader {
   private readonly gl: WebGL2RenderingContext;
-  private readonly attributeLocations: {[key: string]: number};
-  private readonly uniformLocations: {[key: string]: WebGLUniformLocation | null};
+  private readonly attributeLocations: { [key: string]: number };
+  private readonly uniformLocations: {
+    [key: string]: WebGLUniformLocation | null;
+  };
   private vertexShader?: WebGLShader;
   private fragmentShader?: WebGLShader;
   public program?: WebGLProgram;
@@ -29,13 +31,20 @@ export class Shader {
     this.gl.shaderSource(this.vertexShader, source);
     this.gl.compileShader(this.vertexShader);
 
-    const compileStatus = this.gl.getShaderParameter(this.vertexShader, this.gl.COMPILE_STATUS);
+    const compileStatus = this.gl.getShaderParameter(
+      this.vertexShader,
+      this.gl.COMPILE_STATUS,
+    );
     if (!compileStatus) {
-      console.error(this.gl.getShaderInfoLog(this.vertexShader));
-
+      const infoLog = this.gl.getShaderInfoLog(this.vertexShader);
       this.gl.deleteShader(this.vertexShader);
       this.vertexShader = undefined;
-      throw new Error("Cannot compile vertex source");
+
+      if (infoLog) {
+        throw new Error(`Cannot compile vertex source: ${infoLog}`);
+      } else {
+        throw new Error("Cannot compile vertex source");
+      }
     }
 
     return this;
@@ -57,13 +66,20 @@ export class Shader {
     this.gl.shaderSource(this.fragmentShader, source);
     this.gl.compileShader(this.fragmentShader);
 
-    const compileStatus = this.gl.getShaderParameter(this.fragmentShader, this.gl.COMPILE_STATUS);
+    const compileStatus = this.gl.getShaderParameter(
+      this.fragmentShader,
+      this.gl.COMPILE_STATUS,
+    );
     if (!compileStatus) {
-      console.error(this.gl.getShaderInfoLog(this.fragmentShader));
-
+      const infoLog = this.gl.getShaderInfoLog(this.fragmentShader);
       this.gl.deleteShader(this.fragmentShader);
       this.fragmentShader = undefined;
-      throw new Error("Cannot compile fragment source");
+
+      if (infoLog) {
+        throw new Error(`Cannot compile fragment source: ${infoLog}`);
+      } else {
+        throw new Error("Cannot compile fragment source");
+      }
     }
 
     return this;
@@ -81,9 +97,13 @@ export class Shader {
     if (this.program) {
       throw new Error("This shader has already been linked.");
     } else if (!this.vertexShader) {
-      throw new Error("Vertex Shader not yet compiled. Add a vertex shader first.");
+      throw new Error(
+        "Vertex Shader not yet compiled. Add a vertex shader first.",
+      );
     } else if (!this.fragmentShader) {
-      throw new Error("Fragment Shader not yet compiled. Add a fragment shader first.");
+      throw new Error(
+        "Fragment Shader not yet compiled. Add a fragment shader first.",
+      );
     }
 
     const program = this.gl.createProgram();
@@ -95,15 +115,18 @@ export class Shader {
     this.gl.attachShader(program, this.fragmentShader);
     this.gl.linkProgram(program);
 
-    const linkStatus: GLboolean = this.gl.getProgramParameter(program, this.gl.LINK_STATUS);
+    const linkStatus: GLboolean = this.gl.getProgramParameter(
+      program,
+      this.gl.LINK_STATUS,
+    );
     if (!linkStatus) {
-      try {
-        this.gl.deleteProgram(program);
-      } catch (error) {
-        console.error(error);
+      const infoLog = this.gl.getProgramInfoLog(program);
+      this.gl.deleteProgram(program);
+      if (infoLog) {
+        throw new Error(`Cannot link shader program: ${infoLog}`);
+      } else {
+        throw new Error("Cannot link shader program");
       }
-
-      throw new Error("Cannot compile shader program");
     }
 
     this.program = program;
@@ -143,14 +166,18 @@ export class Shader {
    */
   public getAttributeLocation(attribute: string) {
     if (!this.program) {
-      throw new Error(`Cannot get attribute location for "${attribute}". Link this shader first.`);
+      throw new Error(
+        `Cannot get attribute location for "${attribute}". Link this shader first.`,
+      );
     }
 
-    if (!this.attributeLocations.hasOwnProperty(attribute)) {
+    if (!Object.hasOwn(this.attributeLocations, attribute)) {
       const attr = this.gl.getAttribLocation(this.program, attribute);
 
       if (attr === -1) {
-        throw new Error(`Cannot get attribute location for "${attribute}". Check spelling.`);
+        throw new Error(
+          `Cannot get attribute location for "${attribute}". Check spelling.`,
+        );
       }
 
       this.attributeLocations[attribute] = attr;
@@ -167,14 +194,18 @@ export class Shader {
    */
   public getUniformLocation(uniform: string) {
     if (!this.program) {
-      throw new Error(`Cannot get attribute location for "${uniform}". Link this shader first.`);
+      throw new Error(
+        `Cannot get attribute location for "${uniform}". Link this shader first.`,
+      );
     }
 
-    if (!this.uniformLocations.hasOwnProperty(uniform)) {
+    if (!Object.hasOwn(this.uniformLocations, uniform)) {
       const uni = this.gl.getUniformLocation(this.program, uniform);
 
       if (uni === null) {
-        throw new Error(`Cannot get uniform location for "${uniform}". Check spelling.`);
+        throw new Error(
+          `Cannot get uniform location for "${uniform}". Check spelling.`,
+        );
       }
 
       this.uniformLocations[uniform] = uni;
@@ -189,29 +220,17 @@ export class Shader {
    */
   public destroy() {
     if (this.vertexShader) {
-      try {
-        this.gl.deleteShader(this.vertexShader);
-      } catch (error) {
-        console.error(error);
-      }
+      this.gl.deleteShader(this.vertexShader);
       this.vertexShader = undefined;
     }
 
-    if (this.fragmentShader) {
-      try {
-        this.gl.deleteShader(this.fragmentShader);
-      } catch (error) {
-        console.error(error);
-      }
+    if (this.fragmentShader !== undefined) {
+      this.gl.deleteShader(this.fragmentShader);
       this.fragmentShader = undefined;
     }
 
-    if (this.program) {
-      try {
-        this.gl.deleteProgram(this.program);
-      } catch (error) {
-        console.error(error);
-      }
+    if (this.program !== undefined) {
+      this.gl.deleteProgram(this.program);
       this.program = undefined;
     }
   }

@@ -1,7 +1,7 @@
-import {mat4} from "gl-matrix";
-import {IndexBuffer, Vector3Buffer} from "../buffers/index";
-import {Shader} from "../shaders/shader";
-import {Color, vector3} from "../types/index";
+import { mat4 } from "gl-matrix";
+import { IndexBuffer, Vector3Buffer } from "../buffers/index";
+import { Shader } from "../shaders/shader";
+import { Color, vector3 } from "../types/index";
 
 export class Sphere {
   private readonly gl: WebGL2RenderingContext;
@@ -50,7 +50,7 @@ void main(void) {
 
   highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
   vLighting = ambientLight + (directionalLightColor * directional);
-}`
+}`,
       )
       .addFragmentSource(
         `
@@ -61,7 +61,7 @@ uniform vec4 color;
 
 void main(void) {
   gl_FragColor = vec4(color.rgb * vLighting, 1.0);
-}`
+}`,
       )
       .link();
 
@@ -124,18 +124,22 @@ void main(void) {
     this.indexBuffer = new IndexBuffer(gl, indices);
 
     this.gl.useProgram(this.shader.getProgram());
-    this.vertexPositionAttribute = this.shader.getAttributeLocation("vertexPosition");
-    this.vertexNormalAttribute = this.shader.getAttributeLocation("vertexNormal");
+    this.vertexPositionAttribute =
+      this.shader.getAttributeLocation("vertexPosition");
+    this.vertexNormalAttribute =
+      this.shader.getAttributeLocation("vertexNormal");
     this.normalMatrixUniform = this.shader.getUniformLocation(
-      "normalMatrix"
+      "normalMatrix",
     ) as WebGLUniformLocation;
     this.modelViewMatrixUniform = this.shader.getUniformLocation(
-      "modelViewMatrix"
+      "modelViewMatrix",
     ) as WebGLUniformLocation;
     this.projectionMatrixUniform = this.shader.getUniformLocation(
-      "projectionmatrix"
+      "projectionmatrix",
     ) as WebGLUniformLocation;
-    this.colorUniform = this.shader.getUniformLocation("color") as WebGLUniformLocation;
+    this.colorUniform = this.shader.getUniformLocation(
+      "color",
+    ) as WebGLUniformLocation;
   }
 
   public render(modelMatrix: mat4, viewMatrix: mat4, projectionMatrix: mat4) {
@@ -151,8 +155,16 @@ void main(void) {
     mat4.transpose(normalMatrix, normalMatrix);
 
     this.shader.useProgram();
-    this.gl.uniformMatrix4fv(this.projectionMatrixUniform, false, projectionMatrix);
-    this.gl.uniformMatrix4fv(this.modelViewMatrixUniform, false, modelViewMatrix);
+    this.gl.uniformMatrix4fv(
+      this.projectionMatrixUniform,
+      false,
+      projectionMatrix,
+    );
+    this.gl.uniformMatrix4fv(
+      this.modelViewMatrixUniform,
+      false,
+      modelViewMatrix,
+    );
     this.gl.uniformMatrix4fv(this.normalMatrixUniform, false, normalMatrix);
     this.gl.uniform4fv(this.colorUniform, Color.fromHex("#e74c3c"));
 

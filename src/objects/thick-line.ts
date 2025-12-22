@@ -1,7 +1,7 @@
-import {mat4, vec3} from "gl-matrix";
-import {IndexBuffer, Vector3Buffer} from "../buffers/index";
-import {Shader} from "../shaders/shader";
-import {color4, vector3} from "../types/index";
+import { mat4 } from "gl-matrix";
+import { IndexBuffer, Vector3Buffer } from "../buffers/index";
+import { Shader } from "../shaders/shader";
+import { color4, vector3 } from "../types/index";
 
 export class ThickLine {
   private static modelViewMatrix: mat4;
@@ -33,7 +33,7 @@ varying float u;
 void main(void) {
     gl_Position = uProjectionMatrix * uModelViewMatrix * vertexPosition;
     u = vertexPosition.x;
-}`
+}`,
         )
         .addFragmentSource(
           `precision lowp float;
@@ -43,15 +43,16 @@ varying float u;
 
 void main(void) {
   gl_FragColor = startColor * (1.0 - u) + endColor * u;
-}`
+}`,
         )
         .link();
-      ThickLine.vertexPositionAttribute = ThickLine.program.getAttributeLocation("vertexPosition");
+      ThickLine.vertexPositionAttribute =
+        ThickLine.program.getAttributeLocation("vertexPosition");
       ThickLine.startColorUniform = ThickLine.program.getUniformLocation(
-        "startColor"
+        "startColor",
       ) as WebGLUniformLocation;
       ThickLine.endColorUniform = ThickLine.program.getUniformLocation(
-        "endColor"
+        "endColor",
       ) as WebGLUniformLocation;
 
       ThickLine.indexBuffer = new IndexBuffer(gl, [0, 1, 2, 3]);
@@ -63,13 +64,13 @@ void main(void) {
           [1, 1, 0],
           [0, 1, 0],
         ],
-        gl.STATIC_DRAW
+        gl.STATIC_DRAW,
       );
       ThickLine.modelViewMatrixUniform = ThickLine.program.getUniformLocation(
-        "uModelViewMatrix"
+        "uModelViewMatrix",
       ) as WebGLUniformLocation;
       ThickLine.projectionMatrixUniform = ThickLine.program.getUniformLocation(
-        "uProjectionMatrix"
+        "uProjectionMatrix",
       ) as WebGLUniformLocation;
       ThickLine.modelViewMatrix = mat4.create();
     }
@@ -83,25 +84,46 @@ void main(void) {
     length: number,
     thickness: number,
     startColor: color4,
-    endColor: color4
+    endColor: color4,
   ) {
     mat4.fromZRotation(ThickLine.modelViewMatrix, rotation);
-    mat4.scale(ThickLine.modelViewMatrix, ThickLine.modelViewMatrix, [length, thickness, 1]);
-    mat4.translate(ThickLine.modelViewMatrix, ThickLine.modelViewMatrix, position);
-    mat4.multiply(ThickLine.modelViewMatrix, viewMatrix, ThickLine.modelViewMatrix);
+    mat4.scale(ThickLine.modelViewMatrix, ThickLine.modelViewMatrix, [
+      length,
+      thickness,
+      1,
+    ]);
+    mat4.translate(
+      ThickLine.modelViewMatrix,
+      ThickLine.modelViewMatrix,
+      position,
+    );
+    mat4.multiply(
+      ThickLine.modelViewMatrix,
+      viewMatrix,
+      ThickLine.modelViewMatrix,
+    );
 
     ThickLine.gl.useProgram(ThickLine.program.getProgram());
     ThickLine.gl.uniform4fv(ThickLine.startColorUniform, startColor);
     ThickLine.gl.uniform4fv(ThickLine.endColorUniform, endColor);
-    ThickLine.gl.uniformMatrix4fv(ThickLine.projectionMatrixUniform, false, projectionMatrix);
+    ThickLine.gl.uniformMatrix4fv(
+      ThickLine.projectionMatrixUniform,
+      false,
+      projectionMatrix,
+    );
     ThickLine.gl.uniformMatrix4fv(
       ThickLine.modelViewMatrixUniform,
       false,
-      ThickLine.modelViewMatrix
+      ThickLine.modelViewMatrix,
     );
 
     ThickLine.vertexBuffer.bindToAttribute(ThickLine.vertexPositionAttribute);
     ThickLine.indexBuffer.bindToAttribute();
-    ThickLine.gl.drawElements(ThickLine.gl.TRIANGLE_FAN, 4, ThickLine.gl.UNSIGNED_SHORT, 0);
+    ThickLine.gl.drawElements(
+      ThickLine.gl.TRIANGLE_FAN,
+      4,
+      ThickLine.gl.UNSIGNED_SHORT,
+      0,
+    );
   }
 }

@@ -1,4 +1,4 @@
-import {Buffer} from "./buffer";
+import { Buffer } from "./buffer";
 
 export class IndexBuffer extends Buffer {
   constructor(gl: WebGL2RenderingContext, data: number[] | Uint16Array) {
@@ -6,7 +6,11 @@ export class IndexBuffer extends Buffer {
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buffer);
     if (Array.isArray(data)) {
-      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(data), gl.STATIC_DRAW);
+      gl.bufferData(
+        gl.ELEMENT_ARRAY_BUFFER,
+        new Uint16Array(data),
+        gl.STATIC_DRAW,
+      );
     } else {
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, gl.STATIC_DRAW);
     }
@@ -21,7 +25,10 @@ export class IndexBuffer extends Buffer {
   }
 
   public getBytes() {
-    return this.gl.getBufferParameter(this.gl.ELEMENT_ARRAY_BUFFER, this.gl.BUFFER_SIZE) as number;
+    return this.gl.getBufferParameter(
+      this.gl.ELEMENT_ARRAY_BUFFER,
+      this.gl.BUFFER_SIZE,
+    ) as number;
   }
 
   public getLength() {

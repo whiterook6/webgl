@@ -1,4 +1,4 @@
-import {epsilon, ray, Ray, vector3, Vector3} from "./index";
+import { epsilon, ray, Ray, vector3, Vector3 } from "./index";
 
 export type plane = {
   origin: vector3;
@@ -56,7 +56,8 @@ export class Plane {
     }
 
     const distance =
-      (Vector3.dot(p.normal, p.origin) - Vector3.dot(p.normal, r.start)) / normalDotDirection;
+      (Vector3.dot(p.normal, p.origin) - Vector3.dot(p.normal, r.start)) /
+      normalDotDirection;
     const traverse = Ray.traverse(r, distance);
     return traverse;
   };

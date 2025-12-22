@@ -1,5 +1,5 @@
-import {color4} from "../types/index";
-import {Bezier} from "./bezier";
+import { color4 } from "../types/index";
+import { Bezier } from "./bezier";
 
 export class Color4Bezier {
   private readonly rCurve: Bezier;
@@ -15,6 +15,11 @@ export class Color4Bezier {
   }
 
   public get = (t: number): color4 => {
-    return [this.rCurve.get(t), this.gCurve.get(t), this.bCurve.get(t), this.aCurve.get(t)];
+    return [
+      this.rCurve.get(t),
+      this.gCurve.get(t),
+      this.bCurve.get(t),
+      this.aCurve.get(t),
+    ];
   };
 }

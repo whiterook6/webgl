@@ -10,14 +10,11 @@ export class Color {
    */
   public static fromHex = (hex: string): color4 => {
     if (hex.length !== 7 && hex.length !== 9) {
-      // includes "#" at start
-      console.warn(`Invalid hex code: ${hex}: invalid length`);
-      return [0, 0, 0, 1];
+      throw new Error(`Invalid hex code: ${hex}: invalid length`);
     }
 
-    if (!/\#[0-9a-fA-F]+/.test(hex)) {
-      console.warn(`Invalid hex code: ${hex}: doesn't match regex`);
-      return [0, 0, 0, 1];
+    if (!/#[0-9a-fA-F]+/.test(hex)) {
+      throw new Error(`Invalid hex code: ${hex}: doesn't match regex`);
     }
 
     if (hex.length === 7) {
@@ -39,9 +36,9 @@ export class Color {
 
   public static createGradient = (colors: [color4, ...color4[]]): Gradient => {
     return (t: number): color4 => {
-      if (colors.length === 1 || t <= 0){
+      if (colors.length === 1 || t <= 0) {
         return colors[0];
-      } else if (t > 1){
+      } else if (t > 1) {
         return colors[colors.length - 1];
       }
 
@@ -50,13 +47,17 @@ export class Color {
       const color2 = colors[index + 1];
       const t2 = (t - index / (colors.length - 1)) * (colors.length - 1);
       return Color.interpolate(color1, color2, t2);
-    }
+    };
   };
 
-  public static interpolate = (color1: color4, color2: color4, t: number): color4 => {
-    if (t < 0){
+  public static interpolate = (
+    color1: color4,
+    color2: color4,
+    t: number,
+  ): color4 => {
+    if (t < 0) {
       return color1;
-    } else if (t > 1){
+    } else if (t > 1) {
       return color2;
     }
 
